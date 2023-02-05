@@ -1,0 +1,121 @@
+main:
+
+	println "----------- Reborn Loader Init -----------"
+
+	local.rebornLoaderPath = getCvar("sv_rebornloader")
+
+	level.REBORN = local CreateListener
+
+	if(level.REBORN != NIL && level.REBORN != NULL) {
+		level.REBORN.__librariesCount = 0
+		level.REBORN.__loadedLibrariesCount = 0;
+
+		// Loading and initializing ScriptLibraries
+		waitthread InitializeRebornLibraries
+
+		local.modConfigFiles = waitthread GetModConfigFiles;
+
+		println("--> "+local.modConfigFiles.size+" mods found")
+		for(local.i = 0; local.i < local.modConfigFiles.size; local.i++ ) {
+			println("--> Loading \""+local.modConfigFiles[local.i]+"\" ...")
+			local.modConfigs[local.i] = waitthread LoadModConfigFile local.modConfigFiles[local.i]
+		}
+
+		level.REBORN.__modConfigs = local.modConfigs
+	}
+	else {
+		println("Reborn Loader ERROR: Could not initialize loader!")
+	}
+
+	println "----------- Reborn Loader Finish -----------"
+
+end
+
+InitializeRebornLibraries:
+	local.libsList = flist "" ".slib" 1
+	local.libNamesCount = 0
+
+	for(local.i = 0; local.i < local.libsList.size; local.i++) {
+		local.libFile = local.libsList[local.i];
+		if(local.libFile == NULL || local.libFile == "" || local.libFile.size < 8 )
+			continue
+
+		local.libInfo = waitexec local.libFile::__libinfo
+		if(local.libInfo == NULL || local.libInfo == NIL || typeof(local.libInfo) != "array")
+			continue
+
+		local.libName = local.libInfo["name"]
+		if(local.libName == NULL || local.libName == NIL || local.libName == "")
+			continue
+
+		if(local.libs[local.libName] != NULL && local.libs[local.libName] != NIL && typeof(local.libs[local.libName]) == "array") {
+			if(local.libs[local.libName]["version"] < local.libInfo["version"]) {
+				local.libs[local.libName] = local.libInfo
+				local.libs[local.libName]["libFile"] = local.libFile
+				local.libs[local.libName]["libLoaded"] = 0
+				local.libNames[local.libNamesCount] = local.libName
+				local.libNamesCount++
+			}
+		}
+		else {
+			local.libs[local.libName] = local.libInfo
+			local.libs[local.libName]["libFile"] = local.libFile
+			local.libs[local.libName]["libLoaded"] = 0
+			local.libNames[local.libNamesCount] = local.libName
+			local.libNamesCount++
+		}
+	}
+
+	for(local.i = 0; local.i < local.libNames.size; local.i++) {
+		if(local.libNames[local.i] != NULL && local.libNames[local.i] != NIL && local.libNames[local.i] != "") {
+			local.libName = local.libNames[local.i]
+			if(local.libs[local.libName] != NULL && local.libs[local.libName] != NIL && local.libs[local.libName]["libLoaded"] == 0) {
+				level.REBORN.getLibrariesList[level.REBORN.__librariesCount] = local.libs[local.libName]["namespace"]
+				level.REBORN.__librariesCount++
+
+				println("--> Loading \""+local.libs[local.libName]["title"]+"\" ("+local.libs[local.libName]["libFile"]+")...")
+				local.libInit = waitexec local.libs[local.libName]["libFile"]::__libinit local.libs[local.libName]["libFile"]
+
+				if(local.libInit != NULL && local.libInit != NIL && typeof(local.libInit) == "array") {
+					local.libs[local.libName]["libLoaded"] = local.libInit["loaded"]
+					level.REBORN.isLibraryLoaded[local.libs[local.libName]["namespace"]] = local.libInit["loaded"]
+					level.REBORN.getLibrary[local.libs[local.libName]["namespace"]] = local.libInit["lib"]
+					level.REBORN.getLibraryInfo[local.libs[local.libName]["namespace"]] = local.libs[local.libName]
+					level.REBORN.getLoadedLibrariesList[level.REBORN.__loadedLibrariesCount] = local.libs[local.libName]["namespace"]
+					level.REBORN.__loadedLibrariesCount++
+				}
+				else {
+					local.libInit["loaded"] = 0
+					level.REBORN.isLibraryLoaded[local.libs[local.libName]["namespace"]] = 0
+					level.REBORN.getLibrary[local.libs[local.libName]["namespace"]] = local.libInit["lib"]
+					level.REBORN.getLibraryInfo[local.libs[local.libName]["namespace"]] = local.libs[local.libName]
+				}
+			}
+		}
+	}
+
+end
+
+GetModConfigFiles:
+
+	local.modConfigFiles = flist "" ".mcfg" 1
+
+end local.modConfigFiles
+
+LoadModConfigFile local.modConfigFile:
+	local.content = freadpak local.modConfigFile
+
+	if(local.content == NULL || local.content == NIL || local.content == "") {
+		println("Reborn Loader WARNING: Could not open \""+local.modConfigFile+"\" mod config file or file is empty - skipping...")
+		end
+	}
+
+	local.content = waitexec level.strings.splitString local.content "\n"
+	waitthread ParseModConfigFile local.modConfig local.content
+
+end local.modConfig
+
+ParseModConfigFile local.modConfig local.content:
+	println("File lines: "+local.content.size)
+	println("TODO: ParseModConfigFile")
+end local.modConfig

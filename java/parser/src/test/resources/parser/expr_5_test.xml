@@ -1,0 +1,62 @@
+<Statement name="statementList">
+    <Statement name="statementLine">
+        <Statement name="statement">
+            <Statement name="expressionStatement">
+                <Expression name="assignmentExpression">
+                    <Expression name="nonIdentifierPrimaryExpression">
+                        <Expression name="memberSelectionExpression">
+                            <Expression name="literalExpression">
+                                <Expression name="listenerLiteral">
+                                    <Token type="TOKEN_LISTENER" value="local"/>
+                                </Expression>
+                            </Expression>
+                            <Token type="TOKEN_PERIOD" value="."/>
+                            <Token type="TOKEN_IDENTIFIER" value="i"/>
+                        </Expression>
+                    </Expression>
+                    <Token type="TOKEN_ASSIGNMENT" value="="/>
+                    <Expression name="expression">
+                        <Expression name="binaryExpression">
+                            <Expression name="additionExpression">
+                                <Expression name="expression">
+                                    <Expression name="nonIdentifierPrimaryExpression">
+                                        <Expression name="unaryNonIdentifierExpression">
+                                            <Expression name="arithmeticNegationNonIdentifierExpression">
+                                                <Token type="TOKEN_NEG" value=" -"/>
+                                                <Expression name="nonIdentifierPrimaryExpression">
+                                                    <Expression name="literalExpression">
+                                                        <Expression name="integerLiteral">
+                                                            <Token type="TOKEN_INTEGER" value="1"/>
+                                                        </Expression>
+                                                    </Expression>
+                                                </Expression>
+                                            </Expression>
+                                        </Expression>
+                                    </Expression>
+                                </Expression>
+                                <Token type="TOKEN_PLUS" value="+"/>
+                                <Expression name="expression">
+                                    <Expression name="nonIdentifierPrimaryExpression">
+                                        <Expression name="unaryNonIdentifierExpression">
+                                            <Expression name="arithmeticNegationNonIdentifierExpression">
+                                                <Token type="TOKEN_NEG" value=" -"/>
+                                                <Expression name="nonIdentifierPrimaryExpression">
+                                                    <Expression name="literalExpression">
+                                                        <Expression name="integerLiteral">
+                                                            <Token type="TOKEN_INTEGER" value="2"/>
+                                                        </Expression>
+                                                    </Expression>
+                                                </Expression>
+                                            </Expression>
+                                        </Expression>
+                                    </Expression>
+                                </Expression>
+                            </Expression>
+                        </Expression>
+                    </Expression>
+                </Expression>
+            </Statement>
+        </Statement>
+        <Token type="TOKEN_EOL" value="\n"/>
+    </Statement>
+</Statement>

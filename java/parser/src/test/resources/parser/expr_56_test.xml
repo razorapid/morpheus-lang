@@ -1,0 +1,60 @@
+<Statement name="statementList">
+    <Statement name="statementLine">
+        <Statement name="statement">
+            <Statement name="expressionStatement">
+                <Expression name="assignmentExpression">
+                    <Expression name="nonIdentifierPrimaryExpression">
+                        <Expression name="memberSelectionExpression">
+                            <Expression name="literalExpression">
+                                <Expression name="listenerLiteral">
+                                    <Token type="TOKEN_LISTENER" value="local"/>
+                                </Expression>
+                            </Expression>
+                            <Token type="TOKEN_PERIOD" value="."/>
+                            <Token type="TOKEN_IDENTIFIER" value="x"/>
+                        </Expression>
+                    </Expression>
+                    <Token type="TOKEN_ASSIGNMENT" value="="/>
+                    <Expression name="expression">
+                        <Expression name="makeArrayExpression">
+                            <Token type="TOKEN_MAKEARRAY" value="makeArray"/>
+                            <Token type="TOKEN_EOL" value="\n"/>
+                            <Expression name="makeArrayRowExpression">
+                                <Expression name="primaryExpression">
+                                    <Expression name="nonIdentifierPrimaryExpression">
+                                        <Expression name="literalExpression">
+                                            <Expression name="integerLiteral">
+                                                <Token type="TOKEN_INTEGER" value="10"/>
+                                            </Expression>
+                                        </Expression>
+                                    </Expression>
+                                </Expression>
+                                <Expression name="primaryExpression">
+                                    <Expression name="nonIdentifierPrimaryExpression">
+                                        <Expression name="literalExpression">
+                                            <Expression name="integerLiteral">
+                                                <Token type="TOKEN_INTEGER" value="20"/>
+                                            </Expression>
+                                        </Expression>
+                                    </Expression>
+                                </Expression>
+                                <Expression name="primaryExpression">
+                                    <Expression name="nonIdentifierPrimaryExpression">
+                                        <Expression name="literalExpression">
+                                            <Expression name="integerLiteral">
+                                                <Token type="TOKEN_INTEGER" value="30"/>
+                                            </Expression>
+                                        </Expression>
+                                    </Expression>
+                                </Expression>
+                                <Token type="TOKEN_EOL" value="\n"/>
+                            </Expression>
+                            <Token type="TOKEN_ENDARRAY" value="endArray"/>
+                        </Expression>
+                    </Expression>
+                </Expression>
+            </Statement>
+        </Statement>
+        <Token type="TOKEN_EOL" value="\n"/>
+    </Statement>
+</Statement>

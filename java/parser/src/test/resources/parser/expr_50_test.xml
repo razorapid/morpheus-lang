@@ -1,0 +1,41 @@
+<Statement name="statementList">
+    <Statement name="statementLine">
+        <Statement name="statement">
+            <Statement name="expressionStatement">
+                <Expression name="assignmentExpression">
+                    <Expression name="nonIdentifierPrimaryExpression">
+                        <Expression name="memberSelectionExpression">
+                            <Expression name="literalExpression">
+                                <Expression name="listenerLiteral">
+                                    <Token type="TOKEN_LISTENER" value="local"/>
+                                </Expression>
+                            </Expression>
+                            <Token type="TOKEN_PERIOD" value="."/>
+                            <Token type="TOKEN_IDENTIFIER" value="i"/>
+                        </Expression>
+                    </Expression>
+                    <Token type="TOKEN_ASSIGNMENT" value="="/>
+                    <Expression name="expression">
+                        <Expression name="nonIdentifierPrimaryExpression">
+                            <Expression name="memberSelectionExpression">
+                                <Expression name="targetnameExpression">
+                                    <Token type="TOKEN_DOLLAR" value="$"/>
+                                    <Expression name="primaryExpression">
+                                        <Expression name="identifierPrimaryExpression">
+                                            <Expression name="identifierLiteral">
+                                                <Token type="TOKEN_IDENTIFIER" value="players"/>
+                                            </Expression>
+                                        </Expression>
+                                    </Expression>
+                                </Expression>
+                                <Token type="TOKEN_PERIOD" value="."/>
+                                <Token type="TOKEN_SIZE" value="size"/>
+                            </Expression>
+                        </Expression>
+                    </Expression>
+                </Expression>
+            </Statement>
+        </Statement>
+        <Token type="TOKEN_EOL" value="\n"/>
+    </Statement>
+</Statement>

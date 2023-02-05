@@ -1,0 +1,13 @@
+
+//Get Player by Client Number
+//Example for Client 4 : local.player = waitexec level.players.getPlayerByClientNum 3
+//Then test to see if local.player exists.	if(local.player)
+GetPlayerByClientNum local.id:
+
+	local.return = 0
+	for ( local.i = 1; local.i <= $player.size; local.i++ )
+		if(getclientnum $player[local.i] == local.id)
+			end $player[local.i]
+
+end local.return
+

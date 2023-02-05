@@ -1,0 +1,19 @@
+<Statement name="statementList">
+    <Statement name="statementLine">
+        <Statement name="statement">
+            <Statement name="expressionStatement">
+                <Expression name="decrementExpression">
+                    <Expression name="nonIdentifierPrimaryExpression">
+                        <Expression name="literalExpression">
+                            <Expression name="nullLiteral">
+                                <Token type="TOKEN_NULL" value="NULL"/>
+                            </Expression>
+                        </Expression>
+                    </Expression>
+                    <Token type="TOKEN_DEC" value="--"/>
+                </Expression>
+            </Statement>
+        </Statement>
+        <Token type="TOKEN_EOL" value="\n"/>
+    </Statement>
+</Statement>

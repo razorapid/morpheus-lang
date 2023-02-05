@@ -1,0 +1,44 @@
+<Statement name="statementList">
+    <Statement name="statementLine">
+        <Statement name="statement">
+            <Statement name="expressionStatement">
+                <Expression name="listenerFunctionCallExpression">
+                    <Expression name="nonIdentifierPrimaryExpression">
+                        <Expression name="memberSelectionExpression">
+                            <Expression name="literalExpression">
+                                <Expression name="listenerLiteral">
+                                    <Token type="TOKEN_LISTENER" value="local"/>
+                                </Expression>
+                            </Expression>
+                            <Token type="TOKEN_PERIOD" value="."/>
+                            <Token type="TOKEN_IDENTIFIER" value="actor"/>
+                        </Expression>
+                    </Expression>
+                    <Token type="TOKEN_IDENTIFIER" value="moveto"/>
+                    <Expression name="eventParameterList">
+                        <Expression name="primaryExpression">
+                            <Expression name="nonIdentifierPrimaryExpression">
+                                <Expression name="literalExpression">
+                                    <Expression name="stringLiteral">
+                                        <Token type="TOKEN_STRING"
+                                               value="&quot;anim/my_animation&quot;"/>
+                                    </Expression>
+                                </Expression>
+                            </Expression>
+                        </Expression>
+                        <Expression name="primaryExpression">
+                            <Expression name="nonIdentifierPrimaryExpression">
+                                <Expression name="literalExpression">
+                                    <Expression name="stringLiteral">
+                                        <Token type="TOKEN_STRING" value="&quot;there&quot;"/>
+                                    </Expression>
+                                </Expression>
+                            </Expression>
+                        </Expression>
+                    </Expression>
+                </Expression>
+            </Statement>
+        </Statement>
+        <Token type="TOKEN_EOL" value="\n"/>
+    </Statement>
+</Statement>

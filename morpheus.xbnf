@@ -1,0 +1,354 @@
+grammar morpheus;
+
+/* BNF syntax
+   It's based on an ANTLR4 grammar but it won't parse as one
+
+   SNAKE_CASE - token definition
+   camelCase - production rule definition
+
+    * - zero or more
+    ? - optional (zero or one)
+    + - at least one
+    () - grouping
+    | - or (alternative)
+    # - rule name annotation
+*/
+
+/* Operator precedence table
+
+    | NAME                    | OPERATOR       | TYPE           | ASSOCIATIVITY | PRECEDENCE LEVEL
+    | ASSIGNMENT              | '='            | BINARY         | RIGHT         | 1
+    | ADDITION ASSIGNMENT     | '+='           | BINARY         | RIGHT         | 1
+    | SUBTRACTION ASSIGNMENT  | '-='           | BINARY         | RIGHT         | 1
+    | LOGICAL OR              | '||'           | BINARY         | LEFT          | 2
+    | LOGICAL AND             | '&&'           | BINARY         | LEFT          | 3
+    | BITWISE OR              | '|'            | BINARY         | LEFT          | 4
+    | BITWISE XOR             | '^'            | BINARY         | LEFT          | 5
+    | BITWISE AND             | '&'            | BINARY         | LEFT          | 6
+    | EQUALITY                | '=='           | BINARY         | LEFT          | 7
+    | INEQUALITY              | '!='           | BINARY         | LEFT          | 7
+    | LESS THAN               | '<'            | BINARY         | LEFT          | 8
+    | LESS THAN OR EQUAL      | '<='           | BINARY         | LEFT          | 8
+    | GREATER THAN            | '>'            | BINARY         | LEFT          | 8
+    | GREATER THAN OR EQUAL   | '>='           | BINARY         | LEFT          | 8
+    | ADDITION                | '+'            | BINARY         | LEFT          | 9
+    | SUBTRACTION             | '-'            | BINARY         | LEFT          | 9
+    | MULTIPLICATION          | '*'            | BINARY         | LEFT          | 10
+    | DIVISION                | '/'            | BINARY         | LEFT          | 10
+    | MODULO                  | '%'            | BINARY         | LEFT          | 10
+    | ARITHMETIC NEGATION     | ' -'           | UNARY (prefix) | RIGHT         | 11
+    | BITWISE COMPLEMENT      | '~'            | UNARY (prefix) | RIGHT         | 11
+    | LOGICAL NEGATION        | '!'            | UNARY (prefix) | RIGHT         | 11
+    | CONST ARRAY             | '::'           | BINARY         | LEFT          | 11
+    | GROUPING                | '( )'          | UNARY (prefix) | LEFT          | 12
+    | SUBSCRIPT               | '[ ]'          | UNARY (postfix)| LEFT          | 12
+    | MEMBER SELECTION        | '.'            | BINARY         | LEFT          | 12
+    | TARGETNAME              | '$'            | UNARY (prefix) | RIGHT         | 13
+    | THREAD FUNCTION CALL    | '<identifier>' | UNARY (prefix) | RIGHT         | 14
+    | LISTENER FUNCTION CALL  | '<identifier>' | BINARY         | LEFT          | 14
+
+*/
+
+/*
+    - Grammar is left recursive, it is not left-factored
+    - Operator precedence is not reflected in production rules fully and this is by design.
+      Refer to operator precedence table for implementation.
+    - Grammar is ambiguous:
+        - identifiers are evaluated to strings in certain contextes, for example in primary identifier expression
+          (so identifier used for example as function call arguments or targetname operator identifiers etc.)
+*/
+
+fragment COLON: ':';
+fragment SEMICOLON: ';';
+fragment SIMPLE_ESCAPE_SEQUENCE
+ : '\\' ['"?abfnrtv\\]
+ ;
+fragment ESCAPE_SEQUENCE
+  :   SIMPLE_ESCAPE_SEQUENCE
+  ;
+fragment S_CHAR
+    :   ~["\\\r\n]
+    |   ESCAPE_SEQUENCE
+    |   '\\\n'   // Added line
+    |   '\\\r\n' // Added line
+    ;
+fragment S_CHAR_SEQUENCE: S_CHAR+;
+fragment DIGIT: [0-9];
+fragment LETTER: [a-zA-Z];
+
+WHITESPACE: [ \t]+ -> skip;
+NEW_LINE: ('\r' '\n'? | '\n') -> skip;
+LINE_COMMENT: '//' ~[\r\n]* -> skip;
+BLOCK_COMMENT: '/*' .*? '*/' -> skip;
+
+TOKEN_SCRIPT:; // Initial, artifical (not representing any text) marker token. Used to mark beginning of the script token stream
+TOKEN_EOL:; // End-of-line token. Represent one or more newlines (more than one are ignored) at the end of the statement
+
+TOKEN_CASE: 'case';
+TOKEN_IF: 'if';
+TOKEN_ELSE: 'else';
+TOKEN_WHILE: 'while';
+TOKEN_FOR: 'for';
+TOKEN_TRY: 'try';
+TOKEN_CATCH: 'catch';
+TOKEN_SWITCH: 'switch';
+
+TOKEN_BREAK: 'break';
+TOKEN_CONTINUE: 'continue';
+
+TOKEN_DOUBLE_COLON: COLON COLON;
+
+TOKEN_ASSIGNMENT: '=';
+TOKEN_PLUS_EQUALS: '+=';
+TOKEN_MINUS_EQUALS: '-=';
+TOKEN_INC: '++';
+TOKEN_DEC: '--';
+
+TOKEN_EQUALITY: '==';
+TOKEN_INEQUALITY: '!=';
+TOKEN_LESS_THAN_OR_EQUAL: '<=';
+TOKEN_LESS_THAN: '<';
+TOKEN_GREATER_THAN_OR_EQUAL: '>=';
+TOKEN_GREATER_THAN: '>';
+
+TOKEN_LOGICAL_AND: '&&';
+TOKEN_LOGICAL_OR: '||';
+
+TOKEN_BITWISE_AND: '&';
+TOKEN_BITWISE_EXCL_OR: '^';
+TOKEN_BITWISE_OR: '|';
+
+TOKEN_LEFT_BRACKET: '(';
+TOKEN_RIGHT_BRACKET: ')';
+TOKEN_LEFT_SQUARE_BRACKET: '[';
+TOKEN_RIGHT_SQUARE_BRACKET: ']';
+TOKEN_LEFT_BRACES: '{';
+TOKEN_RIGHT_BRACES: '}';
+TOKEN_DOLLAR: '$';
+TOKEN_PERIOD: '.';
+TOKEN_MINUS: '-';
+TOKEN_NEG: ' -';
+TOKEN_COMPLEMENT: '~';
+TOKEN_NOT: '!';
+TOKEN_PERCENTAGE: '%';
+TOKEN_DIVIDE: '/';
+TOKEN_MULTIPLY: '*';
+TOKEN_PLUS: '+';
+TOKEN_POS: ' +';
+TOKEN_NULL: 'NULL';
+TOKEN_NIL: 'NIL';
+TOKEN_LISTENER
+  : 'game'
+  | 'level'
+  | 'local'
+  | 'parm'
+  | 'self'
+  | 'group'
+  ;
+TOKEN_SIZE: 'size';
+
+TOKEN_STRING: '"' S_CHAR_SEQUENCE? '"';
+TOKEN_INTEGER: [0-9]+;
+TOKEN_FLOAT
+ : [0-9]+ '.' [0-9]*
+ | '.' [0-9]+
+ ;
+
+// Below definition in not complete, refer to implementation to infer tokenization rules for identifiers
+TOKEN_IDENTIFIER: (LETTER | DIGIT | ["#',?@_`])+;
+
+TOKEN_COLON: COLON;
+TOKEN_SEMICOLON: SEMICOLON;
+
+TOKEN_MAKEARRAY: 'makearray' | 'makeArray';
+TOKEN_ENDARRAY: 'endarray' | 'endArray';
+TOKEN_END: 'end';
+
+
+
+program: TOKEN_SCRIPT statementList EOF;
+statementList: statementLine*;
+statementLine: statement TOKEN_EOL;
+statement
+ : compoundStatement
+ | labelStatement
+ | selectionStatement
+ | iterationStatement
+ | tryCatchStatement
+ | breakStatement
+ | continueStatement
+ | noopStatement
+ | expressionStatement
+ ;
+
+compoundStatement
+ : TOKEN_LEFT_BRACES statementList TOKEN_RIGHT_BRACES;
+
+labelStatement
+ : TOKEN_IDENTIFIER eventParameterList TOKEN_COLON #threadLabelStatement
+ | TOKEN_CASE (TOKEN_IDENTIFIER | TOKEN_STRING | TOKEN_INTEGER) eventParameterList TOKEN_COLON #switchCaseLabelStatement
+ ;
+
+selectionStatement
+ : TOKEN_IF primaryExpression statement (TOKEN_ELSE statement)? #ifElseStatement
+ | TOKEN_SWITCH primaryExpression compoundStatement #switchStatement
+ ;
+
+iterationStatement
+ : TOKEN_WHILE primaryExpression statement #whileStatement
+ | TOKEN_FOR TOKEN_LEFT_BRACKET statement TOKEN_SEMICOLON expression TOKEN_SEMICOLON statementList TOKEN_RIGHT_BRACKET statement #forStatement
+ ;
+
+tryCatchStatement
+ : TOKEN_TRY compoundStatement TOKEN_CATCH compoundStatement;
+
+breakStatement
+ : TOKEN_BREAK;
+
+continueStatement
+ : TOKEN_CONTINUE;
+
+noopStatement
+ : TOKEN_SEMICOLON;
+
+expressionStatement
+ : threadFunctionCallExpression
+ | listenerFunctionCallExpression
+ | assignmentExpression
+ | incrementOrDecrementExpression
+ ;
+
+threadFunctionCallExpression
+ : TOKEN_IDENTIFIER eventParameterList;
+
+listenerFunctionCallExpression
+ : nonIdentifierPrimaryExpression TOKEN_IDENTIFIER eventParameterList;
+
+assignmentExpression
+ : nonIdentifierPrimaryExpression (TOKEN_ASSIGNMENT | TOKEN_PLUS_EQUALS | TOKEN_MINUS_EQUALS ) expression;
+
+incrementOrDecrementExpression // transient rule
+ : nonIdentifierPrimaryExpression TOKEN_INC #incrementExpression
+ | nonIdentifierPrimaryExpression TOKEN_DEC #decrementExpression
+ ;
+
+primaryExpression
+ : identifierPrimaryExpression
+ | nonIdentifierPrimaryExpression
+ | primaryExpression TOKEN_DOUBLE_COLON primaryExpression //constArrayExpression
+ ;
+
+constArrayExpression
+ : (identifierPrimaryExpression | nonIdentifierPrimaryExpression) TOKEN_DOUBLE_COLON constArrayExpression;
+
+identifierPrimaryExpression
+ : TOKEN_IDENTIFIER #identifierLiteral;
+
+nonIdentifierPrimaryExpression
+ : literalExpression
+ | vectorDeclarationExpression
+ | groupingExpression
+ | targetnameExpression
+ | unaryNonIdentifierExpression
+ | memberSelectionExpression // left recursion
+ | subscriptExpression // left recursion
+ ;
+
+literalExpression
+ : TOKEN_NULL #nullLiteral
+ | TOKEN_NIL #nilLiteral
+ | TOKEN_LISTENER #listenerLiteral
+ | TOKEN_STRING #stringLiteral
+ | TOKEN_INTEGER #integerLiteral
+ | TOKEN_FLOAT #floatLiteral
+ ;
+
+vectorDeclarationExpression
+ : TOKEN_LEFT_BRACKET scalarComponent scalarComponent scalarComponent TOKEN_RIGHT_BRACKET;
+
+groupingExpression
+ : TOKEN_LEFT_BRACKET expression TOKEN_RIGHT_BRACKET;
+
+targetnameExpression
+ : TOKEN_DOLLAR primaryExpression;
+
+unaryNonIdentifierExpression
+ : TOKEN_NEG nonIdentifierPrimaryExpression #arithmeticNegationNonIdentifierExpression
+ | TOKEN_COMPLEMENT nonIdentifierPrimaryExpression #bitwiseComplementNonIdentifierExpression
+ | TOKEN_NOT nonIdentifierPrimaryExpression #logicalNegationNonIdentifierExpression
+ ;
+
+memberSelectionExpression
+ : nonIdentifierPrimaryExpression TOKEN_PERIOD (TOKEN_SIZE | TOKEN_IDENTIFIER | TOKEN_STRING);
+
+subscriptExpression
+ : nonIdentifierPrimaryExpression TOKEN_LEFT_SQUARE_BRACKET expression TOKEN_RIGHT_SQUARE_BRACKET;
+
+scalarComponent
+ : identifierScalarComponentExpression
+ | nonIdentifierScalarComponentExpression
+ ;
+
+identifierScalarComponentExpression
+ : TOKEN_IDENTIFIER #identifierLiteral;
+
+nonIdentifierScalarComponentExpression
+ : literalExpression
+ | vectorDeclarationExpression
+ | groupingExpression
+ | targetnameScalarComponentExpression
+ | unaryNonIdentifierExpression
+ | memberSelectionExpression // left recursion
+ | subscriptExpression // left recursion
+ ;
+
+targetnameScalarComponentExpression
+ : TOKEN_DOLLAR scalarComponent;
+
+eventParameterList
+ : primaryExpression*;
+
+expression
+ : functionPrimaryExpression
+ | nonIdentifierPrimaryExpression
+ | makeArrayExpression // TODO
+ | binaryExpression // left recursion
+ ;
+
+functionPrimaryExpression
+ : threadFunctionCallExpression
+ | listenerFunctionCallExpression
+ | constArrayExpression
+ | unaryFunctionPrimaryExpression
+ ;
+
+unaryFunctionPrimaryExpression
+ : TOKEN_NEG functionPrimaryExpression #arithmeticNegationFunctionExpression
+ | TOKEN_COMPLEMENT functionPrimaryExpression #bitwiseCompletionFunctionExpression
+ | TOKEN_NOT functionPrimaryExpression #logicalNegationFunctionExpression
+ ;
+
+makeArrayExpression
+ : TOKEN_MAKEARRAY TOKEN_EOL makeArrayRowExpression* TOKEN_ENDARRAY;
+
+makeArrayRowExpression
+ : primaryExpression* TOKEN_EOL;
+
+binaryExpression
+ : expression TOKEN_LOGICAL_AND expression #logicalAndExpression
+ | expression TOKEN_LOGICAL_OR expression #logicalOrExpression
+ | expression TOKEN_BITWISE_AND expression #bitwiseAndExpression
+ | expression TOKEN_BITWISE_OR expression #bitwiseOrExpression
+ | expression TOKEN_BITWISE_EXCL_OR expression #bitwiseXorExpression
+ | expression TOKEN_EQUALITY expression #equalityExpression
+ | expression TOKEN_INEQUALITY expression #inequalityExpression
+ | expression TOKEN_LESS_THAN expression #lessThanExpression
+ | expression TOKEN_LESS_THAN_OR_EQUAL expression #lessThanOrEqualExpression
+ | expression TOKEN_GREATER_THAN expression #greaterThanExpression
+ | expression TOKEN_GREATER_THAN_OR_EQUAL expression #greaterOrEqualExpression
+ | expression TOKEN_PLUS expression #additionExpression
+ | expression TOKEN_MINUS expression #subtractionExpression
+ | expression TOKEN_MULTIPLY expression #multiplicationExpression
+ | expression TOKEN_DIVIDE expression #divisionExpression
+ | expression TOKEN_PERCENTAGE expression #moduloDivisionExpression
+ ;

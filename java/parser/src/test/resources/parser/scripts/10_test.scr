@@ -1,0 +1,6 @@
+local.value = "asome value"
+switch (local.value) {
+    case 0: println "case 0"; break;
+    case "some value": println "matched"; break;
+    default: println "didn't match anything";
+}

@@ -1,0 +1,45 @@
+<Statement name="statementList">
+    <Statement name="statementLine">
+        <Statement name="statement">
+            <Statement name="expressionStatement">
+                <Expression name="incrementExpression">
+                    <Expression name="nonIdentifierPrimaryExpression">
+                        <Expression name="vectorDeclarationExpression">
+                            <Token type="TOKEN_LEFT_BRACKET" value="("/>
+                            <Expression name="scalarComponentExpression">
+                                <Expression name="nonIdentifierScalarComponentExpression">
+                                    <Expression name="literalExpression">
+                                        <Expression name="integerLiteral">
+                                            <Token type="TOKEN_INTEGER" value="5"/>
+                                        </Expression>
+                                    </Expression>
+                                </Expression>
+                            </Expression>
+                            <Expression name="scalarComponentExpression">
+                                <Expression name="nonIdentifierScalarComponentExpression">
+                                    <Expression name="literalExpression">
+                                        <Expression name="integerLiteral">
+                                            <Token type="TOKEN_INTEGER" value="5"/>
+                                        </Expression>
+                                    </Expression>
+                                </Expression>
+                            </Expression>
+                            <Expression name="scalarComponentExpression">
+                                <Expression name="nonIdentifierScalarComponentExpression">
+                                    <Expression name="literalExpression">
+                                        <Expression name="integerLiteral">
+                                            <Token type="TOKEN_INTEGER" value="5"/>
+                                        </Expression>
+                                    </Expression>
+                                </Expression>
+                            </Expression>
+                            <Token type="TOKEN_RIGHT_BRACKET" value=")"/>
+                        </Expression>
+                    </Expression>
+                    <Token type="TOKEN_INC" value="++"/>
+                </Expression>
+            </Statement>
+        </Statement>
+        <Token type="TOKEN_EOL" value="\n"/>
+    </Statement>
+</Statement>

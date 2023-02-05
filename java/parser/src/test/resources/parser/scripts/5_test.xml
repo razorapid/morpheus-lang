@@ -1,0 +1,722 @@
+<Statement name="statementList">
+    <Statement name="statementLine">
+        <Statement name="statement">
+            <Statement name="labelStatement">
+                <Statement name="threadLabelStatement">
+                    <Token type="TOKEN_IDENTIFIER" value="GetPlayerByIP"/>
+                    <Expression name="eventParameterList">
+                        <Expression name="primaryExpression">
+                            <Expression name="nonIdentifierPrimaryExpression">
+                                <Expression name="memberSelectionExpression">
+                                    <Expression name="literalExpression">
+                                        <Expression name="listenerLiteral">
+                                            <Token type="TOKEN_LISTENER" value="local"/>
+                                        </Expression>
+                                    </Expression>
+                                    <Token type="TOKEN_PERIOD" value="."/>
+                                    <Token type="TOKEN_IDENTIFIER" value="ip"/>
+                                </Expression>
+                            </Expression>
+                        </Expression>
+                    </Expression>
+                    <Token type="TOKEN_COLON" value=":"/>
+                </Statement>
+            </Statement>
+        </Statement>
+        <Token type="TOKEN_EOL" value="\n"/>
+    </Statement>
+    <Statement name="statementLine">
+        <Statement name="statement">
+            <Statement name="expressionStatement">
+                <Expression name="assignmentExpression">
+                    <Expression name="nonIdentifierPrimaryExpression">
+                        <Expression name="memberSelectionExpression">
+                            <Expression name="literalExpression">
+                                <Expression name="listenerLiteral">
+                                    <Token type="TOKEN_LISTENER" value="local"/>
+                                </Expression>
+                            </Expression>
+                            <Token type="TOKEN_PERIOD" value="."/>
+                            <Token type="TOKEN_IDENTIFIER" value="return"/>
+                        </Expression>
+                    </Expression>
+                    <Token type="TOKEN_ASSIGNMENT" value="="/>
+                    <Expression name="expression">
+                        <Expression name="nonIdentifierPrimaryExpression">
+                            <Expression name="literalExpression">
+                                <Expression name="integerLiteral">
+                                    <Token type="TOKEN_INTEGER" value="0"/>
+                                </Expression>
+                            </Expression>
+                        </Expression>
+                    </Expression>
+                </Expression>
+            </Statement>
+        </Statement>
+        <Token type="TOKEN_EOL" value="\n"/>
+    </Statement>
+    <Statement name="statementLine">
+        <Statement name="statement">
+            <Statement name="iterationStatement">
+                <Statement name="forStatement">
+                    <Token type="TOKEN_FOR" value="for"/>
+                    <Token type="TOKEN_LEFT_BRACKET" value="("/>
+                    <Statement name="statement">
+                        <Statement name="expressionStatement">
+                            <Expression name="assignmentExpression">
+                                <Expression name="nonIdentifierPrimaryExpression">
+                                    <Expression name="memberSelectionExpression">
+                                        <Expression name="literalExpression">
+                                            <Expression name="listenerLiteral">
+                                                <Token type="TOKEN_LISTENER" value="local"/>
+                                            </Expression>
+                                        </Expression>
+                                        <Token type="TOKEN_PERIOD" value="."/>
+                                        <Token type="TOKEN_IDENTIFIER" value="i"/>
+                                    </Expression>
+                                </Expression>
+                                <Token type="TOKEN_ASSIGNMENT" value="="/>
+                                <Expression name="expression">
+                                    <Expression name="nonIdentifierPrimaryExpression">
+                                        <Expression name="literalExpression">
+                                            <Expression name="integerLiteral">
+                                                <Token type="TOKEN_INTEGER" value="1"/>
+                                            </Expression>
+                                        </Expression>
+                                    </Expression>
+                                </Expression>
+                            </Expression>
+                        </Statement>
+                    </Statement>
+                    <Token type="TOKEN_SEMICOLON" value=";"/>
+                    <Expression name="expression">
+                        <Expression name="binaryExpression">
+                            <Expression name="lessThanOrEqualExpression">
+                                <Expression name="expression">
+                                    <Expression name="nonIdentifierPrimaryExpression">
+                                        <Expression name="memberSelectionExpression">
+                                            <Expression name="literalExpression">
+                                                <Expression name="listenerLiteral">
+                                                    <Token type="TOKEN_LISTENER" value="local"/>
+                                                </Expression>
+                                            </Expression>
+                                            <Token type="TOKEN_PERIOD" value="."/>
+                                            <Token type="TOKEN_IDENTIFIER" value="i"/>
+                                        </Expression>
+                                    </Expression>
+                                </Expression>
+                                <Token type="TOKEN_LESS_THAN_OR_EQUAL" value="&lt;="/>
+                                <Expression name="expression">
+                                    <Expression name="nonIdentifierPrimaryExpression">
+                                        <Expression name="memberSelectionExpression">
+                                            <Expression name="targetnameExpression">
+                                                <Token type="TOKEN_DOLLAR" value="$"/>
+                                                <Expression name="primaryExpression">
+                                                    <Expression name="identifierPrimaryExpression">
+                                                        <Expression name="identifierLiteral">
+                                                            <Token type="TOKEN_IDENTIFIER" value="player"/>
+                                                        </Expression>
+                                                    </Expression>
+                                                </Expression>
+                                            </Expression>
+                                            <Token type="TOKEN_PERIOD" value="."/>
+                                            <Token type="TOKEN_SIZE" value="size"/>
+                                        </Expression>
+                                    </Expression>
+                                </Expression>
+                            </Expression>
+                        </Expression>
+                    </Expression>
+                    <Token type="TOKEN_SEMICOLON" value=";"/>
+                    <Statement name="statementList">
+                        <Statement name="statementLine">
+                            <Statement name="statement">
+                                <Statement name="expressionStatement">
+                                    <Expression name="incrementExpression">
+                                        <Expression name="nonIdentifierPrimaryExpression">
+                                            <Expression name="memberSelectionExpression">
+                                                <Expression name="literalExpression">
+                                                    <Expression name="listenerLiteral">
+                                                        <Token type="TOKEN_LISTENER" value="local"/>
+                                                    </Expression>
+                                                </Expression>
+                                                <Token type="TOKEN_PERIOD" value="."/>
+                                                <Token type="TOKEN_IDENTIFIER" value="i"/>
+                                            </Expression>
+                                        </Expression>
+                                        <Token type="TOKEN_INC" value="++"/>
+                                    </Expression>
+                                </Statement>
+                            </Statement>
+                        </Statement>
+                    </Statement>
+                    <Token type="TOKEN_RIGHT_BRACKET" value=")"/>
+                    <Statement name="statement">
+                        <Statement name="compoundStatement">
+                            <Token type="TOKEN_LEFT_BRACES" value="{"/>
+                            <Statement name="statement">
+                                <Statement name="expressionStatement">
+                                    <Expression name="assignmentExpression">
+                                        <Expression name="nonIdentifierPrimaryExpression">
+                                            <Expression name="memberSelectionExpression">
+                                                <Expression name="literalExpression">
+                                                    <Expression name="listenerLiteral">
+                                                        <Token type="TOKEN_LISTENER" value="local"/>
+                                                    </Expression>
+                                                </Expression>
+                                                <Token type="TOKEN_PERIOD" value="."/>
+                                                <Token type="TOKEN_IDENTIFIER" value="thisIP"/>
+                                            </Expression>
+                                        </Expression>
+                                        <Token type="TOKEN_ASSIGNMENT" value="="/>
+                                        <Expression name="expression">
+                                            <Expression name="functionPrimaryExpression">
+                                                <Expression name="threadFunctionCallExpression">
+                                                    <Token type="TOKEN_IDENTIFIER" value="waitthread"/>
+                                                    <Expression name="eventParameterList">
+                                                        <Expression name="primaryExpression">
+                                                            <Expression name="identifierPrimaryExpression">
+                                                                <Expression name="identifierLiteral">
+                                                                    <Token type="TOKEN_IDENTIFIER" value="GetPlayerIP"/>
+                                                                </Expression>
+                                                            </Expression>
+                                                        </Expression>
+                                                        <Expression name="primaryExpression">
+                                                            <Expression name="nonIdentifierPrimaryExpression">
+                                                                <Expression name="subscriptExpression">
+                                                                    <Expression name="targetnameExpression">
+                                                                        <Token type="TOKEN_DOLLAR" value="$"/>
+                                                                        <Expression name="primaryExpression">
+                                                                            <Expression
+                                                                                    name="identifierPrimaryExpression">
+                                                                                <Expression name="identifierLiteral">
+                                                                                    <Token type="TOKEN_IDENTIFIER"
+                                                                                           value="player"/>
+                                                                                </Expression>
+                                                                            </Expression>
+                                                                        </Expression>
+                                                                    </Expression>
+                                                                    <Token type="TOKEN_LEFT_SQUARE_BRACKET" value="["/>
+                                                                    <Expression name="expression">
+                                                                        <Expression
+                                                                                name="nonIdentifierPrimaryExpression">
+                                                                            <Expression
+                                                                                    name="memberSelectionExpression">
+                                                                                <Expression name="literalExpression">
+                                                                                    <Expression name="listenerLiteral">
+                                                                                        <Token type="TOKEN_LISTENER"
+                                                                                               value="local"/>
+                                                                                    </Expression>
+                                                                                </Expression>
+                                                                                <Token type="TOKEN_PERIOD" value="."/>
+                                                                                <Token type="TOKEN_IDENTIFIER"
+                                                                                       value="i"/>
+                                                                            </Expression>
+                                                                        </Expression>
+                                                                    </Expression>
+                                                                    <Token type="TOKEN_RIGHT_SQUARE_BRACKET"
+                                                                           value="&#93;"/>
+                                                                </Expression>
+                                                            </Expression>
+                                                        </Expression>
+                                                    </Expression>
+                                                </Expression>
+                                            </Expression>
+                                        </Expression>
+                                    </Expression>
+                                </Statement>
+                            </Statement>
+                            <Statement name="statement">
+                                <Statement name="selectionStatement">
+                                    <Statement name="ifElseStatement">
+                                        <Token type="TOKEN_IF" value="if"/>
+                                        <Expression name="primaryExpression">
+                                            <Expression name="nonIdentifierPrimaryExpression">
+                                                <Expression name="groupingExpression">
+                                                    <Token type="TOKEN_LEFT_BRACKET" value="("/>
+                                                    <Expression name="expression">
+                                                        <Expression name="binaryExpression">
+                                                            <Expression name="equalityExpression">
+                                                                <Expression name="expression">
+                                                                    <Expression name="nonIdentifierPrimaryExpression">
+                                                                        <Expression name="memberSelectionExpression">
+                                                                            <Expression name="literalExpression">
+                                                                                <Expression name="listenerLiteral">
+                                                                                    <Token type="TOKEN_LISTENER"
+                                                                                           value="local"/>
+                                                                                </Expression>
+                                                                            </Expression>
+                                                                            <Token type="TOKEN_PERIOD" value="."/>
+                                                                            <Token type="TOKEN_IDENTIFIER"
+                                                                                   value="thisIP"/>
+                                                                        </Expression>
+                                                                    </Expression>
+                                                                </Expression>
+                                                                <Token type="TOKEN_EQUALITY" value="=="/>
+                                                                <Expression name="expression">
+                                                                    <Expression name="nonIdentifierPrimaryExpression">
+                                                                        <Expression name="memberSelectionExpression">
+                                                                            <Expression name="literalExpression">
+                                                                                <Expression name="listenerLiteral">
+                                                                                    <Token type="TOKEN_LISTENER"
+                                                                                           value="local"/>
+                                                                                </Expression>
+                                                                            </Expression>
+                                                                            <Token type="TOKEN_PERIOD" value="."/>
+                                                                            <Token type="TOKEN_IDENTIFIER" value="ip"/>
+                                                                        </Expression>
+                                                                    </Expression>
+                                                                </Expression>
+                                                            </Expression>
+                                                        </Expression>
+                                                    </Expression>
+                                                    <Token type="TOKEN_RIGHT_BRACKET" value=")"/>
+                                                </Expression>
+                                            </Expression>
+                                        </Expression>
+                                        <Statement name="statement">
+                                            <Statement name="expressionStatement">
+                                                <Expression name="threadFunctionCallExpression">
+                                                    <Token type="TOKEN_END" value="end"/>
+                                                    <Expression name="eventParameterList">
+                                                        <Expression name="primaryExpression">
+                                                            <Expression name="nonIdentifierPrimaryExpression">
+                                                                <Expression name="subscriptExpression">
+                                                                    <Expression name="targetnameExpression">
+                                                                        <Token type="TOKEN_DOLLAR" value="$"/>
+                                                                        <Expression name="primaryExpression">
+                                                                            <Expression
+                                                                                    name="identifierPrimaryExpression">
+                                                                                <Expression name="identifierLiteral">
+                                                                                    <Token type="TOKEN_IDENTIFIER"
+                                                                                           value="player"/>
+                                                                                </Expression>
+                                                                            </Expression>
+                                                                        </Expression>
+                                                                    </Expression>
+                                                                    <Token type="TOKEN_LEFT_SQUARE_BRACKET" value="["/>
+                                                                    <Expression name="expression">
+                                                                        <Expression
+                                                                                name="nonIdentifierPrimaryExpression">
+                                                                            <Expression
+                                                                                    name="memberSelectionExpression">
+                                                                                <Expression name="literalExpression">
+                                                                                    <Expression name="listenerLiteral">
+                                                                                        <Token type="TOKEN_LISTENER"
+                                                                                               value="local"/>
+                                                                                    </Expression>
+                                                                                </Expression>
+                                                                                <Token type="TOKEN_PERIOD" value="."/>
+                                                                                <Token type="TOKEN_IDENTIFIER"
+                                                                                       value="i"/>
+                                                                            </Expression>
+                                                                        </Expression>
+                                                                    </Expression>
+                                                                    <Token type="TOKEN_RIGHT_SQUARE_BRACKET"
+                                                                           value="&#93;"/>
+                                                                </Expression>
+                                                            </Expression>
+                                                        </Expression>
+                                                    </Expression>
+                                                </Expression>
+                                            </Statement>
+                                        </Statement>
+                                    </Statement>
+                                </Statement>
+                            </Statement>
+                            <Token type="TOKEN_RIGHT_BRACES" value="}"/>
+                        </Statement>
+                    </Statement>
+                </Statement>
+            </Statement>
+        </Statement>
+        <Token type="TOKEN_EOL" value="\n"/>
+    </Statement>
+    <Statement name="statementLine">
+        <Statement name="statement">
+            <Statement name="expressionStatement">
+                <Expression name="threadFunctionCallExpression">
+                    <Token type="TOKEN_END" value="end"/>
+                    <Expression name="eventParameterList">
+                        <Expression name="primaryExpression">
+                            <Expression name="nonIdentifierPrimaryExpression">
+                                <Expression name="memberSelectionExpression">
+                                    <Expression name="literalExpression">
+                                        <Expression name="listenerLiteral">
+                                            <Token type="TOKEN_LISTENER" value="local"/>
+                                        </Expression>
+                                    </Expression>
+                                    <Token type="TOKEN_PERIOD" value="."/>
+                                    <Token type="TOKEN_IDENTIFIER" value="return"/>
+                                </Expression>
+                            </Expression>
+                        </Expression>
+                    </Expression>
+                </Expression>
+            </Statement>
+        </Statement>
+        <Token type="TOKEN_EOL" value="\n"/>
+    </Statement>
+    <Statement name="statementLine">
+        <Statement name="statement">
+            <Statement name="labelStatement">
+                <Statement name="threadLabelStatement">
+                    <Token type="TOKEN_IDENTIFIER" value="GetPlayerIP"/>
+                    <Expression name="eventParameterList">
+                        <Expression name="primaryExpression">
+                            <Expression name="nonIdentifierPrimaryExpression">
+                                <Expression name="memberSelectionExpression">
+                                    <Expression name="literalExpression">
+                                        <Expression name="listenerLiteral">
+                                            <Token type="TOKEN_LISTENER" value="local"/>
+                                        </Expression>
+                                    </Expression>
+                                    <Token type="TOKEN_PERIOD" value="."/>
+                                    <Token type="TOKEN_IDENTIFIER" value="player"/>
+                                </Expression>
+                            </Expression>
+                        </Expression>
+                    </Expression>
+                    <Token type="TOKEN_COLON" value=":"/>
+                </Statement>
+            </Statement>
+        </Statement>
+        <Token type="TOKEN_EOL" value="\n"/>
+    </Statement>
+    <Statement name="statementLine">
+        <Statement name="statement">
+            <Statement name="expressionStatement">
+                <Expression name="assignmentExpression">
+                    <Expression name="nonIdentifierPrimaryExpression">
+                        <Expression name="memberSelectionExpression">
+                            <Expression name="literalExpression">
+                                <Expression name="listenerLiteral">
+                                    <Token type="TOKEN_LISTENER" value="local"/>
+                                </Expression>
+                            </Expression>
+                            <Token type="TOKEN_PERIOD" value="."/>
+                            <Token type="TOKEN_IDENTIFIER" value="ip"/>
+                        </Expression>
+                    </Expression>
+                    <Token type="TOKEN_ASSIGNMENT" value="="/>
+                    <Expression name="expression">
+                        <Expression name="functionPrimaryExpression">
+                            <Expression name="threadFunctionCallExpression">
+                                <Token type="TOKEN_IDENTIFIER" value="getip"/>
+                                <Expression name="eventParameterList">
+                                    <Expression name="primaryExpression">
+                                        <Expression name="nonIdentifierPrimaryExpression">
+                                            <Expression name="memberSelectionExpression">
+                                                <Expression name="literalExpression">
+                                                    <Expression name="listenerLiteral">
+                                                        <Token type="TOKEN_LISTENER" value="local"/>
+                                                    </Expression>
+                                                </Expression>
+                                                <Token type="TOKEN_PERIOD" value="."/>
+                                                <Token type="TOKEN_IDENTIFIER" value="player"/>
+                                            </Expression>
+                                        </Expression>
+                                    </Expression>
+                                </Expression>
+                            </Expression>
+                        </Expression>
+                    </Expression>
+                </Expression>
+            </Statement>
+        </Statement>
+        <Token type="TOKEN_EOL" value="\n"/>
+    </Statement>
+    <Statement name="statementLine">
+        <Statement name="statement">
+            <Statement name="expressionStatement">
+                <Expression name="assignmentExpression">
+                    <Expression name="nonIdentifierPrimaryExpression">
+                        <Expression name="memberSelectionExpression">
+                            <Expression name="literalExpression">
+                                <Expression name="listenerLiteral">
+                                    <Token type="TOKEN_LISTENER" value="local"/>
+                                </Expression>
+                            </Expression>
+                            <Token type="TOKEN_PERIOD" value="."/>
+                            <Token type="TOKEN_IDENTIFIER" value="ipOnly"/>
+                        </Expression>
+                    </Expression>
+                    <Token type="TOKEN_ASSIGNMENT" value="="/>
+                    <Expression name="expression">
+                        <Expression name="nonIdentifierPrimaryExpression">
+                            <Expression name="literalExpression">
+                                <Expression name="stringLiteral">
+                                    <Token type="TOKEN_STRING" value="&quot;&quot;"/>
+                                </Expression>
+                            </Expression>
+                        </Expression>
+                    </Expression>
+                </Expression>
+            </Statement>
+        </Statement>
+        <Token type="TOKEN_EOL" value="\n"/>
+    </Statement>
+    <Statement name="statementLine">
+        <Statement name="statement">
+            <Statement name="iterationStatement">
+                <Statement name="forStatement">
+                    <Token type="TOKEN_FOR" value="for"/>
+                    <Token type="TOKEN_LEFT_BRACKET" value="("/>
+                    <Statement name="statement">
+                        <Statement name="expressionStatement">
+                            <Expression name="assignmentExpression">
+                                <Expression name="nonIdentifierPrimaryExpression">
+                                    <Expression name="memberSelectionExpression">
+                                        <Expression name="literalExpression">
+                                            <Expression name="listenerLiteral">
+                                                <Token type="TOKEN_LISTENER" value="local"/>
+                                            </Expression>
+                                        </Expression>
+                                        <Token type="TOKEN_PERIOD" value="."/>
+                                        <Token type="TOKEN_IDENTIFIER" value="i"/>
+                                    </Expression>
+                                </Expression>
+                                <Token type="TOKEN_ASSIGNMENT" value="="/>
+                                <Expression name="expression">
+                                    <Expression name="nonIdentifierPrimaryExpression">
+                                        <Expression name="literalExpression">
+                                            <Expression name="integerLiteral">
+                                                <Token type="TOKEN_INTEGER" value="0"/>
+                                            </Expression>
+                                        </Expression>
+                                    </Expression>
+                                </Expression>
+                            </Expression>
+                        </Statement>
+                    </Statement>
+                    <Token type="TOKEN_SEMICOLON" value=";"/>
+                    <Expression name="expression">
+                        <Expression name="binaryExpression">
+                            <Expression name="lessThanExpression">
+                                <Expression name="expression">
+                                    <Expression name="nonIdentifierPrimaryExpression">
+                                        <Expression name="memberSelectionExpression">
+                                            <Expression name="literalExpression">
+                                                <Expression name="listenerLiteral">
+                                                    <Token type="TOKEN_LISTENER" value="local"/>
+                                                </Expression>
+                                            </Expression>
+                                            <Token type="TOKEN_PERIOD" value="."/>
+                                            <Token type="TOKEN_IDENTIFIER" value="i"/>
+                                        </Expression>
+                                    </Expression>
+                                </Expression>
+                                <Token type="TOKEN_LESS_THAN" value="&lt;"/>
+                                <Expression name="expression">
+                                    <Expression name="binaryExpression">
+                                        <Expression name="subtractionExpression">
+                                            <Expression name="expression">
+                                                <Expression name="nonIdentifierPrimaryExpression">
+                                                    <Expression name="memberSelectionExpression">
+                                                        <Expression name="memberSelectionExpression">
+                                                            <Expression name="literalExpression">
+                                                                <Expression name="listenerLiteral">
+                                                                    <Token type="TOKEN_LISTENER" value="local"/>
+                                                                </Expression>
+                                                            </Expression>
+                                                            <Token type="TOKEN_PERIOD" value="."/>
+                                                            <Token type="TOKEN_IDENTIFIER" value="ip"/>
+                                                        </Expression>
+                                                        <Token type="TOKEN_PERIOD" value="."/>
+                                                        <Token type="TOKEN_SIZE" value="size"/>
+                                                    </Expression>
+                                                </Expression>
+                                            </Expression>
+                                            <Token type="TOKEN_MINUS" value="-"/>
+                                            <Expression name="expression">
+                                                <Expression name="nonIdentifierPrimaryExpression">
+                                                    <Expression name="literalExpression">
+                                                        <Expression name="integerLiteral">
+                                                            <Token type="TOKEN_INTEGER" value="1"/>
+                                                        </Expression>
+                                                    </Expression>
+                                                </Expression>
+                                            </Expression>
+                                        </Expression>
+                                    </Expression>
+                                </Expression>
+                            </Expression>
+                        </Expression>
+                    </Expression>
+                    <Token type="TOKEN_SEMICOLON" value=";"/>
+                    <Statement name="statementList">
+                        <Statement name="statementLine">
+                            <Statement name="statement">
+                                <Statement name="expressionStatement">
+                                    <Expression name="incrementExpression">
+                                        <Expression name="nonIdentifierPrimaryExpression">
+                                            <Expression name="memberSelectionExpression">
+                                                <Expression name="literalExpression">
+                                                    <Expression name="listenerLiteral">
+                                                        <Token type="TOKEN_LISTENER" value="local"/>
+                                                    </Expression>
+                                                </Expression>
+                                                <Token type="TOKEN_PERIOD" value="."/>
+                                                <Token type="TOKEN_IDENTIFIER" value="i"/>
+                                            </Expression>
+                                        </Expression>
+                                        <Token type="TOKEN_INC" value="++"/>
+                                    </Expression>
+                                </Statement>
+                            </Statement>
+                        </Statement>
+                    </Statement>
+                    <Token type="TOKEN_RIGHT_BRACKET" value=")"/>
+                    <Statement name="statement">
+                        <Statement name="selectionStatement">
+                            <Statement name="ifElseStatement">
+                                <Token type="TOKEN_IF" value="if"/>
+                                <Expression name="primaryExpression">
+                                    <Expression name="nonIdentifierPrimaryExpression">
+                                        <Expression name="groupingExpression">
+                                            <Token type="TOKEN_LEFT_BRACKET" value="("/>
+                                            <Expression name="expression">
+                                                <Expression name="binaryExpression">
+                                                    <Expression name="inequalityExpression">
+                                                        <Expression name="expression">
+                                                            <Expression name="nonIdentifierPrimaryExpression">
+                                                                <Expression name="subscriptExpression">
+                                                                    <Expression name="memberSelectionExpression">
+                                                                        <Expression name="literalExpression">
+                                                                            <Expression name="listenerLiteral">
+                                                                                <Token type="TOKEN_LISTENER"
+                                                                                       value="local"/>
+                                                                            </Expression>
+                                                                        </Expression>
+                                                                        <Token type="TOKEN_PERIOD" value="."/>
+                                                                        <Token type="TOKEN_IDENTIFIER" value="ip"/>
+                                                                    </Expression>
+                                                                    <Token type="TOKEN_LEFT_SQUARE_BRACKET" value="["/>
+                                                                    <Expression name="expression">
+                                                                        <Expression
+                                                                                name="nonIdentifierPrimaryExpression">
+                                                                            <Expression
+                                                                                    name="memberSelectionExpression">
+                                                                                <Expression name="literalExpression">
+                                                                                    <Expression name="listenerLiteral">
+                                                                                        <Token type="TOKEN_LISTENER"
+                                                                                               value="local"/>
+                                                                                    </Expression>
+                                                                                </Expression>
+                                                                                <Token type="TOKEN_PERIOD" value="."/>
+                                                                                <Token type="TOKEN_IDENTIFIER"
+                                                                                       value="i"/>
+                                                                            </Expression>
+                                                                        </Expression>
+                                                                    </Expression>
+                                                                    <Token type="TOKEN_RIGHT_SQUARE_BRACKET"
+                                                                           value="&#93;"/>
+                                                                </Expression>
+                                                            </Expression>
+                                                        </Expression>
+                                                        <Token type="TOKEN_INEQUALITY" value="!="/>
+                                                        <Expression name="expression">
+                                                            <Expression name="nonIdentifierPrimaryExpression">
+                                                                <Expression name="literalExpression">
+                                                                    <Expression name="stringLiteral">
+                                                                        <Token type="TOKEN_STRING"
+                                                                               value="&quot;:&quot;"/>
+                                                                    </Expression>
+                                                                </Expression>
+                                                            </Expression>
+                                                        </Expression>
+                                                    </Expression>
+                                                </Expression>
+                                            </Expression>
+                                            <Token type="TOKEN_RIGHT_BRACKET" value=")"/>
+                                        </Expression>
+                                    </Expression>
+                                </Expression>
+                                <Statement name="statement">
+                                    <Statement name="expressionStatement">
+                                        <Expression name="assignmentExpression">
+                                            <Expression name="nonIdentifierPrimaryExpression">
+                                                <Expression name="memberSelectionExpression">
+                                                    <Expression name="literalExpression">
+                                                        <Expression name="listenerLiteral">
+                                                            <Token type="TOKEN_LISTENER" value="local"/>
+                                                        </Expression>
+                                                    </Expression>
+                                                    <Token type="TOKEN_PERIOD" value="."/>
+                                                    <Token type="TOKEN_IDENTIFIER" value="ipOnly"/>
+                                                </Expression>
+                                            </Expression>
+                                            <Token type="TOKEN_PLUS_EQUALS" value="+="/>
+                                            <Expression name="expression">
+                                                <Expression name="nonIdentifierPrimaryExpression">
+                                                    <Expression name="subscriptExpression">
+                                                        <Expression name="memberSelectionExpression">
+                                                            <Expression name="literalExpression">
+                                                                <Expression name="listenerLiteral">
+                                                                    <Token type="TOKEN_LISTENER" value="local"/>
+                                                                </Expression>
+                                                            </Expression>
+                                                            <Token type="TOKEN_PERIOD" value="."/>
+                                                            <Token type="TOKEN_IDENTIFIER" value="ip"/>
+                                                        </Expression>
+                                                        <Token type="TOKEN_LEFT_SQUARE_BRACKET" value="["/>
+                                                        <Expression name="expression">
+                                                            <Expression name="nonIdentifierPrimaryExpression">
+                                                                <Expression name="memberSelectionExpression">
+                                                                    <Expression name="literalExpression">
+                                                                        <Expression name="listenerLiteral">
+                                                                            <Token type="TOKEN_LISTENER" value="local"/>
+                                                                        </Expression>
+                                                                    </Expression>
+                                                                    <Token type="TOKEN_PERIOD" value="."/>
+                                                                    <Token type="TOKEN_IDENTIFIER" value="i"/>
+                                                                </Expression>
+                                                            </Expression>
+                                                        </Expression>
+                                                        <Token type="TOKEN_RIGHT_SQUARE_BRACKET" value="&#93;"/>
+                                                    </Expression>
+                                                </Expression>
+                                            </Expression>
+                                        </Expression>
+                                    </Statement>
+                                </Statement>
+                                <Token type="TOKEN_ELSE" value="else"/>
+                                <Statement name="statement">
+                                    <Statement name="breakStatement">
+                                        <Token type="TOKEN_BREAK" value="break"/>
+                                    </Statement>
+                                </Statement>
+                            </Statement>
+                        </Statement>
+                    </Statement>
+                </Statement>
+            </Statement>
+        </Statement>
+        <Token type="TOKEN_EOL" value="\n"/>
+    </Statement>
+    <Statement name="statementLine">
+        <Statement name="statement">
+            <Statement name="expressionStatement">
+                <Expression name="threadFunctionCallExpression">
+                    <Token type="TOKEN_END" value="end"/>
+                    <Expression name="eventParameterList">
+                        <Expression name="primaryExpression">
+                            <Expression name="nonIdentifierPrimaryExpression">
+                                <Expression name="memberSelectionExpression">
+                                    <Expression name="literalExpression">
+                                        <Expression name="listenerLiteral">
+                                            <Token type="TOKEN_LISTENER" value="local"/>
+                                        </Expression>
+                                    </Expression>
+                                    <Token type="TOKEN_PERIOD" value="."/>
+                                    <Token type="TOKEN_IDENTIFIER" value="ipOnly"/>
+                                </Expression>
+                            </Expression>
+                        </Expression>
+                    </Expression>
+                </Expression>
+            </Statement>
+        </Statement>
+        <Token type="TOKEN_EOL" value="\n"/>
+    </Statement>
+</Statement>

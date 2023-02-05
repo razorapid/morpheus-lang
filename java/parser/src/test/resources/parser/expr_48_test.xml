@@ -1,0 +1,61 @@
+<Statement name="statementList">
+    <Statement name="statementLine">
+        <Statement name="statement">
+            <Statement name="expressionStatement">
+                <Expression name="assignmentExpression">
+                    <Expression name="nonIdentifierPrimaryExpression">
+                        <Expression name="memberSelectionExpression">
+                            <Expression name="literalExpression">
+                                <Expression name="listenerLiteral">
+                                    <Token type="TOKEN_LISTENER" value="local"/>
+                                </Expression>
+                            </Expression>
+                            <Token type="TOKEN_PERIOD" value="."/>
+                            <Token type="TOKEN_IDENTIFIER" value="i"/>
+                        </Expression>
+                    </Expression>
+                    <Token type="TOKEN_ASSIGNMENT" value="="/>
+                    <Expression name="expression">
+                        <Expression name="binaryExpression">
+                            <Expression name="bitwiseAndExpression">
+                                <Expression name="expression">
+                                    <Expression name="functionPrimaryExpression">
+                                        <Expression name="threadFunctionCallExpression">
+                                            <Token type="TOKEN_IDENTIFIER" value="a"/>
+                                            <Expression name="eventParameterList"/>
+                                        </Expression>
+                                    </Expression>
+                                </Expression>
+                                <Token type="TOKEN_BITWISE_AND" value="&amp;"/>
+                                <Expression name="expression">
+                                    <Expression name="binaryExpression">
+                                        <Expression name="equalityExpression">
+                                            <Expression name="expression">
+                                                <Expression name="functionPrimaryExpression">
+                                                    <Expression name="threadFunctionCallExpression">
+                                                        <Token type="TOKEN_IDENTIFIER" value="b"/>
+                                                        <Expression name="eventParameterList"/>
+                                                    </Expression>
+                                                </Expression>
+                                            </Expression>
+                                            <Token type="TOKEN_EQUALITY" value="=="/>
+                                            <Expression name="expression">
+                                                <Expression name="functionPrimaryExpression">
+                                                    <Expression name="threadFunctionCallExpression">
+                                                        <Token type="TOKEN_IDENTIFIER" value="c"/>
+                                                        <Expression name="eventParameterList"/>
+                                                    </Expression>
+                                                </Expression>
+                                            </Expression>
+                                        </Expression>
+                                    </Expression>
+                                </Expression>
+                            </Expression>
+                        </Expression>
+                    </Expression>
+                </Expression>
+            </Statement>
+        </Statement>
+        <Token type="TOKEN_EOL" value="\n"/>
+    </Statement>
+</Statement>

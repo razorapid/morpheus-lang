@@ -1,0 +1,29 @@
+
+//Get Player By IP
+//example: local.player = waitexec level.players.getPlayerByName "192.168.1.1"
+//Then test to see if local.player exists.	if(local.player)
+GetPlayerByIP local.ip:
+
+	local.return = 0
+	for ( local.i = 1; local.i <= $player.size; local.i++ )
+	{
+		local.thisIP = waitthread GetPlayerIP $player[local.i]
+		if(local.thisIP == local.ip)
+			end $player[local.i]
+	}
+
+end local.return
+
+//Get Player IP - Remove port
+//example : local.player.ip = waitthread level.players.getPlayerIP local.player
+GetPlayerIP local.player:
+
+	local.ip = getip local.player
+	local.ipOnly = ""
+	for(local.i=0;local.i < local.ip.size - 1;local.i++)
+		if(local.ip[local.i] != ":")
+			local.ipOnly += local.ip[local.i]
+		else
+			break
+
+end local.ipOnly

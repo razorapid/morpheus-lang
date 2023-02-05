@@ -1,0 +1,28 @@
+<Statement name="statementList">
+    <Statement name="statementLine">
+        <Statement name="statement">
+            <Statement name="labelStatement">
+                <Statement name="threadLabelStatement">
+                    <Token type="TOKEN_IDENTIFIER" value="some_label"/>
+                    <Expression name="eventParameterList">
+                        <Expression name="primaryExpression">
+                            <Expression name="nonIdentifierPrimaryExpression">
+                                <Expression name="memberSelectionExpression">
+                                    <Expression name="literalExpression">
+                                        <Expression name="listenerLiteral">
+                                            <Token type="TOKEN_LISTENER" value="local"/>
+                                        </Expression>
+                                    </Expression>
+                                    <Token type="TOKEN_PERIOD" value="."/>
+                                    <Token type="TOKEN_IDENTIFIER" value="i"/>
+                                </Expression>
+                            </Expression>
+                        </Expression>
+                    </Expression>
+                    <Token type="TOKEN_COLON" value=":"/>
+                </Statement>
+            </Statement>
+        </Statement>
+        <Token type="TOKEN_EOL" value="\n"/>
+    </Statement>
+</Statement>

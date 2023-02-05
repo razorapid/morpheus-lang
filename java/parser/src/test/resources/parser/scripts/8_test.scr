@@ -1,0 +1,6 @@
+local.a = (makeArray
+	0
+	1
+	2
+endArray)[1][1] + 2
+println local.a

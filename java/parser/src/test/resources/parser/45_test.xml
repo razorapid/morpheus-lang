@@ -1,0 +1,37 @@
+<Statement name="statementList">
+    <Statement name="statementLine">
+        <Statement name="statement">
+            <Statement name="iterationStatement">
+                <Statement name="whileStatement">
+                    <Token type="TOKEN_WHILE" value="while"/>
+                    <Expression name="primaryExpression">
+                        <Expression name="identifierPrimaryExpression">
+                            <Expression name="identifierLiteral">
+                                <Token type="TOKEN_IDENTIFIER" value="true"/>
+                            </Expression>
+                        </Expression>
+                    </Expression>
+                    <Statement name="statement">
+                        <Statement name="expressionStatement">
+                            <Expression name="incrementExpression">
+                                <Expression name="nonIdentifierPrimaryExpression">
+                                    <Expression name="memberSelectionExpression">
+                                        <Expression name="literalExpression">
+                                            <Expression name="listenerLiteral">
+                                                <Token type="TOKEN_LISTENER" value="local"/>
+                                            </Expression>
+                                        </Expression>
+                                        <Token type="TOKEN_PERIOD" value="."/>
+                                        <Token type="TOKEN_IDENTIFIER" value="i"/>
+                                    </Expression>
+                                </Expression>
+                                <Token type="TOKEN_INC" value="++"/>
+                            </Expression>
+                        </Statement>
+                    </Statement>
+                </Statement>
+            </Statement>
+        </Statement>
+        <Token type="TOKEN_EOL" value="\n"/>
+    </Statement>
+</Statement>

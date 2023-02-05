@@ -1,0 +1,4 @@
+local.flag = true;
+while(local.flag) {
+    println "test"
+}

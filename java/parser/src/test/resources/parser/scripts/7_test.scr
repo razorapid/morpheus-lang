@@ -1,0 +1,20 @@
+conprintf "HERE I AM\n";
+println "TEST TEST";
+
+//s.ome test;
+
+//	Reborn players.scr 09/18/2012
+//	by ArMaGedDoN
+// 	Last Updated 09/18/2012
+
+yolo_yolo:
+
+	//global accessors  ----- Is this the format you decided on?
+	level.players = local CreateListener
+	level.players.getPlayerByClientNum = reborn/players.scr::GetPlayerByClientNum // test
+	level.players.getPlayerByName = reborn/players.scr::GetPlayerByName /* this is a test */
+	level.players.getPlayerByIP = reborn/players.scr::GetPlayerByIP /* this is test
+	too */
+	level.players.getPlayerIP = reborn/players.scr::GetPlayerIP
+
+end

@@ -1,0 +1,42 @@
+conprintf "HERE I AM\n";
+println "TEST TEST";
+
+//s.ome test;
+
+//	Reborn players.scr 09/18/2012
+//	by ArMaGedDoN
+// 	Last Updated 09/18/2012
+
+yolo_yolo:
+
+	//global accessors  ----- Is this the format you decided on?
+	level.players = local CreateListener
+	level.players.getPlayerByClientNum = reborn/players.scr::GetPlayerByClientNum
+	level.players.getPlayerByName = reborn/players.scr::GetPlayerByName
+	level.players.getPlayerByIP = reborn/players.scr::GetPlayerByIP
+	level.players.getPlayerIP = reborn/players.scr::GetPlayerIP
+
+end
+
+//Get Player by Client Number
+//Example for Client 4 : local.player = waitexec level.players.getPlayerByClientNum 3
+//Then test to see if local.player exists.	if(local.player)
+GetPlayerByClientNum local.id:
+
+	local.return = 0
+	for ( local.i = 1; local.i <= $player.size; local.i++ )
+		if(getclientnum $player[local.i] == local.id)
+			end $player[local.i]
+
+end local.return
+
+test: /* comment here */
+/* multi
+        line
+            comment
+    here
+*/
+    println "test" /* and multiline comment
+    here */
+    println "test2"
+end

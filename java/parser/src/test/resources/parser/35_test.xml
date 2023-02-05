@@ -1,0 +1,38 @@
+<Statement name="statementList">
+    <Statement name="statementLine">
+        <Statement name="statement">
+            <Statement name="selectionStatement">
+                <Statement name="ifElseStatement">
+                    <Token type="TOKEN_IF" value="if"/>
+                    <Expression name="primaryExpression">
+                        <Expression name="identifierPrimaryExpression">
+                            <Expression name="identifierLiteral">
+                                <Token type="TOKEN_IDENTIFIER" value="true"/>
+                            </Expression>
+                        </Expression>
+                    </Expression>
+                    <Statement name="statement">
+                        <Statement name="expressionStatement">
+                            <Expression name="threadFunctionCallExpression">
+                                <Token type="TOKEN_IDENTIFIER" value="println"/>
+                                <Expression name="eventParameterList">
+                                    <Expression name="primaryExpression">
+                                        <Expression name="nonIdentifierPrimaryExpression">
+                                            <Expression name="literalExpression">
+                                                <Expression name="stringLiteral">
+                                                    <Token type="TOKEN_STRING"
+                                                           value="&quot;abcd&quot;"/>
+                                                </Expression>
+                                            </Expression>
+                                        </Expression>
+                                    </Expression>
+                                </Expression>
+                            </Expression>
+                        </Statement>
+                    </Statement>
+                </Statement>
+            </Statement>
+        </Statement>
+        <Token type="TOKEN_EOL" value="\n"/>
+    </Statement>
+</Statement>

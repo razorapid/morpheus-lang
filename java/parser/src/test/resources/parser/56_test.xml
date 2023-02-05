@@ -1,0 +1,62 @@
+<Statement name="statementList">
+    <Statement name="statementLine">
+        <Statement name="statement">
+            <Statement name="expressionStatement">
+                <Expression name="assignmentExpression">
+                    <Expression name="nonIdentifierPrimaryExpression">
+                        <Expression name="memberSelectionExpression">
+                            <Expression name="literalExpression">
+                                <Expression name="listenerLiteral">
+                                    <Token type="TOKEN_LISTENER" value="local"/>
+                                </Expression>
+                            </Expression>
+                            <Token type="TOKEN_PERIOD" value="."/>
+                            <Token type="TOKEN_IDENTIFIER" value="player_name"/>
+                        </Expression>
+                    </Expression>
+                    <Token type="TOKEN_ASSIGNMENT" value="="/>
+                    <Expression name="expression">
+                        <Expression name="functionPrimaryExpression">
+                            <Expression name="threadFunctionCallExpression">
+                                <Token type="TOKEN_IDENTIFIER" value="netname"/>
+                                <Expression name="eventParameterList">
+                                    <Expression name="primaryExpression">
+                                        <Expression name="nonIdentifierPrimaryExpression">
+                                            <Expression name="subscriptExpression">
+                                                <Expression name="targetnameExpression">
+                                                    <Token type="TOKEN_DOLLAR" value="$"/>
+                                                    <Expression name="primaryExpression">
+                                                        <Expression name="identifierPrimaryExpression">
+                                                            <Expression name="identifierLiteral">
+                                                                <Token type="TOKEN_IDENTIFIER"
+                                                                       value="player"/>
+                                                            </Expression>
+                                                        </Expression>
+                                                    </Expression>
+                                                </Expression>
+                                                <Token type="TOKEN_LEFT_SQUARE_BRACKET" value="["/>
+                                                <Expression name="expression">
+                                                    <Expression name="nonIdentifierPrimaryExpression">
+                                                        <Expression name="literalExpression">
+                                                            <Expression name="integerLiteral">
+                                                                <Token type="TOKEN_INTEGER"
+                                                                       value="1"/>
+                                                            </Expression>
+                                                        </Expression>
+                                                    </Expression>
+                                                </Expression>
+                                                <Token type="TOKEN_RIGHT_SQUARE_BRACKET"
+                                                       value="&#93;"/>
+                                            </Expression>
+                                        </Expression>
+                                    </Expression>
+                                </Expression>
+                            </Expression>
+                        </Expression>
+                    </Expression>
+                </Expression>
+            </Statement>
+        </Statement>
+        <Token type="TOKEN_EOL" value="\n"/>
+    </Statement>
+</Statement>

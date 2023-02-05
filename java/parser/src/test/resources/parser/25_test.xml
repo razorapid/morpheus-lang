@@ -1,0 +1,14 @@
+<Statement name="statementList">
+    <Statement name="statementLine">
+        <Statement name="statement">
+            <Statement name="labelStatement">
+                <Statement name="threadLabelStatement">
+                    <Token type="TOKEN_IDENTIFIER" value="some_label"/>
+                    <Expression name="eventParameterList"/>
+                    <Token type="TOKEN_COLON" value=":"/>
+                </Statement>
+            </Statement>
+        </Statement>
+        <Token type="TOKEN_EOL" value="\n"/>
+    </Statement>
+</Statement>

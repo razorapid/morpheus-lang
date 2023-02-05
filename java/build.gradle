@@ -1,0 +1,9 @@
+plugins {
+    id 'maven-publish'
+}
+
+allprojects {
+    apply plugin: 'maven-publish'
+
+    group = 'com.github.razorapid.morpheus-lang'
+}

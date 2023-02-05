@@ -1,0 +1,15 @@
+
+
+//Get Player IP - Remove port
+//example : local.player.ip = waitthread level.players.getPlayerIP local.player
+GetPlayerIP local.player:
+
+	local.ip = getip local.player
+	local.ipOnly = ""
+	for(local.i=0;local.i < local.ip.size - 1;local.i++)
+		if(local.ip[local.i] != ":")
+			local.ipOnly += local.ip[local.i]
+		else
+			break
+
+end local.ipOnly

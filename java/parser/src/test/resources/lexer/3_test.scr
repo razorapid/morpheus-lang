@@ -1,0 +1,133 @@
+/*
+ Medal of Honor: Allied Assault v1.12 REBORN  -  Morpheus Script
+ ================================================================
+ EVENT SYSTEM MAINHANDLER; 					Script Framework BETA
+ ================================================================
+ BY Sor
+ VERSION 1.0.11 (29/11/2012)
+ =-------------------------------------------------------------=
+ Copyright (c) 2009-2013  Lenny Knockx
+ All rights reserved.
+ =-------------------------------------------------------------=
+ Permission to use, copy, modify, and/or distribute this software
+ for any purpose with or without fee is hereby granted, provided
+ that the above copyright notice and this permission notice appear
+ in all copies.
+ ---------------
+ THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL
+ WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL
+ THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR
+ CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+ LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT,
+ NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ =-------------------------------------------------------------=
+ CONTACT: 	http://www.x-null.net/forums/member.php?185-Sor
+ WEBSITE: 	http://www.x-null.net | www.mohaairborne.co.cc
+ ================================================================
+*/
+// option to disable the event system?
+// optimize => use user directories & auto-exec all files in the directory associated with the event?
+// test!
+__init:
+	if (self && self == $Event) {
+		//threads to execute per event... put internal/framework default threads here later; events with size > 0 will be registered
+		//once done, register events for default/internal threads/scripts
+		self.script["spawn"][0] 		= 	NIL;
+		self.script["kill"][0] 			= 	NIL;
+		self.script["damage"][0] 		= 	NIL;
+		self.script["connected"][0] 	= 	NIL;
+		self.script["disconnected"][0] 	= 	NIL;
+		self.script["keypress"][0] 		= 	NIL;
+		self.script["intermission"][0] 	= 	NIL;
+		self.script["servercommand"][0] = 	NIL;
+
+		//Event registry:
+		self.reg["spawn"]				= 	false;
+		self.reg["kill"] 				= 	false;
+		self.reg["damage"] 				= 	false;
+		self.reg["connected"] 			= 	false;
+		self.reg["disconnected"] 		= 	false;
+		self.reg["keypress"]			= 	false;
+		self.reg["intermission"]		= 	false;
+		self.reg["servercommand"] 		= 	false;
+
+		// Maximum 32 scripts/threads per event.
+		self.scrCap = 32;
+
+		// Function shortcuts...
+		self.Register = 				(self.fullPath)::"Register";
+		self.Unregister =				(self.fullPath)::"Unregister";
+
+		// There are two methods registered in this class.
+		self.methodSize += 2;
+		// There are 17 properties defined in this class.
+		self.propertySize += 17;
+	}
+end;
+
+__info:
+	local.inf["library"] = "mainhandler.scr"
+	local.inf["namespace"] = "event"
+	local.inf["title"] = "EVENT SYSTEM MAINHANDLER";
+	local.inf["version"] = "1.0.11";
+	local.inf["authors"][0] = "Sor"
+end local.inf;
+
+/** ==========================================================================================
+ Register Function
+ ---------------------------------------------------------------------------------------------
+ DESCR|: 	Register a specific thread/script to execute for specified event.
+ INPUT|: 	<STRING event> <STRING scriptpath/ARRAY:STRING path&thread>
+ OUTPUT|: 	Internal errors are elucidated in the console if level.DEBUG is greater than 0;
+				1 => registration successful
+				0 => not successful
+				NIL => error: uninitialized/invalid/inexistent input
+ =========================================================================================== */
+Register local.event local.script:
+	/*Error & Exception Handling*/
+	if (local.event == NIL || !(waitthread __IsEvent local.event) ) {
+		if (level.DEBUG) {
+			conprintf "\n ~^~^~^~ FATAL_ERROR[EVENT::mainhandler.scr::Register]: event <arg1> is uninitialized, invalid or inexistent! ~^~^~^~ \n\n";
+		}
+		end;
+	}
+	if (local.script == NIL || !(waitthread __IsScrPath local.script) ) {
+		if (level.DEBUG) {
+			conprintf "\n ~^~^~^~ FATAL_ERROR[EVENT::mainhandler.scr::Register]: scriptpath <arg2> is uninitialized, invalid or inexistent! ~^~^~^~ \n\n";
+		}
+		end;
+	}
+
+	/*Main Logic*/
+	local.listSize = $Event.script[local.event].size;
+	if (local.listSize < $Event.scrCap) {
+		local.ok = 1;
+		for (local.i = 0; local.i < local.listSize; local.i++) {
+			// only one instance per thread!
+			if ($Event.script[local.event][local.i][1] == local.script[1] && \
+				$Event.script[local.event][local.i][2] == local.script[2]) {
+				local.ok = 0;
+				break;
+			}
+		}
+	} else {
+		if (level.DEBUG) {
+			conprintf "~^~^~^~ ERROR[EVENT::mainhandler.scr::Register]: maximum (script-)execution cap breached for event \"" local.event "\"! Registration failed. ~^~^~^~ \n";
+		}
+		local.ok = 0;
+		local.result = 0;
+	}
+
+	if (local.ok) {
+		$Event.script[local.event][$Event.script[local.event].size] = local.script;
+
+		// If it was originally an empty array
+		if (local.listSize == 0) {
+			local.result = waitthread __RegisterEvent local.event;
+		} else {
+			local.result = 1;
+		}
+	}
+end local.result;

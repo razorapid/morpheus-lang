@@ -1,0 +1,14 @@
+//	Reborn players.scr 09/18/2012
+//	by ArMaGedDoN
+// 	Last Updated 09/18/2012
+
+yolo_yolo:
+
+	//global accessors  ----- Is this the format you decided on?
+	level.players = local CreateListener
+	level.players.getPlayerByClientNum = reborn/players.scr::GetPlayerByClientNum
+	level.players.getPlayerByName = reborn/players.scr::GetPlayerByName
+	level.players.getPlayerByIP = reborn/players.scr::GetPlayerByIP
+	level.players.getPlayerIP = reborn/players.scr::GetPlayerIP
+
+end

@@ -1,0 +1,135 @@
+/* ==========================================================================================
+ Unregister Function
+ ---------------------------------------------------------------------------------------------
+ DESCR|: 	Unregisters a specific thread/script for execution during specified event.
+ INPUT|: 	<STRING event> <STRING scriptpath/ARRAY:STRING path&thread>
+ OUTPUT|: 	Internal errors are elucidated in the console if level.DEBUG is greater than 0;
+				1 => unregistration successful
+				0 => not successful
+				NIL => error: uninitialized/invalid/inexistent input
+ =========================================================================================== */
+Unregister local.event local.script:
+	/*Error & Exception Handling*/
+	if (local.event == NIL || !(waitthread __IsEvent local.event) ) {
+		if (level.DEBUG) {
+			conprintf "\n ~^~^~^~ FATAL_ERROR[event/mainhandler.scr::Unregister]: event <arg1> is uninitialized, invalid or inexistent! ~^~^~^~ \n\n";
+		}
+		end;
+	} if (local.script == NIL || !(waitthread __IsScrPath local.script) ) {
+		if (level.DEBUG) {
+			conprintf "\n ~^~^~^~ FATAL_ERROR[event/mainhandler.scr::Unregister]: scriptpath <arg2> is uninitialized, invalid or inexistent! ~^~^~^~ \n\n";
+		}
+		end;
+	}
+
+	/*Main Logic*/
+	if ($Event.script[local.event].size > 0) {
+		local.listSize = $Event.script[local.event].size;
+
+		//create new list without specified script
+		local.j = 0;
+		for (local.i = 0; local.i < local.listSize; local.i++) {
+			// found & omit script
+			if ($Event.script[local.event][local.i] == local.script) {
+				continue;
+			}
+			local.list[local.j] = $Event.script[local.event][local.i];
+			local.j++;
+		}
+
+		if (local.list.size == $Event.script[local.event].size) {
+			local.result = 0;
+		} else {
+			if (local.list.size <= 0) {
+				$Event.script[local.event][0] = NIL;
+			} else {
+				$Event.script[local.event] = local.list;
+			}
+			local.result = 1;
+			local.list = NIL;
+		}
+	} else {
+		if (level.DEBUG) {
+			conprintf "~^~^~^~ ERROR[event/mainhandler.scr::Unregister]: script was not found in event registry and cannot be unregistered! ~^~^~^~ \n";
+		}
+		local.result = 0;
+	}
+
+	if (local.list.size <= 0) {
+		waitthread __UnregisterEvent local.event;
+	}
+end local.result;
+
+__IsScrPath local.script:
+	switch (typeof local.script) {
+		case "string":
+		case "const string":
+			local.result = 1;
+		break;
+		case "const array":
+			// check array for string/const string, or just const string with $Array.HasType
+			local.result = 2;
+		break;
+		default:
+			local.result = 0;
+		break;
+	}
+end local.result;
+
+__IsEvent local.event:
+	switch (local.event) {
+		case "spawn":
+		case "kill":
+		case "damage":
+		case "connected":
+		case "disconnected":
+		case "keypress":
+		case "intermission":
+		case "servercommand":
+			local.result = 1;
+		break;
+		default:
+			local.result = 0;
+		break;
+	}
+end local.result;
+
+__RegisterEvent local.event:
+	/*Error & Exception Handling*/
+	if (local.event == NIL || !(waitthread __IsEvent local.event) ) {
+		if (level.DEBUG) {
+			conprintf "\n ~^~^~^~ FATAL_ERROR[event/mainhandler.scr::RegisterEvent]: event <arg1> is uninitialized, invalid or inexistent! ~^~^~^~ \n\n";
+		}
+		end;
+	}
+
+	/*Main Logic*/
+	local.result = 0;
+	if !($Event.reg[local.event]) {
+		local.result = registerev local.event ($System.evPath + local.event + ".scr");
+
+		switch (local.result) {
+			case 0:			/**0 = Registering event callback handler was successful*/
+				$Event.reg[local.event] = true;
+				local.result = 1;
+			break;
+			case 1:			/**1 = Event callback handler is already registered for given event*/
+				// How odd? Either I've made a programming/logical error
+				// or someone refuses to use this event handler.
+
+				// Unequivocally clear previous registration
+				local.result2 = waitthread __UnregisterEvent local.event;
+
+				// Register this event
+				if (local.result2 == 1) {
+					local.result = waitthread __RegisterEvent local.event;
+				}
+			break;
+			default: 		/**2 = Memory allocation error*/
+				if (level.DEBUG) {
+					conprintf "\n FATAL_ERROR[event/mainhandler.scr::RegisterEvent]: memory allocation for registration of event \"" local.event "\" has failed! \n\n";
+				}
+			break;
+		}
+	}
+end local.result;

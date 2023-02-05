@@ -1,0 +1,11 @@
+//Get Player with name
+//Example: local.player = waitexec level.players.getPlayerByName "<(CG)> ArMaGedDoN (MP)"
+//Then test to see if local.player exists.	if(local.player)
+GetPlayerByName local.name:
+
+	local.return = 0
+	for ( local.i = 1; local.i <= $player.size; local.i++ )
+		if(netname $player[local.i] == local.name)
+			end $player[local.i]
+
+end local.return
