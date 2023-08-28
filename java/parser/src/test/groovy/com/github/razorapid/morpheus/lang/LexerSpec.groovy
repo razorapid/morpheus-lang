@@ -182,6 +182,10 @@ class LexerSpec extends Specification {
         "||"  | TOKEN_LOGICAL_OR
         " -"  | TOKEN_MINUS
         " +"  | TOKEN_PLUS
+        " --" | TOKEN_DEC
+        " ++" | TOKEN_INC
+        " -=" | TOKEN_MINUS_EQUALS
+        " +=" | TOKEN_PLUS_EQUALS
     }
 
     def "scans neg and pos character tokens"() {
@@ -274,6 +278,28 @@ class LexerSpec extends Specification {
         " +0.0"   | TOKEN_FLOAT
         " +123.0" | TOKEN_FLOAT
         " +12.05" | TOKEN_FLOAT
+    }
+
+    def "scans float numbers followed by another character"() {
+        setup:
+        def script = new Source("test_script.scr", input)
+        def lexer = new Lexer(script)
+
+        when:
+        def result = lexer.scan().get()
+
+        then:
+        result.get(0).type() == expectedTokenType[0]
+        result.get(1).type() == expectedTokenType[1]
+
+        where:
+
+        input  | expectedTokenType
+        ".5 "  | [TOKEN_FLOAT, TOKEN_EOL]
+        ".5)"  | [TOKEN_FLOAT, TOKEN_RIGHT_BRACKET]
+        ".5+"  | [TOKEN_FLOAT, TOKEN_PLUS]
+        ".5\n" | [TOKEN_FLOAT, TOKEN_EOL]
+        ".5\t" | [TOKEN_FLOAT, TOKEN_EOL]
     }
 
     def "scans integer numbers"() {
@@ -428,8 +454,8 @@ class LexerSpec extends Specification {
 
         where:
 
-        input          | expectedTokenType
-        "continue"     | [TOKEN_CONTINUE, TOKEN_EOL]
+        input         || expectedTokenType
+        "continue"    || [TOKEN_CONTINUE, TOKEN_EOL]
         "continuea"   || [TOKEN_IDENTIFIER, TOKEN_EOL]
         "continue1"   || [TOKEN_IDENTIFIER, TOKEN_EOL]
         "continue;"   || [TOKEN_CONTINUE, TOKEN_SEMICOLON, TOKEN_EOL]
@@ -472,6 +498,47 @@ class LexerSpec extends Specification {
         "continue\$a" || [TOKEN_CONTINUE, TOKEN_DOLLAR, TOKEN_IDENTIFIER, TOKEN_EOL]
         "continue.a"  || [TOKEN_CONTINUE, TOKEN_PERIOD, TOKEN_IDENTIFIER, TOKEN_EOL]
 
+    }
+
+    def "doesn't scan identifiers as keywords"() {
+        setup:
+        def script = new Source("test_script.scr", input)
+        def lexer = new Lexer(script)
+
+        when:
+        def result = lexer.scan().get()
+
+        then:
+        result.list().collect { it.type() } == expectedTokenType
+
+        where:
+
+        input                     || expectedTokenType
+        "end1"                    || [TOKEN_IDENTIFIER, TOKEN_EOL]
+        "enda"                    || [TOKEN_IDENTIFIER, TOKEN_EOL]
+        "end_tank_destroyed"      || [TOKEN_IDENTIFIER, TOKEN_EOL]
+        "continue_tank_destroyed" || [TOKEN_IDENTIFIER, TOKEN_EOL]
+
+    }
+
+    def "scans identifiers with dots inside expressions"() {
+        setup:
+        def script = new Source("test_script.scr", input)
+        def lexer = new Lexer(script)
+
+        when:
+        def result = lexer.scan().get()
+
+        then:
+        result.list().collect { it.type() } == expectedTokenType
+
+        where:
+
+        input                    || expectedTokenType
+        "\$(sdkfz.gunner) test"  || [TOKEN_DOLLAR, TOKEN_LEFT_BRACKET, TOKEN_IDENTIFIER, TOKEN_RIGHT_BRACKET, TOKEN_IDENTIFIER, TOKEN_EOL]
+        "\$enemy[local.i].set--" || [TOKEN_DOLLAR, TOKEN_IDENTIFIER, TOKEN_LEFT_SQUARE_BRACKET, TOKEN_LISTENER, TOKEN_PERIOD, TOKEN_IDENTIFIER, TOKEN_RIGHT_SQUARE_BRACKET, TOKEN_PERIOD, TOKEN_IDENTIFIER, TOKEN_DEC, TOKEN_EOL]
+        "\$enemy[local.i]abcd.set--" || [TOKEN_DOLLAR, TOKEN_IDENTIFIER, TOKEN_LEFT_SQUARE_BRACKET, TOKEN_LISTENER, TOKEN_PERIOD, TOKEN_IDENTIFIER, TOKEN_RIGHT_SQUARE_BRACKET, TOKEN_IDENTIFIER, TOKEN_EOL]
+        "\$santatarget .collisionent=\$opelcollision_mask" || [TOKEN_DOLLAR, TOKEN_IDENTIFIER, TOKEN_PERIOD, TOKEN_IDENTIFIER, TOKEN_ASSIGNMENT, TOKEN_DOLLAR, TOKEN_IDENTIFIER, TOKEN_EOL]
     }
 
     def "scans listeners"() {
@@ -676,6 +743,41 @@ class LexerSpec extends Specification {
         "1.2.3"       | _
     }
 
+    def "scans listener variable as float token instead of identifier when it contains only digits"() {
+        setup:
+        def script = new Source("test_script.scr", input)
+        def lexer = new Lexer(script)
+
+        when:
+        def result = lexer.scan().get()
+
+        then:
+        result.list().collect { it.type() } == expectedTokenType
+
+        where:
+
+        input      || expectedTokenType
+        "local.25" || [TOKEN_LISTENER, TOKEN_FLOAT, TOKEN_EOL]
+    }
+
+    def "doesn't scan empty targetname identifier"() {
+        setup:
+        def script = new Source("test_script.scr", input)
+        def lexer = new Lexer(script)
+
+        when:
+        def result = lexer.scan().get()
+
+        then:
+        result.list().collect { it.type() } == expectedTokenType
+
+        where:
+
+        input     || expectedTokenType
+        "\$."     || [TOKEN_DOLLAR, TOKEN_PERIOD, TOKEN_EOL]
+        "\$.test" || [TOKEN_DOLLAR, TOKEN_PERIOD, TOKEN_IDENTIFIER, TOKEN_EOL]
+    }
+
     def "scans double character positive and negative tokens"() {
         setup:
         def script = new Source("test_script.scr", input)
@@ -762,6 +864,8 @@ class LexerSpec extends Specification {
         "4_test.scr" || "4_test.tokens"
         "5_test.scr" || "5_test.tokens"
         "6_test.scr" || "6_test.tokens"
+        "7_test.scr" || "7_test.tokens"
+        "8_test.scr" || "8_test.tokens"
 
     }
 

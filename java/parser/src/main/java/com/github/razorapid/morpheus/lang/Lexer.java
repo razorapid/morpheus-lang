@@ -1,15 +1,19 @@
 package com.github.razorapid.morpheus.lang;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import lombok.Data;
+import lombok.Value;
+
+import java.util.*;
 
 public class Lexer {
 
     private static final Set<Character> KEYWORD_TERMINATORS = Set.of(
             ' ', '\t', '\r', '\n', '\f',
-            '(', ')', '[', ']', '{', '}', ':', ';'
+            '(', ')', '[', ']', '{', '}', ':', ';',
+            '=', '/', '-', '+', '*', '%', '!', '^', '|', '&', '<', '>', '~',
+            ',', '.', '\\',
+
+            '$', '@', '#', '`', '"', '\'', '?'
     );
     private static final Set<Character> IDENTIFIER_TERMINATORS = Set.of(
             ' ', '\t', '\r', '\n', '\f',
@@ -47,6 +51,50 @@ public class Lexer {
             "game", "level", "local", "parm", "self", "group"
     );
 
+    private static final Set<Character> VARIABLE_SCANNING_TERMINATORS = Set.of(
+        ':', ';',
+        '=', '/', '+', '-', '*', '%', '!', '^', '|', '&', '<', '>', '~',
+        ',', '\\'
+    );
+
+    @Data
+    private static class Scope {
+        boolean scanningVariable = false;
+
+        boolean isScanningVariable() {
+            return scanningVariable;
+        }
+
+        void scanningVariable(boolean val) {
+            scanningVariable = val;
+        }
+    }
+
+    @Value
+    private static class Scopes {
+        List<Scope> scope = new ArrayList<>();
+
+        void push(Scope newScope) {
+            scope.add(newScope);
+        }
+
+        Optional<Scope> pop() {
+            if (!scope.isEmpty()) {
+                return Optional.of(scope.remove(stackTop()));
+            }
+            return Optional.empty();
+        }
+
+        Scope currentScope() {
+            return scope.isEmpty() ? new Scope() : scope.get(stackTop());
+        }
+
+        private int stackTop() {
+            return scope.size() - 1;
+        }
+    }
+
+    private final Scopes scopes = new Scopes();
     private final Tokens tokens = new Tokens();
     private String source;
     private long startPos = 0;
@@ -54,7 +102,6 @@ public class Lexer {
     private long currentLine = 1;
     private long currentCol = 1;
     private boolean currentLineHasStatement = false;
-    private boolean scanningVariable = false;
 
     public Lexer(Source script) {
         this.source = script != null ? script.source() : null;
@@ -77,6 +124,8 @@ public class Lexer {
         this.KEYWORDS.put("makearray", TokenType.TOKEN_MAKEARRAY);
         this.KEYWORDS.put("endArray", TokenType.TOKEN_ENDARRAY);
         this.KEYWORDS.put("endarray", TokenType.TOKEN_ENDARRAY);
+
+        pushScope();
     }
 
     public Optional<Tokens> scan() {
@@ -99,10 +148,10 @@ public class Lexer {
 
         switch (c) {
             case ' ': {
-                if (peek() == '+' && (!WHITE_SPACE.contains(peekNext()) && peekNext() != '=' && peekNext() != '\0')) {
+                if (peek() == '+' && (!WHITE_SPACE.contains(peekNext()) && peekNext() != '+' && peekNext() != '=' && peekNext() != '\0')) {
                     next();
                     addToken(TokenType.TOKEN_POS);
-                } else if (peek() == '-' && (!WHITE_SPACE.contains(peekNext()) && peekNext() != '=' && peekNext() != '\0')) {
+                } else if (peek() == '-' && (!WHITE_SPACE.contains(peekNext()) && peekNext() != '-' && peekNext() != '=' && peekNext() != '\0')) {
                     next();
                     addToken(TokenType.TOKEN_NEG);
                 }
@@ -121,18 +170,42 @@ public class Lexer {
                 break;
             }
             // braces and brackets
-            case '(': addToken(TokenType.TOKEN_LEFT_BRACKET); break;
-            case ')': addToken(TokenType.TOKEN_RIGHT_BRACKET); break;
-            case '[': addToken(TokenType.TOKEN_LEFT_SQUARE_BRACKET); break;
-            case ']': addToken(TokenType.TOKEN_RIGHT_SQUARE_BRACKET); break;
-            case '{': addToken(TokenType.TOKEN_LEFT_BRACES); break;
-            case '}': addToken(TokenType.TOKEN_RIGHT_BRACES); break;
+            case '(': {
+                addToken(TokenType.TOKEN_LEFT_BRACKET);
+                pushScope();
+                break;
+            }
+            case ')': {
+                addToken(TokenType.TOKEN_RIGHT_BRACKET);
+                popScope();
+                break;
+            }
+            case '[': {
+                addToken(TokenType.TOKEN_LEFT_SQUARE_BRACKET);
+                pushScope();
+                break;
+            }
+            case ']': {
+                addToken(TokenType.TOKEN_RIGHT_SQUARE_BRACKET);
+                popScope();
+                break;
+            }
+            case '{': {
+                addToken(TokenType.TOKEN_LEFT_BRACES);
+                pushScope();
+                break;
+            }
+            case '}': {
+                addToken(TokenType.TOKEN_RIGHT_BRACES);
+                popScope();
+                break;
+            }
 
             // single character operators
             case ';': addToken(TokenType.TOKEN_SEMICOLON); break;
             case '$': {
                 addToken(TokenType.TOKEN_DOLLAR);
-                scanningVariable = true;
+                startScanningVariable();
                 break;
             }
             case '~': addToken(TokenType.TOKEN_COMPLEMENT); break;
@@ -220,6 +293,10 @@ public class Lexer {
             }
             default: {
 
+                if (isScanningVariable() && !matchLastToken(TokenType.TOKEN_DOLLAR, TokenType.TOKEN_PERIOD)) {
+                    stopScanningVariable();
+                }
+
                 if (c == '@' || c == '#' || c == '`' || c == '\\' || c == '\'' || c == ',' || c == '?' || c == '_') {
                     matchIdentifier(false);
                     break;
@@ -243,7 +320,7 @@ public class Lexer {
 
                 boolean isListener = tryMatchListener(c);
                 if (isListener) {
-                    if (peek() == '.') scanningVariable = true;
+                    if (peek() == '.') startScanningVariable();
                     break;
                 }
 
@@ -279,7 +356,7 @@ public class Lexer {
     private boolean tryMatchFloat() {
         long pos = currentPos;
         while (Character.isDigit(peek(pos))) pos++;
-        if (pos != currentPos && (isEOF(pos) || WHITE_SPACE.contains(peek(pos)))) {
+        if (pos != currentPos && (isEOF(pos) || NUMBER_TERMINATORS.contains(peek(pos)))) {
             currentPos(pos);
             addToken(TokenType.TOKEN_FLOAT);
             return true;
@@ -327,13 +404,13 @@ public class Lexer {
     private void matchIdentifier(boolean lookupKeywords) {
         boolean matchedKeyword = false;
         while (!isEOF() && (
-                (!scanningVariable && !IDENTIFIER_TERMINATORS.contains(peek())) ||
-                (scanningVariable && !VARIABLE_IDENTIFIER_TERMINATORS.contains(peek()))
+                (!isScanningVariable() && !IDENTIFIER_TERMINATORS.contains(peek())) ||
+                (isScanningVariable() && !VARIABLE_IDENTIFIER_TERMINATORS.contains(peek()))
         )) {
             next();
 
             if (lookupKeywords && KEYWORDS.containsKey(source.substring((int) startPos, (int) currentPos))) {
-                if (!Character.isLetterOrDigit(peek()) || Character.isWhitespace(peek())) {
+                if (KEYWORD_TERMINATORS.contains(peek())) {
                     matchedKeyword = true;
                     addToken(KEYWORDS.getOrDefault(source.substring((int) startPos, (int) currentPos), TokenType.TOKEN_IDENTIFIER));
                     break;
@@ -341,13 +418,50 @@ public class Lexer {
             }
         }
 
-        if (scanningVariable && peek() != '.') {
-            scanningVariable = false;
-        }
-
         if (!matchedKeyword) {
             addToken(TokenType.TOKEN_IDENTIFIER);
         }
+    }
+
+    private void pushScope() {
+        scopes.push(new Scope());
+    }
+
+    private void popScope() {
+        scopes.pop();
+    }
+
+    private void startScanningVariable() {
+        scopes.currentScope().scanningVariable(true);
+    }
+
+    private void stopScanningVariable() {
+        scopes.currentScope().scanningVariable(false);
+    }
+
+    private boolean isScanningVariable() {
+        return scopes.currentScope().isScanningVariable();
+    }
+
+    private TokenType lastScannedToken() {
+        if (tokens.list().isEmpty()) {
+            return null;
+        }
+        return tokens.list().get(tokens.list().size() - 1).type();
+    }
+
+    private boolean matchLastToken(TokenType ...types) {
+        if (lastScannedToken() == null) {
+            return false;
+        }
+
+        TokenType lastTokenType = lastScannedToken();
+        for (var type : types) {
+            if (type == lastTokenType) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private char peekNext() {

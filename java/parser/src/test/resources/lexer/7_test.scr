@@ -1,0 +1,3 @@
+local.local = 1
+level.local = "test"
+local.spawner.group = local.dude.group
