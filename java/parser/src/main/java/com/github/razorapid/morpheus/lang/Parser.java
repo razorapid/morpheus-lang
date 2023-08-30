@@ -4,9 +4,97 @@ import com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree;
 import com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTreeBuilder;
 import lombok.NonNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static com.github.razorapid.morpheus.lang.TokenType.*;
+import static com.github.razorapid.morpheus.lang.Operator.BITWISE_AND;
+import static com.github.razorapid.morpheus.lang.Operator.BITWISE_OR;
+import static com.github.razorapid.morpheus.lang.Operator.BITWISE_XOR;
+import static com.github.razorapid.morpheus.lang.Operator.DIVIDE;
+import static com.github.razorapid.morpheus.lang.Operator.EQUALITY;
+import static com.github.razorapid.morpheus.lang.Operator.GREATER_THAN;
+import static com.github.razorapid.morpheus.lang.Operator.GREATER_THAN_OR_EQUAL;
+import static com.github.razorapid.morpheus.lang.Operator.INEQUALITY;
+import static com.github.razorapid.morpheus.lang.Operator.LESS_THAN;
+import static com.github.razorapid.morpheus.lang.Operator.LESS_THAN_OR_EQUAL;
+import static com.github.razorapid.morpheus.lang.Operator.LOGICAL_AND;
+import static com.github.razorapid.morpheus.lang.Operator.LOGICAL_OR;
+import static com.github.razorapid.morpheus.lang.Operator.MINUS;
+import static com.github.razorapid.morpheus.lang.Operator.MODULUS;
+import static com.github.razorapid.morpheus.lang.Operator.MULTIPLY;
+import static com.github.razorapid.morpheus.lang.Operator.NONE;
+import static com.github.razorapid.morpheus.lang.Operator.NULL;
+import static com.github.razorapid.morpheus.lang.Operator.PLUS;
+import static com.github.razorapid.morpheus.lang.ParseRule.ParseFn.binary;
+import static com.github.razorapid.morpheus.lang.ParseRule.infixRule;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_ASSIGNMENT;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_BITWISE_AND;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_BITWISE_EXCL_OR;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_BITWISE_OR;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_BREAK;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_CASE;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_CATCH;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_COLON;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_COMPLEMENT;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_CONTINUE;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_DEC;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_DIVIDE;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_DOUBLE_COLON;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_ELSE;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_END;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_ENDARRAY;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_EOL;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_EQUALITY;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_FOR;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_GREATER_THAN;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_GREATER_THAN_OR_EQUAL;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_IDENTIFIER;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_IF;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_INC;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_INEQUALITY;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_INTEGER;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_LEFT_BRACES;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_LEFT_BRACKET;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_LESS_THAN;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_LESS_THAN_OR_EQUAL;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_LOGICAL_AND;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_LOGICAL_OR;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_MAKEARRAY;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_MINUS;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_MINUS_EQUALS;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_MULTIPLY;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_NEG;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_NOT;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_PERCENTAGE;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_PLUS;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_PLUS_EQUALS;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_RIGHT_BRACES;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_RIGHT_BRACKET;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_SEMICOLON;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_STRING;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_SWITCH;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_TRY;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_WHILE;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.ADDITION_EXPRESSION;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.BITWISE_AND_EXPRESSION;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.BITWISE_OR_EXPRESSION;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.BITWISE_XOR_EXPRESSION;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.DIVISION_EXPRESSION;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.EQUALITY_EXPRESSION;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.GREATER_THAN_EXPRESSION;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.GREATER_THAN_OR_EQUAL_EXPRESSION;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.INEQUALITY_EXPRESSION;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.LESS_THAN_EXPRESSION;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.LESS_THAN_OR_EQUALS_EXPRESSION;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.LOGICAL_AND_EXPRESSION;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.LOGICAL_OR_EXPRESSION;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.MODULO_EXPRESSION;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.MULTIPLICATION_EXPRESSION;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.SUBTRACTION_EXPRESSION;
 
 public class Parser {
 
@@ -41,15 +129,15 @@ public class Parser {
             try {
                 var statement = parseStatement();
                 if (!isMatched(statement)) {
-                    if (strict && !check(TokenType.TOKEN_EOL, TokenType.TOKEN_SEMICOLON)) {
+                    if (strict && !check(TOKEN_EOL, TOKEN_SEMICOLON)) {
                         errorBadToken(peekToken(), "next statement");
                     }
                     break;
                 }
-                if (strict && !check(TokenType.TOKEN_EOL, TokenType.TOKEN_SEMICOLON)) {
+                if (strict && !check(TOKEN_EOL, TOKEN_SEMICOLON)) {
                     errorBadToken(peekToken(), "next statement or semicolon");
                 }
-                var tokenEol = consume(TokenType.TOKEN_EOL);
+                var tokenEol = consume(TOKEN_EOL);
                 statements.add(nodes.statementLine(statement, tokenEol));
             } catch (ParseError e) {
                 errors.add(e);
@@ -111,14 +199,14 @@ public class Parser {
     }
 
     private ConcreteSyntaxTree.Node parseCompoundStatement() {
-        var tokenLeftBraces = consume(TokenType.TOKEN_LEFT_BRACES);
+        var tokenLeftBraces = consume(TOKEN_LEFT_BRACES);
         if (!isMatched(tokenLeftBraces)) {
             return null;
         }
         consumeNewLines();
 
         var statements = new ArrayList<ConcreteSyntaxTree.Node>();
-        while (isNotEOF() && !check(TokenType.TOKEN_RIGHT_BRACES)) {
+        while (isNotEOF() && !check(TOKEN_RIGHT_BRACES)) {
             var statement = parseStatement();
             if (!isMatched(statement)) {
                 return null;
@@ -126,9 +214,9 @@ public class Parser {
             statements.add(statement);
             consumeNewLines();
         }
-        var tokenRightBraces = consume(TokenType.TOKEN_RIGHT_BRACES);
+        var tokenRightBraces = consume(TOKEN_RIGHT_BRACES);
         if (!isMatched(tokenRightBraces)) {
-            errorBadToken(tokens.peekToken(), TokenType.TOKEN_RIGHT_BRACES);
+            errorBadToken(tokens.peekToken(), TOKEN_RIGHT_BRACES);
             return null;
         }
 
@@ -176,7 +264,7 @@ public class Parser {
     }
 
     private ConcreteSyntaxTree.Node parseTryCatchStatement() {
-        var tokenTry = consume(TokenType.TOKEN_TRY);
+        var tokenTry = consume(TOKEN_TRY);
         if (!isMatched(tokenTry)) {
             return null;
         }
@@ -184,21 +272,21 @@ public class Parser {
 
         var tryStatement = parseCompoundStatement();
         if (!isMatched(tryStatement)) {
-            errorBadToken(tokens.peekToken(), "block of statements beginning with " + TokenType.TOKEN_LEFT_BRACES.nameWithExample());
+            errorBadToken(tokens.peekToken(), "block of statements beginning with " + TOKEN_LEFT_BRACES.nameWithExample());
             return null;
         }
         consumeNewLines();
 
-        var tokenCatch = consume(TokenType.TOKEN_CATCH);
+        var tokenCatch = consume(TOKEN_CATCH);
         if (!isMatched(tokenCatch)) {
-            errorBadToken(tokens.peekToken(), TokenType.TOKEN_CATCH);
+            errorBadToken(tokens.peekToken(), TOKEN_CATCH);
             return null;
         }
         consumeNewLines();
 
         var catchStatement = parseCompoundStatement();
         if (!isMatched(catchStatement)) {
-            errorBadToken(tokens.peekToken(), TokenType.TOKEN_LEFT_BRACES);
+            errorBadToken(tokens.peekToken(), TOKEN_LEFT_BRACES);
             return null;
         }
 
@@ -211,21 +299,21 @@ public class Parser {
     }
 
     private ConcreteSyntaxTree.Node parseBreakStatement() {
-        if (match(TokenType.TOKEN_BREAK)) {
+        if (match(TOKEN_BREAK)) {
             return nodes.breakStatement(tokens.lastToken());
         }
         return null;
     }
 
     private ConcreteSyntaxTree.Node parseContinueStatement() {
-        if (match(TokenType.TOKEN_CONTINUE)) {
+        if (match(TOKEN_CONTINUE)) {
             return nodes.continueStatement(tokens.lastToken());
         }
         return null;
     }
 
     private ConcreteSyntaxTree.Node parseNoopStatement() {
-        if (match(TokenType.TOKEN_SEMICOLON)) {
+        if (match(TOKEN_SEMICOLON)) {
             return nodes.noopStatement(tokens.lastToken());
         }
         return null;
@@ -255,7 +343,7 @@ public class Parser {
     }
 
     private ConcreteSyntaxTree.Node parseSwitchCaseLabelStatement() {
-        var tokenCase = consume(TokenType.TOKEN_CASE);
+        var tokenCase = consume(TOKEN_CASE);
         if (!isMatched(tokenCase)) {
             return null;
         }
@@ -263,18 +351,18 @@ public class Parser {
         Token tokenNeg = null;
         Token tokenInt = null;
 
-        var tokenIntOrText = consume(TokenType.TOKEN_INTEGER, TokenType.TOKEN_IDENTIFIER, TokenType.TOKEN_STRING, TokenType.TOKEN_END);
+        var tokenIntOrText = consume(TOKEN_INTEGER, TOKEN_IDENTIFIER, TOKEN_STRING, TOKEN_END);
         if (!isMatched(tokenIntOrText)) {
             tokenNeg = consume(TOKEN_NEG);
 
             if (!isMatched(tokenNeg)) {
-                errorBadToken(tokens.peekToken(), TokenType.TOKEN_INTEGER, TokenType.TOKEN_IDENTIFIER, TokenType.TOKEN_STRING, TokenType.TOKEN_END);
+                errorBadToken(tokens.peekToken(), TOKEN_INTEGER, TOKEN_IDENTIFIER, TOKEN_STRING, TOKEN_END);
                 return null;
             } else {
                 tokenInt = consume(TOKEN_INTEGER);
 
                 if (!isMatched(tokenInt)) {
-                    errorBadToken(tokens.peekToken(), TokenType.TOKEN_INTEGER);
+                    errorBadToken(tokens.peekToken(), TOKEN_INTEGER);
                     return null;
                 }
             }
@@ -282,9 +370,9 @@ public class Parser {
 
         var eventParamList = parseEventParameterList();
 
-        var tokenColon = consume(TokenType.TOKEN_COLON);
+        var tokenColon = consume(TOKEN_COLON);
         if (!isMatched(tokenColon)) {
-            errorBadToken(tokens.peekToken(), TokenType.TOKEN_COLON);
+            errorBadToken(tokens.peekToken(), TOKEN_COLON);
             return null;
         }
 
@@ -310,14 +398,14 @@ public class Parser {
      */
     private ConcreteSyntaxTree.Node parseThreadLabelStatement() {
         var mark = mark(); //
-        var tokenIdentOrEnd = consume(TokenType.TOKEN_IDENTIFIER, TOKEN_END);
+        var tokenIdentOrEnd = consume(TOKEN_IDENTIFIER, TOKEN_END);
         if (!isMatched(tokenIdentOrEnd)) {
             return null;
         }
 
         var eventParamList = parseEventParameterList();
 
-        var tokenColon = consume(TokenType.TOKEN_COLON);
+        var tokenColon = consume(TOKEN_COLON);
         if (isMatched(tokenColon)) {
             return nodes.threadLabelStatement(tokenIdentOrEnd, eventParamList, tokenColon);
         }
@@ -328,7 +416,7 @@ public class Parser {
     }
 
     private ConcreteSyntaxTree.Node parseIfElseStatement() {
-        var ifToken = consume(TokenType.TOKEN_IF);
+        var ifToken = consume(TOKEN_IF);
         if (!isMatched(ifToken)) {
             return null;
         }
@@ -352,7 +440,7 @@ public class Parser {
 
         consumeNewLines();
 
-        var tokenElse = consume(TokenType.TOKEN_ELSE);
+        var tokenElse = consume(TOKEN_ELSE);
         ConcreteSyntaxTree.Node elseStatement = null;
         if (isMatched(tokenElse)) {
             consumeNewLines();
@@ -364,7 +452,7 @@ public class Parser {
         } else {
             // We consumed all new lines looking for else statement
             // We didn't find it so we end the if statement with a new line
-            if (tokens.peekTokenAhead(-1).type() == TokenType.TOKEN_EOL) {
+            if (tokens.peekTokenAhead(-1).type() == TOKEN_EOL) {
                 tokens.rewind(1);
             }
         }
@@ -373,7 +461,7 @@ public class Parser {
     }
 
     private ConcreteSyntaxTree.Node parseSwitchStatement() {
-        var tokenSwitch = consume(TokenType.TOKEN_SWITCH);
+        var tokenSwitch = consume(TOKEN_SWITCH);
         if (!isMatched(tokenSwitch)) {
             return null;
         }
@@ -388,7 +476,7 @@ public class Parser {
 
         var compoundStatement = parseCompoundStatement();
         if (!isMatched(compoundStatement)) {
-            errorBadToken(tokens.peekToken(), "block of statements beginning with " + TokenType.TOKEN_LEFT_BRACES.nameWithExample());
+            errorBadToken(tokens.peekToken(), "block of statements beginning with " + TOKEN_LEFT_BRACES.nameWithExample());
             return null;
         }
 
@@ -396,7 +484,7 @@ public class Parser {
     }
 
     private ConcreteSyntaxTree.Node parseWhileStatement() {
-        var tokenWhile = consume(TokenType.TOKEN_WHILE);
+        var tokenWhile = consume(TOKEN_WHILE);
         if (!isMatched(tokenWhile)) {
             return null;
         }
@@ -419,15 +507,15 @@ public class Parser {
     }
 
     private ConcreteSyntaxTree.Node parseForStatement() {
-        var tokenFor = consume(TokenType.TOKEN_FOR);
+        var tokenFor = consume(TOKEN_FOR);
         if (!isMatched(tokenFor)) {
             return null;
         }
         consumeNewLines();
 
-        var tokenLeftBracket = consume(TokenType.TOKEN_LEFT_BRACKET);
+        var tokenLeftBracket = consume(TOKEN_LEFT_BRACKET);
         if (!isMatched(tokenLeftBracket)) {
-            errorBadToken(tokens.peekToken(), TokenType.TOKEN_LEFT_BRACKET);
+            errorBadToken(tokens.peekToken(), TOKEN_LEFT_BRACKET);
             return null;
         }
         consumeNewLines();
@@ -437,7 +525,7 @@ public class Parser {
 
         if (check(TOKEN_SEMICOLON)) {
             preStatement = null;
-            tokenStatementSemicolon = consume(TokenType.TOKEN_SEMICOLON);
+            tokenStatementSemicolon = consume(TOKEN_SEMICOLON);
         } else {
             preStatement = parseStatement();
             if (!isMatched(preStatement)) {
@@ -446,9 +534,9 @@ public class Parser {
             }
             consumeNewLines();
 
-            tokenStatementSemicolon = consume(TokenType.TOKEN_SEMICOLON);
+            tokenStatementSemicolon = consume(TOKEN_SEMICOLON);
             if (!isMatched(tokenStatementSemicolon)) {
-                errorBadToken(tokens.peekToken(), TokenType.TOKEN_SEMICOLON);
+                errorBadToken(tokens.peekToken(), TOKEN_SEMICOLON);
                 return null;
             }
             consumeNewLines();
@@ -461,9 +549,9 @@ public class Parser {
         }
         consumeNewLines();
 
-        var expressionSemicolon = consume(TokenType.TOKEN_SEMICOLON);
+        var expressionSemicolon = consume(TOKEN_SEMICOLON);
         if (!isMatched(expressionSemicolon)) {
-            errorBadToken(tokens.peekToken(), TokenType.TOKEN_SEMICOLON);
+            errorBadToken(tokens.peekToken(), TOKEN_SEMICOLON);
             return null;
         }
         consumeNewLines();
@@ -475,9 +563,9 @@ public class Parser {
         }
         consumeNewLines();
 
-        var tokenRightBracket = consume(TokenType.TOKEN_RIGHT_BRACKET);
+        var tokenRightBracket = consume(TOKEN_RIGHT_BRACKET);
         if (!isMatched(tokenRightBracket)) {
-            errorBadToken(tokens.peekToken(), TokenType.TOKEN_RIGHT_BRACKET);
+            errorBadToken(tokens.peekToken(), TOKEN_RIGHT_BRACKET);
             return null;
         }
         consumeNewLines();
@@ -508,7 +596,7 @@ public class Parser {
      * @see #parseThreadLabelStatement
      */
     private ConcreteSyntaxTree.Node parseThreadFunctionCallExpression() {
-        var tokenIdentOrEnd = consume(TokenType.TOKEN_IDENTIFIER, TOKEN_END);
+        var tokenIdentOrEnd = consume(TOKEN_IDENTIFIER, TOKEN_END);
         if (!isMatched(tokenIdentOrEnd)) {
             return null;
         }
@@ -537,7 +625,7 @@ public class Parser {
             return null;
         }
 
-        var tokenIdentifier = consume(TokenType.TOKEN_IDENTIFIER, TOKEN_END);
+        var tokenIdentifier = consume(TOKEN_IDENTIFIER, TOKEN_END);
         if (!isMatched(tokenIdentifier)) {
             restore(pos);
             return null;
@@ -556,7 +644,7 @@ public class Parser {
             return null;
         }
 
-        var tokenAssignmentOp = consume(TokenType.TOKEN_ASSIGNMENT, TokenType.TOKEN_PLUS_EQUALS, TokenType.TOKEN_MINUS_EQUALS);
+        var tokenAssignmentOp = consume(TOKEN_ASSIGNMENT, TOKEN_PLUS_EQUALS, TOKEN_MINUS_EQUALS);
         if (!isMatched(tokenAssignmentOp)) {
             restore(pos);
             return null;
@@ -580,7 +668,7 @@ public class Parser {
             return null;
         }
 
-        var tokenOp = consume(TokenType.TOKEN_INC, TokenType.TOKEN_DEC);
+        var tokenOp = consume(TOKEN_INC, TOKEN_DEC);
         if (!isMatched(tokenOp)) {
             restore(pos);
             return null;
@@ -613,7 +701,7 @@ public class Parser {
      * on grammar readability
      */
     ConcreteSyntaxTree.Node parseNonIdentifierPrimaryExpression() {
-        return parseNonIdentifierPrimaryExpression(Operator.NONE);
+        return parseNonIdentifierPrimaryExpression(NONE);
     }
 
     private ConcreteSyntaxTree.Node parseNonIdentifierPrimaryExpression(Operator precedence) {
@@ -651,7 +739,7 @@ public class Parser {
             }
         }
 
-        if (!check(TokenType.TOKEN_DOUBLE_COLON)) {
+        if (!check(TOKEN_DOUBLE_COLON)) {
             restore(pos);
             return null;
         }
@@ -660,7 +748,7 @@ public class Parser {
         constArrayElems.add(lhs);
         ConcreteSyntaxTree.Node rhs;
         do {
-            var tokenDoubleColon = consume(TokenType.TOKEN_DOUBLE_COLON);
+            var tokenDoubleColon = consume(TOKEN_DOUBLE_COLON);
             if (!isMatched(tokenDoubleColon)) {
                 break;
             }
@@ -685,7 +773,7 @@ public class Parser {
     }
 
     private ConcreteSyntaxTree.Node parseIdentifierPrimaryExpression() {
-        var tokenIdentifier = consume(TokenType.TOKEN_IDENTIFIER, TokenType.TOKEN_END);
+        var tokenIdentifier = consume(TOKEN_IDENTIFIER, TOKEN_END);
         if (!isMatched(tokenIdentifier)) {
             return null;
         }
@@ -693,7 +781,7 @@ public class Parser {
     }
 
     ConcreteSyntaxTree.Node parseExpression() {
-        return parseExpression(Operator.NONE);
+        return parseExpression(NONE);
     }
 
     ConcreteSyntaxTree.Node parseExpression(Operator precedence) {
@@ -737,72 +825,19 @@ public class Parser {
         return null;
     }
 
-//    private ConcreteSyntaxTree.Node parseFunctionOrNonIdentifierPrimaryExpression() {
-//        var expression = parseUnaryFunctionOrNonIdentifierPrimaryExpression();
-//        if (isMatched(expression)) {
-//            return expression;
-//        }
-//
-//        expression = parseConstArrayExpression();
-//        if (isMatched(expression)) {
-//            return nodes.functionPrimaryExpression(expression);
-//        }
-//
-//        expression = parseThreadFunctionCallExpression();
-//        if (isMatched(expression)) {
-//            return nodes.functionPrimaryExpression(expression);
-//        }
-//
-//        expression = parseListenerFunctionCallExpression();
-//        if (isMatched(expression)) {
-//            return nodes.functionPrimaryExpression(expression);
-//        }
-//
-//        expression = parseNonIdentifierPrimaryExpression();
-//        if (isMatched(expression)) {
-//            return expression;
-//        }
-//        return null;
-//    }
-
-//    private ConcreteSyntaxTree.Node parseUnaryFunctionOrNonIdentifierPrimaryExpression() {
-//        var token = consume(TokenType.TOKEN_NEG, TokenType.TOKEN_COMPLEMENT, TokenType.TOKEN_NOT);
-//        if (!isMatched(token)) {
-//            return null;
-//        }
-//
-//        var expression = parseFunctionOrNonIdentifierPrimaryExpression();
-//        if (!isMatched(expression)) {
-//            return null;
-//        }
-//
-//        if (expression.type() == ConcreteSyntaxTree.NodeType.FUNCTION_PRIMARY_EXPRESSION) {
-//            return nodes.unaryFunctionPrimaryExpression(switch (token.type()) {
-//                case TOKEN_NEG -> nodes.arithmeticNegationFunctionExpression(token, expression);
-//                case TOKEN_COMPLEMENT -> nodes.bitwiseCompletionFunctionExpression(token, expression);
-//                case TOKEN_NOT -> nodes.logicalNegationFunctionExpression(token, expression);
-//                default -> throw new IllegalStateException("Unexpected value: " + token.type());
-//            });
-//        } else {
-//            return nodes.unaryNonIdentifierExpression(switch (token.type()) {
-//                case TOKEN_NEG -> nodes.ari
-//            });
-//        }
-//    }
-
     private ConcreteSyntaxTree.Node parseMakeArrayExpression() {
-        var tokenMakeArray = consume(TokenType.TOKEN_MAKEARRAY);
+        var tokenMakeArray = consume(TOKEN_MAKEARRAY);
         if (!isMatched(tokenMakeArray)) {
             return null;
         }
-        var tokenEol = consume(TokenType.TOKEN_EOL);
+        var tokenEol = consume(TOKEN_EOL);
         if (!isMatched(tokenEol)) {
-            errorBadToken(peekToken(), TokenType.TOKEN_EOL);
+            errorBadToken(peekToken(), TOKEN_EOL);
             return null;
         }
 
         var rows = new ArrayList<ConcreteSyntaxTree.Node>();
-        while (!check(TokenType.TOKEN_ENDARRAY)) {
+        while (!check(TOKEN_ENDARRAY)) {
             var row = parseMakeArrayRowExpression();
             if (!isMatched(row)) {
                 break;
@@ -810,9 +845,9 @@ public class Parser {
             rows.add(row);
         }
 
-        var tokenEndArray = consume(TokenType.TOKEN_ENDARRAY);
+        var tokenEndArray = consume(TOKEN_ENDARRAY);
         if (!isMatched(tokenEndArray)) {
-            errorBadToken(peekToken(), TokenType.TOKEN_ENDARRAY);
+            errorBadToken(peekToken(), TOKEN_ENDARRAY);
             return null;
         }
 
@@ -830,13 +865,13 @@ public class Parser {
                 return null;
             }
 
-            if (check(TokenType.TOKEN_EOL)) {
+            if (check(TOKEN_EOL)) {
                 break;
             }
         }
-        var rowEnd = consume(TokenType.TOKEN_EOL);
+        var rowEnd = consume(TOKEN_EOL);
         if (!isMatched(rowEnd)) {
-            errorBadToken(peekToken(), TokenType.TOKEN_EOL);
+            errorBadToken(peekToken(), TOKEN_EOL);
             return null;
         }
 
@@ -898,7 +933,7 @@ public class Parser {
             that can also start with one of these unary operators
         */
         var pos = mark();
-        var token = consume(TokenType.TOKEN_NEG, TokenType.TOKEN_COMPLEMENT, TokenType.TOKEN_NOT);
+        var token = consume(TOKEN_NEG, TOKEN_COMPLEMENT, TOKEN_NOT);
         if (!isMatched(token)) {
             return null;
         }
@@ -951,7 +986,7 @@ public class Parser {
 
     private Operator nextRulePrecedence(Map<TokenType, ParseRule> rules) {
         var rule = rules.get(peekToken().type());
-        return rule != null && rule.infix() != null ? rule.precedence() : Operator.NULL;
+        return rule != null && rule.infix() != null ? rule.precedence() : NULL;
     }
 
     boolean isMatched(ConcreteSyntaxTree.Node node) {
@@ -1003,7 +1038,7 @@ public class Parser {
     }
 
     void consumeNewLines() {
-        while (tokens.check(TokenType.TOKEN_EOL)) tokens.nextToken();
+        while (tokens.check(TOKEN_EOL)) tokens.nextToken();
     }
 
     void errorBadToken(Token badToken, TokenType... expectedTokenTypes) {
@@ -1024,7 +1059,7 @@ public class Parser {
 
     private void sync() {
         while (isNotEOF()) {
-            if (nextToken().isType(TokenType.TOKEN_EOL)) {
+            if (nextToken().isType(TOKEN_EOL)) {
                 return;
             }
         }
@@ -1032,21 +1067,21 @@ public class Parser {
 
     private static final Map<TokenType, ParseRule> binaryExpressionRules = new HashMap<>();
     static {
-        binaryExpressionRules.put(TokenType.TOKEN_MULTIPLY, ParseRule.infixRule(ParseRule.ParseFn.binary(ConcreteSyntaxTree.NodeType.MULTIPLICATION_EXPRESSION, "multiplicationExpression", TokenType.TOKEN_MULTIPLY), Operator.MULTIPLY));
-        binaryExpressionRules.put(TokenType.TOKEN_DIVIDE, ParseRule.infixRule(ParseRule.ParseFn.binary(ConcreteSyntaxTree.NodeType.DIVISION_EXPRESSION, "divisionExpression", TokenType.TOKEN_DIVIDE), Operator.DIVIDE));
-        binaryExpressionRules.put(TokenType.TOKEN_PERCENTAGE, ParseRule.infixRule(ParseRule.ParseFn.binary(ConcreteSyntaxTree.NodeType.MODULO_EXPRESSION, "moduloExpression", TokenType.TOKEN_PERCENTAGE), Operator.MODULUS));
-        binaryExpressionRules.put(TokenType.TOKEN_PLUS, ParseRule.infixRule(ParseRule.ParseFn.binary(ConcreteSyntaxTree.NodeType.ADDITION_EXPRESSION, "additionExpression", TokenType.TOKEN_PLUS), Operator.PLUS));
-        binaryExpressionRules.put(TokenType.TOKEN_MINUS, ParseRule.infixRule(ParseRule.ParseFn.binary(ConcreteSyntaxTree.NodeType.SUBTRACTION_EXPRESSION, "subtractionExpression", TokenType.TOKEN_MINUS), Operator.MINUS));
-        binaryExpressionRules.put(TokenType.TOKEN_LESS_THAN, ParseRule.infixRule(ParseRule.ParseFn.binary(ConcreteSyntaxTree.NodeType.LESS_THAN_EXPRESSION, "lessThanExpression", TokenType.TOKEN_LESS_THAN), Operator.LESS_THAN));
-        binaryExpressionRules.put(TokenType.TOKEN_GREATER_THAN, ParseRule.infixRule(ParseRule.ParseFn.binary(ConcreteSyntaxTree.NodeType.GREATER_THAN_EXPRESSION, "greaterThanExpression", TokenType.TOKEN_GREATER_THAN), Operator.GREATER_THAN));
-        binaryExpressionRules.put(TokenType.TOKEN_LESS_THAN_OR_EQUAL, ParseRule.infixRule(ParseRule.ParseFn.binary(ConcreteSyntaxTree.NodeType.LESS_THAN_OR_EQUALS_EXPRESSION, "lessThanOrEqualExpression", TokenType.TOKEN_LESS_THAN_OR_EQUAL), Operator.LESS_THAN_OR_EQUAL));
-        binaryExpressionRules.put(TokenType.TOKEN_GREATER_THAN_OR_EQUAL, ParseRule.infixRule(ParseRule.ParseFn.binary(ConcreteSyntaxTree.NodeType.GREATER_THAN_OR_EQUAL_EXPRESSION, "greaterThanOrEqualExpression", TokenType.TOKEN_GREATER_THAN_OR_EQUAL), Operator.GREATER_THAN_OR_EQUAL));
-        binaryExpressionRules.put(TokenType.TOKEN_EQUALITY, ParseRule.infixRule(ParseRule.ParseFn.binary(ConcreteSyntaxTree.NodeType.EQUALITY_EXPRESSION, "equalityExpression", TokenType.TOKEN_EQUALITY), Operator.EQUALITY));
-        binaryExpressionRules.put(TokenType.TOKEN_INEQUALITY, ParseRule.infixRule(ParseRule.ParseFn.binary(ConcreteSyntaxTree.NodeType.INEQUALITY_EXPRESSION, "inequalityExpression", TokenType.TOKEN_INEQUALITY), Operator.INEQUALITY));
-        binaryExpressionRules.put(TokenType.TOKEN_BITWISE_AND, ParseRule.infixRule(ParseRule.ParseFn.binary(ConcreteSyntaxTree.NodeType.BITWISE_AND_EXPRESSION, "bitwiseAndExpression", TokenType.TOKEN_BITWISE_AND), Operator.BITWISE_AND));
-        binaryExpressionRules.put(TokenType.TOKEN_BITWISE_EXCL_OR, ParseRule.infixRule(ParseRule.ParseFn.binary(ConcreteSyntaxTree.NodeType.BITWISE_XOR_EXPRESSION, "bitwiseXorExpression", TokenType.TOKEN_BITWISE_EXCL_OR), Operator.BITWISE_XOR));
-        binaryExpressionRules.put(TokenType.TOKEN_BITWISE_OR, ParseRule.infixRule(ParseRule.ParseFn.binary(ConcreteSyntaxTree.NodeType.BITWISE_OR_EXPRESSION,"bitwiseOrExpression", TokenType.TOKEN_BITWISE_OR), Operator.BITWISE_OR));
-        binaryExpressionRules.put(TokenType.TOKEN_LOGICAL_AND, ParseRule.infixRule(ParseRule.ParseFn.binary(ConcreteSyntaxTree.NodeType.LOGICAL_AND_EXPRESSION, "logicalAndExpression", TokenType.TOKEN_LOGICAL_AND), Operator.LOGICAL_AND));
-        binaryExpressionRules.put(TokenType.TOKEN_LOGICAL_OR, ParseRule.infixRule(ParseRule.ParseFn.binary(ConcreteSyntaxTree.NodeType.LOGICAL_OR_EXPRESSION, "logicalOrExpression", TokenType.TOKEN_LOGICAL_OR), Operator.LOGICAL_OR));
+        binaryExpressionRules.put(TOKEN_MULTIPLY, infixRule(binary(MULTIPLICATION_EXPRESSION, "multiplicationExpression", TOKEN_MULTIPLY), MULTIPLY));
+        binaryExpressionRules.put(TOKEN_DIVIDE, infixRule(binary(DIVISION_EXPRESSION, "divisionExpression", TOKEN_DIVIDE), DIVIDE));
+        binaryExpressionRules.put(TOKEN_PERCENTAGE, infixRule(binary(MODULO_EXPRESSION, "moduloExpression", TOKEN_PERCENTAGE), MODULUS));
+        binaryExpressionRules.put(TOKEN_PLUS, infixRule(binary(ADDITION_EXPRESSION, "additionExpression", TOKEN_PLUS), PLUS));
+        binaryExpressionRules.put(TOKEN_MINUS, infixRule(binary(SUBTRACTION_EXPRESSION, "subtractionExpression", TOKEN_MINUS), MINUS));
+        binaryExpressionRules.put(TOKEN_LESS_THAN, infixRule(binary(LESS_THAN_EXPRESSION, "lessThanExpression", TOKEN_LESS_THAN), LESS_THAN));
+        binaryExpressionRules.put(TOKEN_GREATER_THAN, infixRule(binary(GREATER_THAN_EXPRESSION, "greaterThanExpression", TOKEN_GREATER_THAN), GREATER_THAN));
+        binaryExpressionRules.put(TOKEN_LESS_THAN_OR_EQUAL, infixRule(binary(LESS_THAN_OR_EQUALS_EXPRESSION, "lessThanOrEqualExpression", TOKEN_LESS_THAN_OR_EQUAL), LESS_THAN_OR_EQUAL));
+        binaryExpressionRules.put(TOKEN_GREATER_THAN_OR_EQUAL, infixRule(binary(GREATER_THAN_OR_EQUAL_EXPRESSION, "greaterThanOrEqualExpression", TOKEN_GREATER_THAN_OR_EQUAL), GREATER_THAN_OR_EQUAL));
+        binaryExpressionRules.put(TOKEN_EQUALITY, infixRule(binary(EQUALITY_EXPRESSION, "equalityExpression", TOKEN_EQUALITY), EQUALITY));
+        binaryExpressionRules.put(TOKEN_INEQUALITY, infixRule(binary(INEQUALITY_EXPRESSION, "inequalityExpression", TOKEN_INEQUALITY), INEQUALITY));
+        binaryExpressionRules.put(TOKEN_BITWISE_AND, infixRule(binary(BITWISE_AND_EXPRESSION, "bitwiseAndExpression", TOKEN_BITWISE_AND), BITWISE_AND));
+        binaryExpressionRules.put(TOKEN_BITWISE_EXCL_OR, infixRule(binary(BITWISE_XOR_EXPRESSION, "bitwiseXorExpression", TOKEN_BITWISE_EXCL_OR), BITWISE_XOR));
+        binaryExpressionRules.put(TOKEN_BITWISE_OR, infixRule(binary(BITWISE_OR_EXPRESSION,"bitwiseOrExpression", TOKEN_BITWISE_OR), BITWISE_OR));
+        binaryExpressionRules.put(TOKEN_LOGICAL_AND, infixRule(binary(LOGICAL_AND_EXPRESSION, "logicalAndExpression", TOKEN_LOGICAL_AND), LOGICAL_AND));
+        binaryExpressionRules.put(TOKEN_LOGICAL_OR, infixRule(binary(LOGICAL_OR_EXPRESSION, "logicalOrExpression", TOKEN_LOGICAL_OR), LOGICAL_OR));
     }
 }

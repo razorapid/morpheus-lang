@@ -7,6 +7,51 @@ import lombok.Getter;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.github.razorapid.morpheus.lang.Operator.INDEX;
+import static com.github.razorapid.morpheus.lang.Operator.NONE;
+import static com.github.razorapid.morpheus.lang.Operator.PROPERTY_COMMAND;
+import static com.github.razorapid.morpheus.lang.ParseRule.ParseFn.literalExpression;
+import static com.github.razorapid.morpheus.lang.ParseRule.ParseFn.unaryNonIdentifier;
+import static com.github.razorapid.morpheus.lang.ParseRule.infixRule;
+import static com.github.razorapid.morpheus.lang.ParseRule.prefixRule;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_BREAK;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_CASE;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_CATCH;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_COMPLEMENT;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_CONTINUE;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_DOLLAR;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_ELSE;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_END;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_FLOAT;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_FOR;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_IDENTIFIER;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_IF;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_INTEGER;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_LEFT_BRACKET;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_LEFT_SQUARE_BRACKET;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_LISTENER;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_NEG;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_NIL;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_NOT;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_NULL;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_PERIOD;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_RIGHT_BRACKET;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_RIGHT_SQUARE_BRACKET;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_SIZE;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_STRING;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_SWITCH;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_TRY;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_WHILE;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.ARITHMETIC_NEGATION_NON_IDENTIFIER_EXPRESSION;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.BITWISE_COMPLEMENT_NON_IDENTIFIER_EXPRESSION;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.FLOAT_LITERAL;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.INTEGER_LITERAL;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.LISTENER_LITERAL;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.LOGICAL_NEGATION_NON_IDENTIFIER_EXPRESSION;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.NIL_LITERAL;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.NULL_LITERAL;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.STRING_LITERAL;
+
 class NonIdentifierExpressionRules {
     private static final ConcreteSyntaxTreeBuilder nodes = new ConcreteSyntaxTreeBuilder();
 
@@ -23,26 +68,26 @@ class NonIdentifierExpressionRules {
 
     private Map<TokenType, ParseRule> createNonIdentifierScalarComponentExpressionRules() {
         var rules = createNonIdentifierPrimaryExpressionRules();
-        rules.put(TokenType.TOKEN_DOLLAR, ParseRule.prefixRule(TARGETNAME_SCALAR_COMPONENT_EXPRESSION_FN));
+        rules.put(TOKEN_DOLLAR, prefixRule(TARGETNAME_SCALAR_COMPONENT_EXPRESSION_FN));
         return rules;
     }
 
     private Map<TokenType, ParseRule> createNonIdentifierPrimaryExpressionRules() {
         var rules = new HashMap<TokenType, ParseRule>();
-        rules.put(TokenType.TOKEN_LEFT_BRACKET, ParseRule.prefixRule(VECTOR_OR_GROUP_EXPRESSION_FN));
-        rules.put(TokenType.TOKEN_LEFT_SQUARE_BRACKET, ParseRule.infixRule(SUBSCRIPT_EXPRESSION_FN, Operator.INDEX));
-        rules.put(TokenType.TOKEN_DOLLAR, ParseRule.prefixRule(TARGETNAME_EXPRESSION_FN));
-        rules.put(TokenType.TOKEN_PERIOD, ParseRule.infixRule(MEMBER_SELECTION_EXPRESSION_FN, Operator.PROPERTY_COMMAND));
-        rules.put(TokenType.TOKEN_NEG, ParseRule.prefixRule(ParseRule.ParseFn.unaryNonIdentifier(ConcreteSyntaxTree.NodeType.ARITHMETIC_NEGATION_NON_IDENTIFIER_EXPRESSION, "arithmeticNegationNonIdentifierExpression", TokenType.TOKEN_NEG)));
+        rules.put(TOKEN_LEFT_BRACKET, prefixRule(VECTOR_OR_GROUP_EXPRESSION_FN));
+        rules.put(TOKEN_LEFT_SQUARE_BRACKET, infixRule(SUBSCRIPT_EXPRESSION_FN, INDEX));
+        rules.put(TOKEN_DOLLAR, prefixRule(TARGETNAME_EXPRESSION_FN));
+        rules.put(TOKEN_PERIOD, infixRule(MEMBER_SELECTION_EXPRESSION_FN, PROPERTY_COMMAND));
+        rules.put(TOKEN_NEG, prefixRule(unaryNonIdentifier(ARITHMETIC_NEGATION_NON_IDENTIFIER_EXPRESSION, "arithmeticNegationNonIdentifierExpression", TOKEN_NEG)));
         //nonIdentifyPrimaryExpressionRules.put(TOKEN_POS <-- the token exists in original parser, but looks like it's not used anywhere
-        rules.put(TokenType.TOKEN_COMPLEMENT, ParseRule.prefixRule(ParseRule.ParseFn.unaryNonIdentifier(ConcreteSyntaxTree.NodeType.BITWISE_COMPLEMENT_NON_IDENTIFIER_EXPRESSION, "bitwiseComplementNonIdentifierExpression", TokenType.TOKEN_COMPLEMENT)));
-        rules.put(TokenType.TOKEN_NOT, ParseRule.prefixRule(ParseRule.ParseFn.unaryNonIdentifier(ConcreteSyntaxTree.NodeType.LOGICAL_NEGATION_NON_IDENTIFIER_EXPRESSION, "logicalNegationNonIdentifierExpression", TokenType.TOKEN_NOT)));
-        rules.put(TokenType.TOKEN_NULL, ParseRule.prefixRule(ParseRule.ParseFn.literalExpression(ConcreteSyntaxTree.NodeType.NULL_LITERAL, "nullLiteral", TokenType.TOKEN_NULL)));
-        rules.put(TokenType.TOKEN_NIL, ParseRule.prefixRule(ParseRule.ParseFn.literalExpression(ConcreteSyntaxTree.NodeType.NIL_LITERAL, "nilLiteral", TokenType.TOKEN_NIL)));
-        rules.put(TokenType.TOKEN_LISTENER, ParseRule.prefixRule(ParseRule.ParseFn.literalExpression(ConcreteSyntaxTree.NodeType.LISTENER_LITERAL, "listenerLiteral", TokenType.TOKEN_LISTENER)));
-        rules.put(TokenType.TOKEN_FLOAT, ParseRule.prefixRule(ParseRule.ParseFn.literalExpression(ConcreteSyntaxTree.NodeType.FLOAT_LITERAL, "floatLiteral", TokenType.TOKEN_FLOAT)));
-        rules.put(TokenType.TOKEN_INTEGER, ParseRule.prefixRule(ParseRule.ParseFn.literalExpression(ConcreteSyntaxTree.NodeType.INTEGER_LITERAL, "integerLiteral", TokenType.TOKEN_INTEGER)));
-        rules.put(TokenType.TOKEN_STRING, ParseRule.prefixRule(ParseRule.ParseFn.literalExpression(ConcreteSyntaxTree.NodeType.STRING_LITERAL, "stringLiteral", TokenType.TOKEN_STRING)));
+        rules.put(TOKEN_COMPLEMENT, prefixRule(unaryNonIdentifier(BITWISE_COMPLEMENT_NON_IDENTIFIER_EXPRESSION, "bitwiseComplementNonIdentifierExpression", TOKEN_COMPLEMENT)));
+        rules.put(TOKEN_NOT, prefixRule(unaryNonIdentifier(LOGICAL_NEGATION_NON_IDENTIFIER_EXPRESSION, "logicalNegationNonIdentifierExpression", TOKEN_NOT)));
+        rules.put(TOKEN_NULL, prefixRule(literalExpression(NULL_LITERAL, "nullLiteral", TOKEN_NULL)));
+        rules.put(TOKEN_NIL, prefixRule(literalExpression(NIL_LITERAL, "nilLiteral", TOKEN_NIL)));
+        rules.put(TOKEN_LISTENER, prefixRule(literalExpression(LISTENER_LITERAL, "listenerLiteral", TOKEN_LISTENER)));
+        rules.put(TOKEN_FLOAT, prefixRule(literalExpression(FLOAT_LITERAL, "floatLiteral", TOKEN_FLOAT)));
+        rules.put(TOKEN_INTEGER, prefixRule(literalExpression(INTEGER_LITERAL, "integerLiteral", TOKEN_INTEGER)));
+        rules.put(TOKEN_STRING, prefixRule(literalExpression(STRING_LITERAL, "stringLiteral", TOKEN_STRING)));
         return rules;
     }
 
@@ -60,7 +105,7 @@ class NonIdentifierExpressionRules {
     }
 
     private ConcreteSyntaxTree.Node parseIdentifierScalarComponentExpression() {
-        var tokenIdentifier = parser.consume(TokenType.TOKEN_IDENTIFIER);
+        var tokenIdentifier = parser.consume(TOKEN_IDENTIFIER);
         if (!parser.isMatched(tokenIdentifier)) {
             return null;
         }
@@ -68,7 +113,7 @@ class NonIdentifierExpressionRules {
     }
 
     private ConcreteSyntaxTree.Node parseNonIdentifierScalarComponentExpression() {
-        return parseNonIdentifierScalarComponentExpression(Operator.NONE);
+        return parseNonIdentifierScalarComponentExpression(NONE);
     }
 
     private ConcreteSyntaxTree.Node parseNonIdentifierScalarComponentExpression(Operator precedence) {
@@ -77,7 +122,7 @@ class NonIdentifierExpressionRules {
     }
 
     ParseRule.ParseFn VECTOR_OR_GROUP_EXPRESSION_FN = (ConcreteSyntaxTree.Node lhs, ParseRule rule, Parser parser) -> {
-        var tokenLeftBracket = parser.consume(TokenType.TOKEN_LEFT_BRACKET);
+        var tokenLeftBracket = parser.consume(TOKEN_LEFT_BRACKET);
         if (!parser.isMatched(tokenLeftBracket)) {
             return null;
         }
@@ -92,7 +137,7 @@ class NonIdentifierExpressionRules {
         if (parser.isMatched(expression)) {
             parser.consumeNewLines();
 
-            tokenRightBracket = parser.consume(TokenType.TOKEN_RIGHT_BRACKET);
+            tokenRightBracket = parser.consume(TOKEN_RIGHT_BRACKET);
             if (!parser.isMatched(tokenRightBracket)) {
                 // Try vector
                 parser.restore(pos);
@@ -125,10 +170,10 @@ class NonIdentifierExpressionRules {
 
         parser.consumeNewLines();
 
-        tokenRightBracket = parser.consume(TokenType.TOKEN_RIGHT_BRACKET);
+        tokenRightBracket = parser.consume(TOKEN_RIGHT_BRACKET);
         if (!parser.isMatched(tokenRightBracket)) {
             // when all three terms parsed as number expression, we are definitely parsing vector that is missing closing bracket
-            parser.errorBadToken(parser.currentToken(), TokenType.TOKEN_RIGHT_BRACKET);
+            parser.errorBadToken(parser.currentToken(), TOKEN_RIGHT_BRACKET);
             return null;
         }
 
@@ -142,7 +187,7 @@ class NonIdentifierExpressionRules {
     };
 
     ParseRule.ParseFn TARGETNAME_EXPRESSION_FN = (ConcreteSyntaxTree.Node lhs, ParseRule rule, Parser parser) -> {
-        var tokenDollar = parser.consume(TokenType.TOKEN_DOLLAR);
+        var tokenDollar = parser.consume(TOKEN_DOLLAR);
         if (!parser.isMatched(tokenDollar)) {
             return null;
         }
@@ -155,7 +200,7 @@ class NonIdentifierExpressionRules {
     };
 
     ParseRule.ParseFn TARGETNAME_SCALAR_COMPONENT_EXPRESSION_FN = (ConcreteSyntaxTree.Node lhs, ParseRule rule, Parser parser) -> {
-        var tokenDollar = parser.consume(TokenType.TOKEN_DOLLAR);
+        var tokenDollar = parser.consume(TOKEN_DOLLAR);
         if (!parser.isMatched(tokenDollar)) {
             return null;
         }
@@ -168,27 +213,27 @@ class NonIdentifierExpressionRules {
     };
 
     ParseRule.ParseFn MEMBER_SELECTION_EXPRESSION_FN = (ConcreteSyntaxTree.Node lhs, ParseRule rule, Parser parser) -> {
-        var tokenPeriod = parser.consume(TokenType.TOKEN_PERIOD);
+        var tokenPeriod = parser.consume(TOKEN_PERIOD);
         if (!parser.isMatched(tokenPeriod)) {
             return null;
         }
 
         var tokenMemberName = parser.consume(
-            TokenType.TOKEN_CASE,
-            TokenType.TOKEN_IF,
-            TokenType.TOKEN_ELSE,
-            TokenType.TOKEN_WHILE,
-            TokenType.TOKEN_FOR,
-            TokenType.TOKEN_TRY,
-            TokenType.TOKEN_CATCH,
-            TokenType.TOKEN_SWITCH,
-            TokenType.TOKEN_BREAK,
-            TokenType.TOKEN_CONTINUE,
-            TokenType.TOKEN_END,
-            TokenType.TOKEN_SIZE,
-            TokenType.TOKEN_LISTENER,
-            TokenType.TOKEN_STRING,
-            TokenType.TOKEN_IDENTIFIER
+            TOKEN_CASE,
+            TOKEN_IF,
+            TOKEN_ELSE,
+            TOKEN_WHILE,
+            TOKEN_FOR,
+            TOKEN_TRY,
+            TOKEN_CATCH,
+            TOKEN_SWITCH,
+            TOKEN_BREAK,
+            TOKEN_CONTINUE,
+            TOKEN_END,
+            TOKEN_SIZE,
+            TOKEN_LISTENER,
+            TOKEN_STRING,
+            TOKEN_IDENTIFIER
         );
 
         if (!parser.isMatched(tokenMemberName)) {
@@ -200,7 +245,7 @@ class NonIdentifierExpressionRules {
     };
 
     ParseRule.ParseFn SUBSCRIPT_EXPRESSION_FN = (ConcreteSyntaxTree.Node lhs, ParseRule rule, Parser parser) -> {
-        var tokenLeftSqBracket = parser.consume(TokenType.TOKEN_LEFT_SQUARE_BRACKET);
+        var tokenLeftSqBracket = parser.consume(TOKEN_LEFT_SQUARE_BRACKET);
         if (!parser.isMatched(tokenLeftSqBracket)) {
             return null;
         }
@@ -209,9 +254,9 @@ class NonIdentifierExpressionRules {
             parser.errorBadToken(parser.currentToken(), "expression");
             return null;
         }
-        var tokenRightSqBracket = parser.consume(TokenType.TOKEN_RIGHT_SQUARE_BRACKET);
+        var tokenRightSqBracket = parser.consume(TOKEN_RIGHT_SQUARE_BRACKET);
         if (!parser.isMatched(tokenRightSqBracket)) {
-            parser.errorBadToken(parser.currentToken(), TokenType.TOKEN_RIGHT_SQUARE_BRACKET);
+            parser.errorBadToken(parser.currentToken(), TOKEN_RIGHT_SQUARE_BRACKET);
             return null;
         }
         return nodes.subscriptExpression(lhs, tokenLeftSqBracket, expression, tokenRightSqBracket);

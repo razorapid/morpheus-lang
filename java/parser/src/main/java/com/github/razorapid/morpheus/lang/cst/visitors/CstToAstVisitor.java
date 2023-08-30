@@ -1,14 +1,18 @@
 package com.github.razorapid.morpheus.lang.cst.visitors;
 
+import com.github.razorapid.morpheus.lang.SourcePos;
 import com.github.razorapid.morpheus.lang.Token;
 import com.github.razorapid.morpheus.lang.ast.AbstractSyntaxTree;
-import com.github.razorapid.morpheus.lang.SourcePos;
 import com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree;
 import com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTreeVisitor;
 
 import java.util.List;
 
-import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.*;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.BLOCK_END;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.BLOCK_START;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.DOUBLE_COLON;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.PREFIX_OPERATOR;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.SEMICOLON;
 
 public class CstToAstVisitor implements ConcreteSyntaxTreeVisitor<AbstractSyntaxTree.Node> {
 

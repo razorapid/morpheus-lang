@@ -3,7 +3,55 @@ package com.github.razorapid.morpheus.lang;
 import lombok.Data;
 import lombok.Value;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_ASSIGNMENT;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_BITWISE_AND;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_BITWISE_EXCL_OR;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_BITWISE_OR;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_COLON;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_COMPLEMENT;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_DEC;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_DIVIDE;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_DOLLAR;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_DOUBLE_COLON;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_EOL;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_EQUALITY;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_FLOAT;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_GREATER_THAN;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_GREATER_THAN_OR_EQUAL;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_IDENTIFIER;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_INC;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_INEQUALITY;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_INTEGER;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_LEFT_BRACES;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_LEFT_BRACKET;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_LEFT_SQUARE_BRACKET;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_LESS_THAN;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_LESS_THAN_OR_EQUAL;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_LISTENER;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_LOGICAL_AND;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_LOGICAL_OR;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_MINUS;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_MINUS_EQUALS;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_MULTIPLY;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_NEG;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_NOT;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_PERCENTAGE;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_PERIOD;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_PLUS;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_PLUS_EQUALS;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_POS;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_RIGHT_BRACES;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_RIGHT_BRACKET;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_RIGHT_SQUARE_BRACKET;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_SEMICOLON;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_STRING;
 
 public class Lexer {
 
@@ -150,10 +198,10 @@ public class Lexer {
             case ' ': {
                 if (peek() == '+' && (!WHITE_SPACE.contains(peekNext()) && peekNext() != '+' && peekNext() != '=' && peekNext() != '\0')) {
                     next();
-                    addToken(TokenType.TOKEN_POS);
+                    addToken(TOKEN_POS);
                 } else if (peek() == '-' && (!WHITE_SPACE.contains(peekNext()) && peekNext() != '-' && peekNext() != '=' && peekNext() != '\0')) {
                     next();
-                    addToken(TokenType.TOKEN_NEG);
+                    addToken(TOKEN_NEG);
                 }
                 break;
             }
@@ -163,7 +211,7 @@ public class Lexer {
             case '\n': {
                 if (currentLineHasStatement) {
                     currentLineHasStatement = false;
-                    addToken(TokenType.TOKEN_EOL);
+                    addToken(TOKEN_EOL);
                 }
                 currentLine++;
                 currentCol = 1;
@@ -171,80 +219,80 @@ public class Lexer {
             }
             // braces and brackets
             case '(': {
-                addToken(TokenType.TOKEN_LEFT_BRACKET);
+                addToken(TOKEN_LEFT_BRACKET);
                 pushScope();
                 break;
             }
             case ')': {
-                addToken(TokenType.TOKEN_RIGHT_BRACKET);
+                addToken(TOKEN_RIGHT_BRACKET);
                 popScope();
                 break;
             }
             case '[': {
-                addToken(TokenType.TOKEN_LEFT_SQUARE_BRACKET);
+                addToken(TOKEN_LEFT_SQUARE_BRACKET);
                 pushScope();
                 break;
             }
             case ']': {
-                addToken(TokenType.TOKEN_RIGHT_SQUARE_BRACKET);
+                addToken(TOKEN_RIGHT_SQUARE_BRACKET);
                 popScope();
                 break;
             }
             case '{': {
-                addToken(TokenType.TOKEN_LEFT_BRACES);
+                addToken(TOKEN_LEFT_BRACES);
                 pushScope();
                 break;
             }
             case '}': {
-                addToken(TokenType.TOKEN_RIGHT_BRACES);
+                addToken(TOKEN_RIGHT_BRACES);
                 popScope();
                 break;
             }
 
             // single character operators
-            case ';': addToken(TokenType.TOKEN_SEMICOLON); break;
+            case ';': addToken(TOKEN_SEMICOLON); break;
             case '$': {
-                addToken(TokenType.TOKEN_DOLLAR);
+                addToken(TOKEN_DOLLAR);
                 startScanningVariable();
                 break;
             }
-            case '~': addToken(TokenType.TOKEN_COMPLEMENT); break;
-            case '%': addToken(TokenType.TOKEN_PERCENTAGE); break;
-            case '*': addToken(TokenType.TOKEN_MULTIPLY); break;
-            case '^': addToken(TokenType.TOKEN_BITWISE_EXCL_OR); break;
+            case '~': addToken(TOKEN_COMPLEMENT); break;
+            case '%': addToken(TOKEN_PERCENTAGE); break;
+            case '*': addToken(TOKEN_MULTIPLY); break;
+            case '^': addToken(TOKEN_BITWISE_EXCL_OR); break;
 
             // multi character operators
-            case ':': addToken(match(':') ? TokenType.TOKEN_DOUBLE_COLON : TokenType.TOKEN_COLON); break;
-            case '|': addToken(match('|') ? TokenType.TOKEN_LOGICAL_OR : TokenType.TOKEN_BITWISE_OR); break;
-            case '&': addToken(match('&') ? TokenType.TOKEN_LOGICAL_AND : TokenType.TOKEN_BITWISE_AND); break;
-            case '=': addToken(match('=') ? TokenType.TOKEN_EQUALITY : TokenType.TOKEN_ASSIGNMENT); break;
-            case '!': addToken(match('=') ? TokenType.TOKEN_INEQUALITY : TokenType.TOKEN_NOT); break;
-            case '<': addToken(match('=') ? TokenType.TOKEN_LESS_THAN_OR_EQUAL : TokenType.TOKEN_LESS_THAN); break;
-            case '>': addToken(match('=') ? TokenType.TOKEN_GREATER_THAN_OR_EQUAL : TokenType.TOKEN_GREATER_THAN); break;
+            case ':': addToken(match(':') ? TOKEN_DOUBLE_COLON : TOKEN_COLON); break;
+            case '|': addToken(match('|') ? TOKEN_LOGICAL_OR : TOKEN_BITWISE_OR); break;
+            case '&': addToken(match('&') ? TOKEN_LOGICAL_AND : TOKEN_BITWISE_AND); break;
+            case '=': addToken(match('=') ? TOKEN_EQUALITY : TOKEN_ASSIGNMENT); break;
+            case '!': addToken(match('=') ? TOKEN_INEQUALITY : TOKEN_NOT); break;
+            case '<': addToken(match('=') ? TOKEN_LESS_THAN_OR_EQUAL : TOKEN_LESS_THAN); break;
+            case '>': addToken(match('=') ? TOKEN_GREATER_THAN_OR_EQUAL : TOKEN_GREATER_THAN); break;
             case '-': {
                 if (match('=')) {
-                    addToken(TokenType.TOKEN_MINUS_EQUALS);
+                    addToken(TOKEN_MINUS_EQUALS);
                 } else if (match('-')) {
-                    addToken(TokenType.TOKEN_DEC);
+                    addToken(TOKEN_DEC);
                 } else {
-                    addToken(TokenType.TOKEN_MINUS);
+                    addToken(TOKEN_MINUS);
                 }
                 break;
             }
             case '+': {
                 if (match('=')) {
-                    addToken(TokenType.TOKEN_PLUS_EQUALS);
+                    addToken(TOKEN_PLUS_EQUALS);
                 } else if (match('+')) {
-                    addToken(TokenType.TOKEN_INC);
+                    addToken(TOKEN_INC);
                 } else {
-                    addToken(TokenType.TOKEN_PLUS);
+                    addToken(TOKEN_PLUS);
                 }
                 break;
             }
             case '.': {
                 boolean isFloat = tryMatchFloat();
                 if (!isFloat) {
-                    addToken(TokenType.TOKEN_PERIOD);
+                    addToken(TOKEN_PERIOD);
                 }
                 break;
             }
@@ -257,7 +305,7 @@ public class Lexer {
                         if (currentLineHasStatement) {
                             currentLineHasStatement = false;
                             startPos = currentPos - 1;
-                            addToken(TokenType.TOKEN_EOL);
+                            addToken(TOKEN_EOL);
                         }
                         currentLine++;
                         currentCol = 1;
@@ -269,7 +317,7 @@ public class Lexer {
                             if (currentLineHasStatement) {
                                 currentLineHasStatement = false;
                                 startPos = currentPos - 1;
-                                addToken(TokenType.TOKEN_EOL);
+                                addToken(TOKEN_EOL);
                             }
                             currentLine++;
                             currentCol = 1;
@@ -278,7 +326,7 @@ public class Lexer {
                     next();
                     next();
                 } else {
-                    addToken(TokenType.TOKEN_DIVIDE);
+                    addToken(TOKEN_DIVIDE);
                 }
 
                 break;
@@ -293,7 +341,7 @@ public class Lexer {
             }
             default: {
 
-                if (isScanningVariable() && !matchLastToken(TokenType.TOKEN_DOLLAR, TokenType.TOKEN_PERIOD)) {
+                if (isScanningVariable() && !matchLastToken(TOKEN_DOLLAR, TOKEN_PERIOD)) {
                     stopScanningVariable();
                 }
 
@@ -336,7 +384,7 @@ public class Lexer {
         while (Character.isDigit(peek(pos))) pos++;
         if (isEOF(pos) || NUMBER_TERMINATORS.contains(peek(pos))) {
             currentPos(pos);
-            addToken(TokenType.TOKEN_INTEGER);
+            addToken(TOKEN_INTEGER);
             return true;
         }
 
@@ -345,7 +393,7 @@ public class Lexer {
             while (Character.isDigit(peek(decimalPos))) decimalPos++;
             if (decimalPos > pos + 1 && (isEOF(decimalPos) || NUMBER_TERMINATORS.contains(peek(decimalPos)))) {
                 currentPos(decimalPos);
-                addToken(TokenType.TOKEN_FLOAT);
+                addToken(TOKEN_FLOAT);
                 return true;
             }
         }
@@ -358,7 +406,7 @@ public class Lexer {
         while (Character.isDigit(peek(pos))) pos++;
         if (pos != currentPos && (isEOF(pos) || NUMBER_TERMINATORS.contains(peek(pos)))) {
             currentPos(pos);
-            addToken(TokenType.TOKEN_FLOAT);
+            addToken(TOKEN_FLOAT);
             return true;
         }
         return false;
@@ -380,7 +428,7 @@ public class Lexer {
 
                 if (isListenerCandidate && (isEOF(pos) || LISTENER_TERMINATORS.contains(peek(pos)))) {
                     currentPos(pos);
-                    addToken(TokenType.TOKEN_LISTENER);
+                    addToken(TOKEN_LISTENER);
                     return true;
                 }
             }
@@ -393,7 +441,7 @@ public class Lexer {
         while (!NEW_LINE.contains(peek(pos)) && !isEOF(pos)) {
             if (peek(pos) == '"' && peek(pos - 1) != '\\') {
                 currentPos(pos + 1);
-                addToken(TokenType.TOKEN_STRING);
+                addToken(TOKEN_STRING);
                 return true;
             }
             pos++;
@@ -412,14 +460,14 @@ public class Lexer {
             if (lookupKeywords && KEYWORDS.containsKey(source.substring((int) startPos, (int) currentPos))) {
                 if (KEYWORD_TERMINATORS.contains(peek())) {
                     matchedKeyword = true;
-                    addToken(KEYWORDS.getOrDefault(source.substring((int) startPos, (int) currentPos), TokenType.TOKEN_IDENTIFIER));
+                    addToken(KEYWORDS.getOrDefault(source.substring((int) startPos, (int) currentPos), TOKEN_IDENTIFIER));
                     break;
                 }
             }
         }
 
         if (!matchedKeyword) {
-            addToken(TokenType.TOKEN_IDENTIFIER);
+            addToken(TOKEN_IDENTIFIER);
         }
     }
 
@@ -487,7 +535,7 @@ public class Lexer {
 
     private void addToken(TokenType type) {
         tokens.add(type, source.substring((int) startPos, (int) currentPos), startPos, currentLine, currentCol - (currentPos - startPos));
-        if (type != TokenType.TOKEN_EOL) {
+        if (type != TOKEN_EOL) {
             currentLineHasStatement = true;
         }
     }
