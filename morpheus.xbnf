@@ -185,18 +185,18 @@ compoundStatement
  : TOKEN_LEFT_BRACES statementList TOKEN_RIGHT_BRACES;
 
 labelStatement
- : TOKEN_IDENTIFIER eventParameterList TOKEN_COLON #threadLabelStatement
- | TOKEN_CASE (TOKEN_IDENTIFIER | TOKEN_STRING | TOKEN_INTEGER) eventParameterList TOKEN_COLON #switchCaseLabelStatement
+ : (TOKEN_IDENTIFIER | TOKEN_END) eventParameterList TOKEN_COLON #threadLabelStatement
+ | TOKEN_CASE (TOKEN_IDENTIFIER | TOKEN_STRING | TOKEN_INTEGER | TOKEN_END | TOKEN_NEG TOKEN_INTEGER) eventParameterList TOKEN_COLON #switchCaseLabelStatement
  ;
 
 selectionStatement
- : TOKEN_IF primaryExpression statement (TOKEN_ELSE statement)? #ifElseStatement
+ : TOKEN_IF TOKEN_EOL* primaryExpression TOKEN_EOL* statement TOKEN_SEMICOLON? TOKEN_EOL* (TOKEN_ELSE TOKEN_EOL* statement)? #ifElseStatement
  | TOKEN_SWITCH primaryExpression compoundStatement #switchStatement
  ;
 
 iterationStatement
  : TOKEN_WHILE primaryExpression statement #whileStatement
- | TOKEN_FOR TOKEN_LEFT_BRACKET statement TOKEN_SEMICOLON expression TOKEN_SEMICOLON statementList TOKEN_RIGHT_BRACKET statement #forStatement
+ | TOKEN_FOR TOKEN_LEFT_BRACKET statement? TOKEN_SEMICOLON expression TOKEN_SEMICOLON statementList TOKEN_RIGHT_BRACKET statement #forStatement
  ;
 
 tryCatchStatement
@@ -219,13 +219,13 @@ expressionStatement
  ;
 
 threadFunctionCallExpression
- : TOKEN_IDENTIFIER eventParameterList;
+ : (TOKEN_IDENTIFIER | TOKEN_END) eventParameterList;
 
 listenerFunctionCallExpression
- : nonIdentifierPrimaryExpression TOKEN_IDENTIFIER eventParameterList;
+ : nonIdentifierPrimaryExpression (TOKEN_IDENTIFIER | TOKEN_END) eventParameterList;
 
 assignmentExpression
- : nonIdentifierPrimaryExpression (TOKEN_ASSIGNMENT | TOKEN_PLUS_EQUALS | TOKEN_MINUS_EQUALS ) expression;
+ : nonIdentifierPrimaryExpression (TOKEN_ASSIGNMENT | TOKEN_PLUS_EQUALS | TOKEN_MINUS_EQUALS ) TOKEN_EOL* expression;
 
 incrementOrDecrementExpression // transient rule
  : nonIdentifierPrimaryExpression TOKEN_INC #incrementExpression
@@ -242,7 +242,7 @@ constArrayExpression
  : (identifierPrimaryExpression | nonIdentifierPrimaryExpression) TOKEN_DOUBLE_COLON constArrayExpression;
 
 identifierPrimaryExpression
- : TOKEN_IDENTIFIER #identifierLiteral;
+ : (TOKEN_IDENTIFIER | TOKEN_END) #identifierLiteral;
 
 nonIdentifierPrimaryExpression
  : literalExpression
@@ -278,8 +278,43 @@ unaryNonIdentifierExpression
  | TOKEN_NOT nonIdentifierPrimaryExpression #logicalNegationNonIdentifierExpression
  ;
 
+/*
+    Member field can be string, identifier or some of the keywords.
+    Note that: NULL, NIL, makeArray, makearray, endArray, endarray are not allowed, ie.:
+    - local.NULL = 1
+    - local.NIL = 1
+    - local.makeArray = 1
+    - local.makearray = 1
+    - local.endArray = 1
+    - local.endarray = 1
+
+    while, for example:
+
+    - local.break = 1
+    - local.while = 1
+    - etc.
+
+    are OK.
+*/
+
 memberSelectionExpression
- : nonIdentifierPrimaryExpression TOKEN_PERIOD (TOKEN_SIZE | TOKEN_IDENTIFIER | TOKEN_STRING);
+ : nonIdentifierPrimaryExpression TOKEN_PERIOD (
+   TOKEN_CASE |
+   TOKEN_IF |
+   TOKEN_ELSE |
+   TOKEN_WHILE |
+   TOKEN_FOR |
+   TOKEN_TRY |
+   TOKEN_CATCH |
+   TOKEN_SWITCH |
+   TOKEN_BREAK |
+   TOKEN_CONTINUE |
+   TOKEN_END |
+   TOKEN_SIZE |
+   TOKEN_LISTENER |
+   TOKEN_IDENTIFIER |
+   TOKEN_STRING
+ );
 
 subscriptExpression
  : nonIdentifierPrimaryExpression TOKEN_LEFT_SQUARE_BRACKET expression TOKEN_RIGHT_SQUARE_BRACKET;
@@ -311,7 +346,7 @@ eventParameterList
 expression
  : functionPrimaryExpression
  | nonIdentifierPrimaryExpression
- | makeArrayExpression // TODO
+ | makeArrayExpression
  | binaryExpression // left recursion
  ;
 
