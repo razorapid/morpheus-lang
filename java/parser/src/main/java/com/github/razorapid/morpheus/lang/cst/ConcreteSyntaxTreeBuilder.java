@@ -106,18 +106,47 @@ public class ConcreteSyntaxTreeBuilder {
         );
     }
 
+    public Node switchCaseLabelStatement(Token tokenCase, Token tokenNeg, Token tokenInt, Node eventParamList, Token tokenColon) {
+        return createStatementNode(SWITCH_CASE_LABEL_STATEMENT, "switchCaseLabelStatement",
+            createTokenNode(KEYWORD, tokenCase),
+            createTokenNode(PREFIX_OPERATOR, tokenNeg),
+            createTokenNode(IDENTIFIER, tokenInt),
+            eventParamList,
+            createTokenNode(COLON, tokenColon)
+        );
+    }
+
     public Node threadLabelStatement(Token tokenIdentOrEnd, Node eventParamList, Token tokenColon) {
         return createStatementNode(THREAD_LABEL_STATEMENT, "threadLabelStatement", createTokenNode(IDENTIFIER, tokenIdentOrEnd), eventParamList, createTokenNode(COLON, tokenColon));
     }
 
-    public Node ifElseStatement(Token ifToken, Node primaryExpression, Node statement, Token tokenElse, Node elseStatement) {
+    public Node ifElseStatement(Token ifToken, Node primaryExpression, Node statement, Token optionalSemicolon, Token tokenElse, Node elseStatement) {
         if (tokenElse != null && elseStatement != null) {
+            if (optionalSemicolon != null) {
+                return createStatementNode(IF_ELSE_STATEMENT, "ifElseStatement",
+                        createTokenNode(KEYWORD, ifToken),
+                        primaryExpression,
+                        statement,
+                        createTokenNode(SEMICOLON, optionalSemicolon),
+                        createTokenNode(KEYWORD, tokenElse),
+                        elseStatement
+                );
+            }
             return createStatementNode(IF_ELSE_STATEMENT, "ifElseStatement",
                     createTokenNode(KEYWORD, ifToken),
                     primaryExpression,
                     statement,
                     createTokenNode(KEYWORD, tokenElse),
                     elseStatement
+            );
+        }
+
+        if (optionalSemicolon != null) {
+            return createStatementNode(IF_ELSE_STATEMENT, "ifElseStatement",
+                    createTokenNode(KEYWORD, ifToken),
+                    primaryExpression,
+                    statement,
+                    createTokenNode(SEMICOLON, optionalSemicolon)
             );
         }
         return createStatementNode(IF_ELSE_STATEMENT, "ifElseStatement",

@@ -1,0 +1,138 @@
+<Statement name="statementList">
+    <Statement name="statementLine">
+        <Statement name="statement">
+            <Statement name="expressionStatement">
+                <Expression name="assignmentExpression">
+                    <Expression name="nonIdentifierPrimaryExpression">
+                        <Expression name="memberSelectionExpression">
+                            <Expression name="literalExpression">
+                                <Expression name="listenerLiteral">
+                                    <Token type="TOKEN_LISTENER" value="local"/>
+                                </Expression>
+                            </Expression>
+                            <Token type="TOKEN_PERIOD" value="."/>
+                            <Token type="TOKEN_IDENTIFIER" value="i"/>
+                        </Expression>
+                    </Expression>
+                    <Token type="TOKEN_ASSIGNMENT" value="="/>
+                    <Expression name="expression">
+                        <Expression name="nonIdentifierPrimaryExpression">
+                            <Expression name="literalExpression">
+                                <Expression name="integerLiteral">
+                                    <Token type="TOKEN_INTEGER" value="1"/>
+                                </Expression>
+                            </Expression>
+                        </Expression>
+                    </Expression>
+                </Expression>
+            </Statement>
+        </Statement>
+        <Token type="TOKEN_EOL" value="\n"/>
+    </Statement>
+    <Statement name="statementLine">
+        <Statement name="statement">
+            <Statement name="selectionStatement">
+                <Statement name="switchStatement">
+                    <Token type="TOKEN_SWITCH" value="switch"/>
+                    <Expression name="primaryExpression">
+                        <Expression name="nonIdentifierPrimaryExpression">
+                            <Expression name="groupingExpression">
+                                <Token type="TOKEN_LEFT_BRACKET" value="("/>
+                                <Expression name="expression">
+                                    <Expression name="nonIdentifierPrimaryExpression">
+                                        <Expression name="memberSelectionExpression">
+                                            <Expression name="literalExpression">
+                                                <Expression name="listenerLiteral">
+                                                    <Token type="TOKEN_LISTENER" value="local"/>
+                                                </Expression>
+                                            </Expression>
+                                            <Token type="TOKEN_PERIOD" value="."/>
+                                            <Token type="TOKEN_IDENTIFIER" value="i"/>
+                                        </Expression>
+                                    </Expression>
+                                </Expression>
+                                <Token type="TOKEN_RIGHT_BRACKET" value=")"/>
+                            </Expression>
+                        </Expression>
+                    </Expression>
+                    <Statement name="compoundStatement">
+                        <Token type="TOKEN_LEFT_BRACES" value="{"/>
+                        <Statement name="statement">
+                            <Statement name="labelStatement">
+                                <Statement name="switchCaseLabelStatement">
+                                    <Token type="TOKEN_CASE" value="case"/>
+                                    <Token type="TOKEN_NEG" value=" -"/>
+                                    <Token type="TOKEN_INTEGER" value="1"/>
+                                    <Expression name="eventParameterList"/>
+                                    <Token type="TOKEN_COLON" value=":"/>
+                                </Statement>
+                            </Statement>
+                        </Statement>
+                        <Statement name="statement">
+                            <Statement name="expressionStatement">
+                                <Expression name="threadFunctionCallExpression">
+                                    <Token type="TOKEN_IDENTIFIER" value="println"/>
+                                    <Expression name="eventParameterList">
+                                        <Expression name="primaryExpression">
+                                            <Expression name="nonIdentifierPrimaryExpression">
+                                                <Expression name="literalExpression">
+                                                    <Expression name="stringLiteral">
+                                                        <Token type="TOKEN_STRING"
+                                                               value="&quot;case can be a negative integer&quot;"/>
+                                                    </Expression>
+                                                </Expression>
+                                            </Expression>
+                                        </Expression>
+                                    </Expression>
+                                </Expression>
+                            </Statement>
+                        </Statement>
+                        <Statement name="statement">
+                            <Statement name="breakStatement">
+                                <Token type="TOKEN_BREAK" value="break"/>
+                            </Statement>
+                        </Statement>
+                        <Statement name="statement">
+                            <Statement name="labelStatement">
+                                <Statement name="threadLabelStatement">
+                                    <Token type="TOKEN_IDENTIFIER" value="default"/>
+                                    <Expression name="eventParameterList"/>
+                                    <Token type="TOKEN_COLON" value=":"/>
+                                </Statement>
+                            </Statement>
+                        </Statement>
+                        <Statement name="statement">
+                            <Statement name="expressionStatement">
+                                <Expression name="threadFunctionCallExpression">
+                                    <Token type="TOKEN_IDENTIFIER" value="println"/>
+                                    <Expression name="eventParameterList">
+                                        <Expression name="primaryExpression">
+                                            <Expression name="nonIdentifierPrimaryExpression">
+                                                <Expression name="memberSelectionExpression">
+                                                    <Expression name="literalExpression">
+                                                        <Expression name="listenerLiteral">
+                                                            <Token type="TOKEN_LISTENER" value="local"/>
+                                                        </Expression>
+                                                    </Expression>
+                                                    <Token type="TOKEN_PERIOD" value="."/>
+                                                    <Token type="TOKEN_IDENTIFIER" value="i"/>
+                                                </Expression>
+                                            </Expression>
+                                        </Expression>
+                                    </Expression>
+                                </Expression>
+                            </Statement>
+                        </Statement>
+                        <Statement name="statement">
+                            <Statement name="breakStatement">
+                                <Token type="TOKEN_BREAK" value="break"/>
+                            </Statement>
+                        </Statement>
+                        <Token type="TOKEN_RIGHT_BRACES" value="}"/>
+                    </Statement>
+                </Statement>
+            </Statement>
+        </Statement>
+        <Token type="TOKEN_EOL" value="\n"/>
+    </Statement>
+</Statement>

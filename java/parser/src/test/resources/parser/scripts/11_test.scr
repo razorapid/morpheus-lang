@@ -1,0 +1,18 @@
+end:
+    println "labels can be named 'end'"
+end
+
+main:
+    local.var = "end"
+
+    switch(local.var) {
+        case end:
+            println "switch case accepts 'end' just like any other identifier"
+            break;
+        default:
+            println "test"
+    }
+
+    // 'end' can also be a listener function call
+    level.some_thread end
+end

@@ -10,6 +10,7 @@ import com.github.razorapid.morpheus.lang.cst.visitors.XmlPrinterVisitor
 import spock.lang.Specification
 
 import java.nio.file.Files
+import java.nio.file.Path
 
 import static TokenType.TOKEN_SEMICOLON
 import static org.xmlunit.assertj3.XmlAssert.assertThat
@@ -309,6 +310,20 @@ class ParserSpec extends Specification {
         "local.i -= 1"                                       | false     | false     || '54_test'
         "local.array = 1::2::3"                              | false     | false     || '55_test'
         "local.player_name = netname \$player[1]"            | false     | false     || '56_test'
+        "local.spawner.group = local.dude.group"             | false     | false     || '57_test'
+        "local.case = 1"                                     | false     | false     || '58_test'
+        "local.if = 1"                                       | false     | false     || '59_test'
+        "local.else = 1"                                     | false     | false     || '60_test'
+        "local.while = 1"                                    | false     | false     || '61_test'
+        "local.for = 1"                                      | false     | false     || '62_test'
+        "local.try = 1"                                      | false     | false     || '63_test'
+        "local.catch = 1"                                    | false     | false     || '64_test'
+        "local.switch = 1"                                   | false     | false     || '65_test'
+        "local.break = 1"                                    | false     | false     || '66_test'
+        "local.continue = 1"                                 | false     | false     || '67_test'
+        "local.size = 1"                                     | false     | false     || '68_test'
+        "local.end = 1"                                      | false     | false     || '69_test'
+        "group.climberwaitthread end"                        | false     | false     || '70_test'
     }
 
     def "parses expressions"() {
@@ -425,6 +440,9 @@ class ParserSpec extends Specification {
         "8_test"  | false     | false     || '8_test'
         "9_test"  | false     | false     || '9_test'
         "10_test" | false     | false     || '10_test'
+        "11_test" | false     | false     || '11_test'
+        "12_test" | false     | false     || '12_test'
+        "13_test" | false     | false     || '13_test'
 
     }
 

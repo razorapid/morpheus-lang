@@ -60,6 +60,9 @@ class ParseRule {
                 if (!parser.isMatched(token)) {
                     return null;
                 }
+
+                parser.consumeNewLines();
+
                 var expression = parser.parseExpression(rule.precedence());
                 if (!parser.isMatched(expression)) {
                     parser.error("bad token - got " + parser.lastToken().type().name() + " expected expression");

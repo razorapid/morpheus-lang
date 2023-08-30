@@ -1,0 +1,10 @@
+for (; local.i < level.frontLineTotalEnemyCount; local.i++) {
+		wait 0.25
+		thread axisGuyLive local.i
+	}
+
+if (level.frontLineTotalEnemyWait > 0)
+    wait level.frontLineTotalEnemyWait;
+else {
+    println "test"
+}

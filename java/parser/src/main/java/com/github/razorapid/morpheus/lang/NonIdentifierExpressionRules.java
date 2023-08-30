@@ -172,15 +172,31 @@ class NonIdentifierExpressionRules {
         if (!parser.isMatched(tokenPeriod)) {
             return null;
         }
-        var tokenIdenOrSize = parser.consume(TokenType.TOKEN_STRING, TokenType.TOKEN_IDENTIFIER);
-        if (!parser.isMatched(tokenIdenOrSize)) {
-            tokenIdenOrSize = parser.consume(TokenType.TOKEN_SIZE);
-        }
-        if (!parser.isMatched(tokenIdenOrSize)) {
-            parser.errorBadToken(parser.currentToken(), TokenType.TOKEN_IDENTIFIER, TokenType.TOKEN_SIZE);
+
+        var tokenMemberName = parser.consume(
+            TokenType.TOKEN_CASE,
+            TokenType.TOKEN_IF,
+            TokenType.TOKEN_ELSE,
+            TokenType.TOKEN_WHILE,
+            TokenType.TOKEN_FOR,
+            TokenType.TOKEN_TRY,
+            TokenType.TOKEN_CATCH,
+            TokenType.TOKEN_SWITCH,
+            TokenType.TOKEN_BREAK,
+            TokenType.TOKEN_CONTINUE,
+            TokenType.TOKEN_END,
+            TokenType.TOKEN_SIZE,
+            TokenType.TOKEN_LISTENER,
+            TokenType.TOKEN_STRING,
+            TokenType.TOKEN_IDENTIFIER
+        );
+
+        if (!parser.isMatched(tokenMemberName)) {
+            parser.errorBadToken(parser.currentToken(), "string or identifier");
             return null;
         }
-        return nodes.memberSelectionExpression(lhs, tokenPeriod, tokenIdenOrSize);
+
+        return nodes.memberSelectionExpression(lhs, tokenPeriod, tokenMemberName);
     };
 
     ParseRule.ParseFn SUBSCRIPT_EXPRESSION_FN = (ConcreteSyntaxTree.Node lhs, ParseRule rule, Parser parser) -> {

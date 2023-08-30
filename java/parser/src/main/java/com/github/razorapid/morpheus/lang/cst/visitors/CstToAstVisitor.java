@@ -1,5 +1,6 @@
 package com.github.razorapid.morpheus.lang.cst.visitors;
 
+import com.github.razorapid.morpheus.lang.Token;
 import com.github.razorapid.morpheus.lang.ast.AbstractSyntaxTree;
 import com.github.razorapid.morpheus.lang.SourcePos;
 import com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree;
@@ -219,7 +220,9 @@ public class CstToAstVisitor implements ConcreteSyntaxTreeVisitor<AbstractSyntax
     }
 
     private AbstractSyntaxTree.Node visitForStatement(ConcreteSyntaxTree.StatementNode statement) {
-        var initializer = (AbstractSyntaxTree.Statement) statement.children().get(2).accept(this);
+        var initializer = (AbstractSyntaxTree.Statement) statement.children().get(2) != null ?
+                (AbstractSyntaxTree.Statement) statement.children().get(2).accept(this) :
+                null;
         var condition = (AbstractSyntaxTree.Expression) statement.children().get(4).accept(this);
         var advancement = (AbstractSyntaxTree.Statement) statement.children().get(6).accept(this);
         var body = (AbstractSyntaxTree.Statement) statement.children().get(8).accept(this);
@@ -252,7 +255,10 @@ public class CstToAstVisitor implements ConcreteSyntaxTreeVisitor<AbstractSyntax
         var ifClause = (AbstractSyntaxTree.Statement) statement.children().get(2).accept(this);
         AbstractSyntaxTree.Statement elseClause = null;
         if (statement.children().size() > 3) {
-            elseClause = (AbstractSyntaxTree.Statement) statement.children().get(4).accept(this);
+            if (statement.children().get(3).type() != SEMICOLON || statement.children().size() > 4) {
+                var elseClauseIdx = statement.children().get(3).type() != SEMICOLON ? 4 : 5;
+                elseClause = (AbstractSyntaxTree.Statement) statement.children().get(elseClauseIdx).accept(this);
+            }
         }
         var start = ((ConcreteSyntaxTree.TokenNode) statement.children().get(0)).value().pos();
         var end = elseClause != null ? elseClause.end() : ifClause.end();
@@ -261,14 +267,23 @@ public class CstToAstVisitor implements ConcreteSyntaxTreeVisitor<AbstractSyntax
     }
 
     private AbstractSyntaxTree.Node visitSwitchCaseStatement(ConcreteSyntaxTree.StatementNode statement) {
+        Token operator = null;
+        Token identifier = null;
+        var paramsIdx = 2;
         var identifierNode = (ConcreteSyntaxTree.TokenNode) statement.children().get(1);
-        var identifier = identifierNode.value();
-        var params = (AbstractSyntaxTree.Params) visitParams((ConcreteSyntaxTree.ExpressionNode) statement.children().get(2));
+        if (identifierNode.type() == PREFIX_OPERATOR) {
+            operator = identifierNode.value();
+            identifier = ((ConcreteSyntaxTree.TokenNode) statement.children().get(2)).value();
+            paramsIdx = 3;
+        } else {
+            identifier = identifierNode.value();
+        }
+        var params = (AbstractSyntaxTree.Params) visitParams((ConcreteSyntaxTree.ExpressionNode) statement.children().get(paramsIdx));
         var colon = ((ConcreteSyntaxTree.TokenNode) statement.children().get(statement.children().size() - 1)).value();
         var start = ((ConcreteSyntaxTree.TokenNode) statement.children().get(0)).value().pos();
         var end = colon.pos().addCol(colon.lexeme().length());
 
-        return new AbstractSyntaxTree.SwitchCase(start, end, identifier, params);
+        return new AbstractSyntaxTree.SwitchCase(start, end, operator, identifier, params);
     }
 
     private AbstractSyntaxTree.Node visitExpressionStatement(ConcreteSyntaxTree.StatementNode statement) {

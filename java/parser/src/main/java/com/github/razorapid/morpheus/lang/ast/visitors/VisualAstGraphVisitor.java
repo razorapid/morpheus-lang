@@ -47,11 +47,20 @@ public class VisualAstGraphVisitor implements AbstractSyntaxTreeVisitor<Node> {
 
     @Override
     public Node visitSwitchCase(AbstractSyntaxTree.SwitchCase node) {
-        return graphStatementNode(node)
+        if (node.operator() != null) {
+            return graphStatementNode(node)
                 .link(
-                        graphTokenNode(node.identifier()),
-                        node.params().accept(this)
+                    graphTokenNode(node.operator()),
+                    graphTokenNode(node.identifier()),
+                    node.params().accept(this)
                 );
+        } else {
+            return graphStatementNode(node)
+                .link(
+                    graphTokenNode(node.identifier()),
+                    node.params().accept(this)
+                );
+        }
     }
 
     @Override
@@ -91,9 +100,17 @@ public class VisualAstGraphVisitor implements AbstractSyntaxTreeVisitor<Node> {
 
     @Override
     public Node visitForLoop(AbstractSyntaxTree.ForLoop node) {
+        if (node.initializer() != null) {
+            return graphStatementNode(node)
+                    .link(
+                            node.initializer().accept(this),
+                            node.condition().accept(this),
+                            node.advancement().accept(this),
+                            node.body().accept(this)
+                    );
+        }
         return graphStatementNode(node)
                 .link(
-                        node.initializer().accept(this),
                         node.condition().accept(this),
                         node.advancement().accept(this),
                         node.body().accept(this)

@@ -1,0 +1,10 @@
+local.i = 1
+
+switch(local.i) {
+    case -1:
+        println "case can be a negative integer"
+        break
+    default:
+        println local.i
+        break
+}

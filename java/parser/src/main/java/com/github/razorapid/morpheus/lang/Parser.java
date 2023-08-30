@@ -6,6 +6,8 @@ import lombok.NonNull;
 
 import java.util.*;
 
+import static com.github.razorapid.morpheus.lang.TokenType.*;
+
 public class Parser {
 
     private final Source script;
@@ -258,10 +260,24 @@ public class Parser {
             return null;
         }
 
-        var tokenIntOrText = consume(TokenType.TOKEN_INTEGER, TokenType.TOKEN_IDENTIFIER, TokenType.TOKEN_STRING);
+        Token tokenNeg = null;
+        Token tokenInt = null;
+
+        var tokenIntOrText = consume(TokenType.TOKEN_INTEGER, TokenType.TOKEN_IDENTIFIER, TokenType.TOKEN_STRING, TokenType.TOKEN_END);
         if (!isMatched(tokenIntOrText)) {
-            errorBadToken(tokens.peekToken(), TokenType.TOKEN_INTEGER, TokenType.TOKEN_IDENTIFIER, TokenType.TOKEN_STRING);
-            return null;
+            tokenNeg = consume(TOKEN_NEG);
+
+            if (!isMatched(tokenNeg)) {
+                errorBadToken(tokens.peekToken(), TokenType.TOKEN_INTEGER, TokenType.TOKEN_IDENTIFIER, TokenType.TOKEN_STRING, TokenType.TOKEN_END);
+                return null;
+            } else {
+                tokenInt = consume(TOKEN_INTEGER);
+
+                if (!isMatched(tokenInt)) {
+                    errorBadToken(tokens.peekToken(), TokenType.TOKEN_INTEGER);
+                    return null;
+                }
+            }
         }
 
         var eventParamList = parseEventParameterList();
@@ -272,7 +288,11 @@ public class Parser {
             return null;
         }
 
-        return nodes.switchCaseLabelStatement(tokenCase, tokenIntOrText, eventParamList, tokenColon);
+        if (tokenIntOrText != null) {
+            return nodes.switchCaseLabelStatement(tokenCase, tokenIntOrText, eventParamList, tokenColon);
+        } else {
+            return nodes.switchCaseLabelStatement(tokenCase, tokenNeg, tokenInt, eventParamList, tokenColon);
+        }
     }
 
     /**
@@ -290,7 +310,7 @@ public class Parser {
      */
     private ConcreteSyntaxTree.Node parseThreadLabelStatement() {
         var mark = mark(); //
-        var tokenIdentOrEnd = consume(TokenType.TOKEN_IDENTIFIER, TokenType.TOKEN_END);
+        var tokenIdentOrEnd = consume(TokenType.TOKEN_IDENTIFIER, TOKEN_END);
         if (!isMatched(tokenIdentOrEnd)) {
             return null;
         }
@@ -326,6 +346,10 @@ public class Parser {
             errorBadToken(tokens.peekToken(), "statement");
             return null;
         }
+
+        // optional semicolon at the end of the statement
+        var optionalSemicolon = consume(TOKEN_SEMICOLON);
+
         consumeNewLines();
 
         var tokenElse = consume(TokenType.TOKEN_ELSE);
@@ -345,7 +369,7 @@ public class Parser {
             }
         }
 
-        return nodes.ifElseStatement(ifToken, primaryExpression, statement, tokenElse, elseStatement);
+        return nodes.ifElseStatement(ifToken, primaryExpression, statement, optionalSemicolon, tokenElse, elseStatement);
     }
 
     private ConcreteSyntaxTree.Node parseSwitchStatement() {
@@ -408,19 +432,27 @@ public class Parser {
         }
         consumeNewLines();
 
-        var preStatement = parseStatement();
-        if (!isMatched(preStatement)) {
-            errorBadToken(tokens.peekToken(), "statement");
-            return null;
-        }
-        consumeNewLines();
+        ConcreteSyntaxTree.Node preStatement;
+        Token tokenStatementSemicolon;
 
-        var tokenStatementSemicolon = consume(TokenType.TOKEN_SEMICOLON);
-        if (!isMatched(tokenStatementSemicolon)) {
-            errorBadToken(tokens.peekToken(), TokenType.TOKEN_SEMICOLON);
-            return null;
+        if (check(TOKEN_SEMICOLON)) {
+            preStatement = null;
+            tokenStatementSemicolon = consume(TokenType.TOKEN_SEMICOLON);
+        } else {
+            preStatement = parseStatement();
+            if (!isMatched(preStatement)) {
+                errorBadToken(tokens.peekToken(), "statement");
+                return null;
+            }
+            consumeNewLines();
+
+            tokenStatementSemicolon = consume(TokenType.TOKEN_SEMICOLON);
+            if (!isMatched(tokenStatementSemicolon)) {
+                errorBadToken(tokens.peekToken(), TokenType.TOKEN_SEMICOLON);
+                return null;
+            }
+            consumeNewLines();
         }
-        consumeNewLines();
 
         var expression = parseExpression();
         if (!isMatched(expression)) {
@@ -476,7 +508,7 @@ public class Parser {
      * @see #parseThreadLabelStatement
      */
     private ConcreteSyntaxTree.Node parseThreadFunctionCallExpression() {
-        var tokenIdentOrEnd = consume(TokenType.TOKEN_IDENTIFIER, TokenType.TOKEN_END);
+        var tokenIdentOrEnd = consume(TokenType.TOKEN_IDENTIFIER, TOKEN_END);
         if (!isMatched(tokenIdentOrEnd)) {
             return null;
         }
@@ -505,7 +537,7 @@ public class Parser {
             return null;
         }
 
-        var tokenIdentifier = consume(TokenType.TOKEN_IDENTIFIER);
+        var tokenIdentifier = consume(TokenType.TOKEN_IDENTIFIER, TOKEN_END);
         if (!isMatched(tokenIdentifier)) {
             restore(pos);
             return null;
@@ -529,6 +561,8 @@ public class Parser {
             restore(pos);
             return null;
         }
+
+        consumeNewLines();
 
         var rhs = parseExpression();
         if (!isMatched(rhs)) {
@@ -651,7 +685,7 @@ public class Parser {
     }
 
     private ConcreteSyntaxTree.Node parseIdentifierPrimaryExpression() {
-        var tokenIdentifier = consume(TokenType.TOKEN_IDENTIFIER);
+        var tokenIdentifier = consume(TokenType.TOKEN_IDENTIFIER, TokenType.TOKEN_END);
         if (!isMatched(tokenIdentifier)) {
             return null;
         }
@@ -702,6 +736,59 @@ public class Parser {
         errorBadToken(peekToken(), "make array expression, function primary expression or non identifier primary expression");
         return null;
     }
+
+//    private ConcreteSyntaxTree.Node parseFunctionOrNonIdentifierPrimaryExpression() {
+//        var expression = parseUnaryFunctionOrNonIdentifierPrimaryExpression();
+//        if (isMatched(expression)) {
+//            return expression;
+//        }
+//
+//        expression = parseConstArrayExpression();
+//        if (isMatched(expression)) {
+//            return nodes.functionPrimaryExpression(expression);
+//        }
+//
+//        expression = parseThreadFunctionCallExpression();
+//        if (isMatched(expression)) {
+//            return nodes.functionPrimaryExpression(expression);
+//        }
+//
+//        expression = parseListenerFunctionCallExpression();
+//        if (isMatched(expression)) {
+//            return nodes.functionPrimaryExpression(expression);
+//        }
+//
+//        expression = parseNonIdentifierPrimaryExpression();
+//        if (isMatched(expression)) {
+//            return expression;
+//        }
+//        return null;
+//    }
+
+//    private ConcreteSyntaxTree.Node parseUnaryFunctionOrNonIdentifierPrimaryExpression() {
+//        var token = consume(TokenType.TOKEN_NEG, TokenType.TOKEN_COMPLEMENT, TokenType.TOKEN_NOT);
+//        if (!isMatched(token)) {
+//            return null;
+//        }
+//
+//        var expression = parseFunctionOrNonIdentifierPrimaryExpression();
+//        if (!isMatched(expression)) {
+//            return null;
+//        }
+//
+//        if (expression.type() == ConcreteSyntaxTree.NodeType.FUNCTION_PRIMARY_EXPRESSION) {
+//            return nodes.unaryFunctionPrimaryExpression(switch (token.type()) {
+//                case TOKEN_NEG -> nodes.arithmeticNegationFunctionExpression(token, expression);
+//                case TOKEN_COMPLEMENT -> nodes.bitwiseCompletionFunctionExpression(token, expression);
+//                case TOKEN_NOT -> nodes.logicalNegationFunctionExpression(token, expression);
+//                default -> throw new IllegalStateException("Unexpected value: " + token.type());
+//            });
+//        } else {
+//            return nodes.unaryNonIdentifierExpression(switch (token.type()) {
+//                case TOKEN_NEG -> nodes.ari
+//            });
+//        }
+//    }
 
     private ConcreteSyntaxTree.Node parseMakeArrayExpression() {
         var tokenMakeArray = consume(TokenType.TOKEN_MAKEARRAY);

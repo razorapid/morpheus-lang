@@ -48,6 +48,7 @@ public class AbstractSyntaxTree {
     public static class SwitchCase implements Statement {
         SourcePos start;
         SourcePos end;
+        Token operator;
         Token identifier;
         Params params;
 
