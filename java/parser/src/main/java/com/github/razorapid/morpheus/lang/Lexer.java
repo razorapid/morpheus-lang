@@ -143,15 +143,31 @@ public class Lexer {
         }
     }
 
+    @Data
+    private static class Cursor {
+        private int line = 1;
+        private int col = 1;
+
+        void newLine() {
+            line++;
+            col = 1;
+        }
+
+        void right() {
+            col++;
+        }
+
+        void right(int offset) {
+            col += offset;
+        }
+    }
+
     private final Scopes scopes = new Scopes();
     private final Tokens tokens = new Tokens();
-    //private String source;
     private long startPos = 0;
-    //private long currentPos = 0;
-    private long currentLine = 1;
-    private long currentCol = 1;
+    private final Cursor cursor = new Cursor();
+    private final Tape<Character> source;
     private boolean currentLineHasStatement = false;
-    private Tape<Character> source;
 
     public Lexer(Source script) {
         this.source = createSource(script);
@@ -223,8 +239,7 @@ public class Lexer {
                     currentLineHasStatement = false;
                     addToken(TOKEN_EOL);
                 }
-                currentLine++;
-                currentCol = 1;
+                cursor.newLine();
                 break;
             }
             // braces and brackets
@@ -317,8 +332,7 @@ public class Lexer {
                             startPos = source.pos() - 1;
                             addToken(TOKEN_EOL);
                         }
-                        currentLine++;
-                        currentCol = 1;
+                        cursor.newLine();
                     }
                 } else if (match('*')) {
                     while (!(peek() == '*' && peekNext() == '/') && !isEOF()) {
@@ -329,8 +343,7 @@ public class Lexer {
                                 startPos = source.pos() - 1;
                                 addToken(TOKEN_EOL);
                             }
-                            currentLine++;
-                            currentCol = 1;
+                            cursor.newLine();
                         }
                     }
                     next();
@@ -538,25 +551,25 @@ public class Lexer {
     private boolean match(char c) {
         boolean matched = source.match(c);
         if (matched) {
-            currentCol++;
+            cursor.right();
         }
         return matched;
     }
 
     private void addToken(TokenType type) {
-        tokens.add(type, tokenString((int)startPos, source.pos()), startPos, currentLine, currentCol - (source.pos() - startPos));
+        tokens.add(type, tokenString((int)startPos, source.pos()), startPos, cursor.line(), cursor.col() - (source.pos() - startPos));
         if (type != TOKEN_EOL) {
             currentLineHasStatement = true;
         }
     }
 
     private char next() {
-        currentCol++;
+        cursor.right();
         return source.next();
     }
 
     private void currentPos(long pos) {
-        currentCol += pos - source.pos();
+        cursor.right((int) (pos - source.pos()));
         source.pos((int) pos);
     }
 
