@@ -125,6 +125,10 @@ public class Lexer {
         ',', '\\'
     );
 
+    private interface State {
+        Token nextToken();
+    }
+
     @Data
     private static class Scope {
         boolean scanningVariable = false;
@@ -181,6 +185,7 @@ public class Lexer {
         }
     }
 
+    private final State state = new BeginState();
     private final Scopes scopes = new Scopes();
     private final Tokens tokens = new Tokens();
     private int startPos = 0;
@@ -230,127 +235,122 @@ public class Lexer {
     }
 
     private Token nextToken() {
-        char c = next();
+        return state.nextToken();
+    }
 
-        Token token = null;
-        switch (c) {
-            case ' ': {
-                if (peek() == '+' && (!WHITE_SPACE.contains(peekNext()) && peekNext() != '+' && peekNext() != '=' && peekNext() != '\0')) {
-                    next();
-                    token = addToken(TOKEN_POS);
-                } else if (peek() == '-' && (!WHITE_SPACE.contains(peekNext()) && peekNext() != '-' && peekNext() != '=' && peekNext() != '\0')) {
-                    next();
-                    token = addToken(TOKEN_NEG);
-                }
-                break;
-            }
-            case '\r':
-            case '\t':
-                break;
-            case '\n': {
-                if (currentLineHasStatement) {
-                    currentLineHasStatement = false;
-                    token = addToken(TOKEN_EOL);
-                }
-                cursor.newLine();
-                break;
-            }
-            // braces and brackets
-            case '(': {
-                token = addToken(TOKEN_LEFT_BRACKET);
-                pushScope();
-                break;
-            }
-            case ')': {
-                token = addToken(TOKEN_RIGHT_BRACKET);
-                popScope();
-                break;
-            }
-            case '[': {
-                token = addToken(TOKEN_LEFT_SQUARE_BRACKET);
-                pushScope();
-                break;
-            }
-            case ']': {
-                token = addToken(TOKEN_RIGHT_SQUARE_BRACKET);
-                popScope();
-                break;
-            }
-            case '{': {
-                token = addToken(TOKEN_LEFT_BRACES);
-                pushScope();
-                break;
-            }
-            case '}': {
-                token = addToken(TOKEN_RIGHT_BRACES);
-                popScope();
-                break;
-            }
+    private class BeginState implements State {
+        @Override
+        public Token nextToken() {
+            char c = next();
 
-            // single character operators
-            case ';': { token = addToken(TOKEN_SEMICOLON); break; }
-            case '$': {
-                token = addToken(TOKEN_DOLLAR);
-                startScanningVariable();
-                break;
-            }
-            case '~': { token = addToken(TOKEN_COMPLEMENT); break; }
-            case '%': { token = addToken(TOKEN_PERCENTAGE); break; }
-            case '*': { token = addToken(TOKEN_MULTIPLY); break; }
-            case '^': { token = addToken(TOKEN_BITWISE_EXCL_OR); break; }
-
-            // multi character operators
-            case ':': { token = addToken(match(':') ? TOKEN_DOUBLE_COLON : TOKEN_COLON); break; }
-            case '|': { token = addToken(match('|') ? TOKEN_LOGICAL_OR : TOKEN_BITWISE_OR); break; }
-            case '&': { token = addToken(match('&') ? TOKEN_LOGICAL_AND : TOKEN_BITWISE_AND); break; }
-            case '=': { token = addToken(match('=') ? TOKEN_EQUALITY : TOKEN_ASSIGNMENT); break; }
-            case '!': { token = addToken(match('=') ? TOKEN_INEQUALITY : TOKEN_NOT); break; }
-            case '<': { token = addToken(match('=') ? TOKEN_LESS_THAN_OR_EQUAL : TOKEN_LESS_THAN); break; }
-            case '>': { token = addToken(match('=') ? TOKEN_GREATER_THAN_OR_EQUAL : TOKEN_GREATER_THAN); break; }
-            case '-': {
-                if (match('=')) {
-                    token = addToken(TOKEN_MINUS_EQUALS);
-                } else if (match('-')) {
-                    token = addToken(TOKEN_DEC);
-                } else {
-                    token = addToken(TOKEN_MINUS);
-                }
-                break;
-            }
-            case '+': {
-                if (match('=')) {
-                    token = addToken(TOKEN_PLUS_EQUALS);
-                } else if (match('+')) {
-                    token = addToken(TOKEN_INC);
-                } else {
-                    token = addToken(TOKEN_PLUS);
-                }
-                break;
-            }
-            case '.': {
-                token = tryMatchFloat();
-                if (token == null) {
-                    token = addToken(TOKEN_PERIOD);
-                }
-                break;
-            }
-            case '/': {
-
-                if (match('/')) {
-                    while (peek() != '\n' && !isEOF()) next();
-                    if (peek() == '\n') {
+            Token token = null;
+            switch (c) {
+                case ' ': {
+                    if (peek() == '+' && (!WHITE_SPACE.contains(peekNext()) && peekNext() != '+' && peekNext() != '=' && peekNext() != '\0')) {
                         next();
-                        if (currentLineHasStatement) {
-                            currentLineHasStatement = false;
-                            startPos = source.pos() - 1;
-                            token = addToken(TOKEN_EOL);
-                        }
-                        cursor.newLine();
+                        token = addToken(TOKEN_POS);
+                    } else if (peek() == '-' && (!WHITE_SPACE.contains(peekNext()) && peekNext() != '-' && peekNext() != '=' && peekNext() != '\0')) {
+                        next();
+                        token = addToken(TOKEN_NEG);
                     }
-                } else if (match('*')) {
-                    while (!(peek() == '*' && peekNext() == '/') && !isEOF()) {
-                        char n = next();
-                        if (n == '\n') {
+                    break;
+                }
+                case '\r':
+                case '\t':
+                    break;
+                case '\n': {
+                    if (currentLineHasStatement) {
+                        currentLineHasStatement = false;
+                        token = addToken(TOKEN_EOL);
+                    }
+                    cursor.newLine();
+                    break;
+                }
+                // braces and brackets
+                case '(': {
+                    token = addToken(TOKEN_LEFT_BRACKET);
+                    pushScope();
+                    break;
+                }
+                case ')': {
+                    token = addToken(TOKEN_RIGHT_BRACKET);
+                    popScope();
+                    break;
+                }
+                case '[': {
+                    token = addToken(TOKEN_LEFT_SQUARE_BRACKET);
+                    pushScope();
+                    break;
+                }
+                case ']': {
+                    token = addToken(TOKEN_RIGHT_SQUARE_BRACKET);
+                    popScope();
+                    break;
+                }
+                case '{': {
+                    token = addToken(TOKEN_LEFT_BRACES);
+                    pushScope();
+                    break;
+                }
+                case '}': {
+                    token = addToken(TOKEN_RIGHT_BRACES);
+                    popScope();
+                    break;
+                }
+
+                // single character operators
+                case ';': { token = addToken(TOKEN_SEMICOLON); break; }
+                case '$': {
+                    token = addToken(TOKEN_DOLLAR);
+                    startScanningVariable();
+                    break;
+                }
+                case '~': { token = addToken(TOKEN_COMPLEMENT); break; }
+                case '%': { token = addToken(TOKEN_PERCENTAGE); break; }
+                case '*': { token = addToken(TOKEN_MULTIPLY); break; }
+                case '^': { token = addToken(TOKEN_BITWISE_EXCL_OR); break; }
+
+                // multi character operators
+                case ':': { token = addToken(match(':') ? TOKEN_DOUBLE_COLON : TOKEN_COLON); break; }
+                case '|': { token = addToken(match('|') ? TOKEN_LOGICAL_OR : TOKEN_BITWISE_OR); break; }
+                case '&': { token = addToken(match('&') ? TOKEN_LOGICAL_AND : TOKEN_BITWISE_AND); break; }
+                case '=': { token = addToken(match('=') ? TOKEN_EQUALITY : TOKEN_ASSIGNMENT); break; }
+                case '!': { token = addToken(match('=') ? TOKEN_INEQUALITY : TOKEN_NOT); break; }
+                case '<': { token = addToken(match('=') ? TOKEN_LESS_THAN_OR_EQUAL : TOKEN_LESS_THAN); break; }
+                case '>': { token = addToken(match('=') ? TOKEN_GREATER_THAN_OR_EQUAL : TOKEN_GREATER_THAN); break; }
+                case '-': {
+                    if (match('=')) {
+                        token = addToken(TOKEN_MINUS_EQUALS);
+                    } else if (match('-')) {
+                        token = addToken(TOKEN_DEC);
+                    } else {
+                        token = addToken(TOKEN_MINUS);
+                    }
+                    break;
+                }
+                case '+': {
+                    if (match('=')) {
+                        token = addToken(TOKEN_PLUS_EQUALS);
+                    } else if (match('+')) {
+                        token = addToken(TOKEN_INC);
+                    } else {
+                        token = addToken(TOKEN_PLUS);
+                    }
+                    break;
+                }
+                case '.': {
+                    token = tryMatchFloat();
+                    if (token == null) {
+                        token = addToken(TOKEN_PERIOD);
+                    }
+                    break;
+                }
+                case '/': {
+
+                    if (match('/')) {
+                        while (peek() != '\n' && !isEOF()) next();
+                        if (peek() == '\n') {
+                            next();
                             if (currentLineHasStatement) {
                                 currentLineHasStatement = false;
                                 startPos = source.pos() - 1;
@@ -358,61 +358,73 @@ public class Lexer {
                             }
                             cursor.newLine();
                         }
+                    } else if (match('*')) {
+                        while (!(peek() == '*' && peekNext() == '/') && !isEOF()) {
+                            char n = next();
+                            if (n == '\n') {
+                                if (currentLineHasStatement) {
+                                    currentLineHasStatement = false;
+                                    startPos = source.pos() - 1;
+                                    token = addToken(TOKEN_EOL);
+                                }
+                                cursor.newLine();
+                            }
+                        }
+                        next();
+                        next();
+                    } else {
+                        token = addToken(TOKEN_DIVIDE);
                     }
-                    next();
-                    next();
-                } else {
-                    token = addToken(TOKEN_DIVIDE);
-                }
 
-                break;
-            }
-            case '\\': {
-                if (WHITE_SPACE.contains(peek())) {
-                    // line break => ignore and continue line without emitting EOL token on new line
-                    currentLineHasStatement = false;
                     break;
                 }
-                //fallthrough
-            }
-            default: {
-
-                if (isScanningVariable() && !matchLastToken(TOKEN_DOLLAR, TOKEN_PERIOD)) {
-                    stopScanningVariable();
+                case '\\': {
+                    if (WHITE_SPACE.contains(peek())) {
+                        // line break => ignore and continue line without emitting EOL token on new line
+                        currentLineHasStatement = false;
+                        break;
+                    }
+                    //fallthrough
                 }
+                default: {
 
-                if (c == '@' || c == '#' || c == '`' || c == '\\' || c == '\'' || c == ',' || c == '?' || c == '_') {
-                    token = matchIdentifier(false);
-                    break;
-                }
+                    if (isScanningVariable() && !matchLastToken(TOKEN_DOLLAR, TOKEN_PERIOD)) {
+                        stopScanningVariable();
+                    }
 
-                if (c == '"') {
-                    token = tryMatchString();
-                    if (token == null) {
+                    if (c == '@' || c == '#' || c == '`' || c == '\\' || c == '\'' || c == ',' || c == '?' || c == '_') {
                         token = matchIdentifier(false);
+                        break;
                     }
-                    break;
-                }
 
-                if (Character.isDigit(c)) {
-                    token = tryMatchNumber();
-                    if (token == null) {
-                        token = matchIdentifier(false);
+                    if (c == '"') {
+                        token = tryMatchString();
+                        if (token == null) {
+                            token = matchIdentifier(false);
+                        }
+                        break;
                     }
+
+                    if (Character.isDigit(c)) {
+                        token = tryMatchNumber();
+                        if (token == null) {
+                            token = matchIdentifier(false);
+                        }
+                        break;
+                    }
+
+                    token = tryMatchListener(c);
+                    if (token != null) {
+                        if (peek() == '.') startScanningVariable();
+                        break;
+                    }
+
+                    token = matchIdentifier(true);
                     break;
                 }
-
-                token = tryMatchListener(c);
-                if (token != null) {
-                    if (peek() == '.') startScanningVariable();
-                    break;
-                }
-
-                token = matchIdentifier(true);
-                break;
             }
+            return token;
         }
-        return token;
     }
 
     private Token tryMatchNumber() {
