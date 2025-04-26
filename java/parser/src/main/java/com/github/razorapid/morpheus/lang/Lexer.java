@@ -210,23 +210,37 @@ public class Lexer {
 
         while (!isEOF()) {
             startPos = source.pos();
-            scanToken();
+            Token token = nextToken();
+            if (token != null) {
+                tokens.add(token);
+            }
         }
 
         return Optional.of(tokens);
     }
 
-    private void scanToken() {
+    public Optional<Token> scanToken() {
+        if (isEOF()) return Optional.empty();
+        Token token = null;
+        do {
+            startPos = source.pos();
+            token = nextToken();
+        } while (token == null);
+        return Optional.of(token);
+    }
+
+    private Token nextToken() {
         char c = next();
 
+        Token token = null;
         switch (c) {
             case ' ': {
                 if (peek() == '+' && (!WHITE_SPACE.contains(peekNext()) && peekNext() != '+' && peekNext() != '=' && peekNext() != '\0')) {
                     next();
-                    addToken(TOKEN_POS);
+                    token = addToken(TOKEN_POS);
                 } else if (peek() == '-' && (!WHITE_SPACE.contains(peekNext()) && peekNext() != '-' && peekNext() != '=' && peekNext() != '\0')) {
                     next();
-                    addToken(TOKEN_NEG);
+                    token = addToken(TOKEN_NEG);
                 }
                 break;
             }
@@ -236,87 +250,87 @@ public class Lexer {
             case '\n': {
                 if (currentLineHasStatement) {
                     currentLineHasStatement = false;
-                    addToken(TOKEN_EOL);
+                    token = addToken(TOKEN_EOL);
                 }
                 cursor.newLine();
                 break;
             }
             // braces and brackets
             case '(': {
-                addToken(TOKEN_LEFT_BRACKET);
+                token = addToken(TOKEN_LEFT_BRACKET);
                 pushScope();
                 break;
             }
             case ')': {
-                addToken(TOKEN_RIGHT_BRACKET);
+                token = addToken(TOKEN_RIGHT_BRACKET);
                 popScope();
                 break;
             }
             case '[': {
-                addToken(TOKEN_LEFT_SQUARE_BRACKET);
+                token = addToken(TOKEN_LEFT_SQUARE_BRACKET);
                 pushScope();
                 break;
             }
             case ']': {
-                addToken(TOKEN_RIGHT_SQUARE_BRACKET);
+                token = addToken(TOKEN_RIGHT_SQUARE_BRACKET);
                 popScope();
                 break;
             }
             case '{': {
-                addToken(TOKEN_LEFT_BRACES);
+                token = addToken(TOKEN_LEFT_BRACES);
                 pushScope();
                 break;
             }
             case '}': {
-                addToken(TOKEN_RIGHT_BRACES);
+                token = addToken(TOKEN_RIGHT_BRACES);
                 popScope();
                 break;
             }
 
             // single character operators
-            case ';': addToken(TOKEN_SEMICOLON); break;
+            case ';': { token = addToken(TOKEN_SEMICOLON); break; }
             case '$': {
-                addToken(TOKEN_DOLLAR);
+                token = addToken(TOKEN_DOLLAR);
                 startScanningVariable();
                 break;
             }
-            case '~': addToken(TOKEN_COMPLEMENT); break;
-            case '%': addToken(TOKEN_PERCENTAGE); break;
-            case '*': addToken(TOKEN_MULTIPLY); break;
-            case '^': addToken(TOKEN_BITWISE_EXCL_OR); break;
+            case '~': { token = addToken(TOKEN_COMPLEMENT); break; }
+            case '%': { token = addToken(TOKEN_PERCENTAGE); break; }
+            case '*': { token = addToken(TOKEN_MULTIPLY); break; }
+            case '^': { token = addToken(TOKEN_BITWISE_EXCL_OR); break; }
 
             // multi character operators
-            case ':': addToken(match(':') ? TOKEN_DOUBLE_COLON : TOKEN_COLON); break;
-            case '|': addToken(match('|') ? TOKEN_LOGICAL_OR : TOKEN_BITWISE_OR); break;
-            case '&': addToken(match('&') ? TOKEN_LOGICAL_AND : TOKEN_BITWISE_AND); break;
-            case '=': addToken(match('=') ? TOKEN_EQUALITY : TOKEN_ASSIGNMENT); break;
-            case '!': addToken(match('=') ? TOKEN_INEQUALITY : TOKEN_NOT); break;
-            case '<': addToken(match('=') ? TOKEN_LESS_THAN_OR_EQUAL : TOKEN_LESS_THAN); break;
-            case '>': addToken(match('=') ? TOKEN_GREATER_THAN_OR_EQUAL : TOKEN_GREATER_THAN); break;
+            case ':': { token = addToken(match(':') ? TOKEN_DOUBLE_COLON : TOKEN_COLON); break; }
+            case '|': { token = addToken(match('|') ? TOKEN_LOGICAL_OR : TOKEN_BITWISE_OR); break; }
+            case '&': { token = addToken(match('&') ? TOKEN_LOGICAL_AND : TOKEN_BITWISE_AND); break; }
+            case '=': { token = addToken(match('=') ? TOKEN_EQUALITY : TOKEN_ASSIGNMENT); break; }
+            case '!': { token = addToken(match('=') ? TOKEN_INEQUALITY : TOKEN_NOT); break; }
+            case '<': { token = addToken(match('=') ? TOKEN_LESS_THAN_OR_EQUAL : TOKEN_LESS_THAN); break; }
+            case '>': { token = addToken(match('=') ? TOKEN_GREATER_THAN_OR_EQUAL : TOKEN_GREATER_THAN); break; }
             case '-': {
                 if (match('=')) {
-                    addToken(TOKEN_MINUS_EQUALS);
+                    token = addToken(TOKEN_MINUS_EQUALS);
                 } else if (match('-')) {
-                    addToken(TOKEN_DEC);
+                    token = addToken(TOKEN_DEC);
                 } else {
-                    addToken(TOKEN_MINUS);
+                    token = addToken(TOKEN_MINUS);
                 }
                 break;
             }
             case '+': {
                 if (match('=')) {
-                    addToken(TOKEN_PLUS_EQUALS);
+                    token = addToken(TOKEN_PLUS_EQUALS);
                 } else if (match('+')) {
-                    addToken(TOKEN_INC);
+                    token = addToken(TOKEN_INC);
                 } else {
-                    addToken(TOKEN_PLUS);
+                    token = addToken(TOKEN_PLUS);
                 }
                 break;
             }
             case '.': {
-                boolean isFloat = tryMatchFloat();
-                if (!isFloat) {
-                    addToken(TOKEN_PERIOD);
+                token = tryMatchFloat();
+                if (token == null) {
+                    token = addToken(TOKEN_PERIOD);
                 }
                 break;
             }
@@ -329,7 +343,7 @@ public class Lexer {
                         if (currentLineHasStatement) {
                             currentLineHasStatement = false;
                             startPos = source.pos() - 1;
-                            addToken(TOKEN_EOL);
+                            token = addToken(TOKEN_EOL);
                         }
                         cursor.newLine();
                     }
@@ -340,7 +354,7 @@ public class Lexer {
                             if (currentLineHasStatement) {
                                 currentLineHasStatement = false;
                                 startPos = source.pos() - 1;
-                                addToken(TOKEN_EOL);
+                                token = addToken(TOKEN_EOL);
                             }
                             cursor.newLine();
                         }
@@ -348,7 +362,7 @@ public class Lexer {
                     next();
                     next();
                 } else {
-                    addToken(TOKEN_DIVIDE);
+                    token = addToken(TOKEN_DIVIDE);
                 }
 
                 break;
@@ -368,46 +382,46 @@ public class Lexer {
                 }
 
                 if (c == '@' || c == '#' || c == '`' || c == '\\' || c == '\'' || c == ',' || c == '?' || c == '_') {
-                    matchIdentifier(false);
+                    token = matchIdentifier(false);
                     break;
                 }
 
                 if (c == '"') {
-                    boolean isString = tryMatchString();
-                    if (!isString) {
-                        matchIdentifier(false);
+                    token = tryMatchString();
+                    if (token == null) {
+                        token = matchIdentifier(false);
                     }
                     break;
                 }
 
                 if (Character.isDigit(c)) {
-                    boolean isNumber = tryMatchNumber();
-                    if (!isNumber) {
-                        matchIdentifier(false);
+                    token = tryMatchNumber();
+                    if (token == null) {
+                        token = matchIdentifier(false);
                     }
                     break;
                 }
 
-                boolean isListener = tryMatchListener(c);
-                if (isListener) {
+                token = tryMatchListener(c);
+                if (token != null) {
                     if (peek() == '.') startScanningVariable();
                     break;
                 }
 
-                matchIdentifier(true);
+                token = matchIdentifier(true);
                 break;
             }
         }
+        return token;
     }
 
-    private boolean tryMatchNumber() {
+    private Token tryMatchNumber() {
         int pos = source.pos();
 
         while (Character.isDigit(peek(pos))) pos++;
         if (isEOF(pos) || NUMBER_TERMINATORS.contains(peek(pos))) {
             currentPos(pos);
-            addToken(TOKEN_INTEGER);
-            return true;
+            return addToken(TOKEN_INTEGER);
         }
 
         if (!isEOF(pos) && peek(pos) == '.') {
@@ -415,26 +429,24 @@ public class Lexer {
             while (Character.isDigit(peek(decimalPos))) decimalPos++;
             if (decimalPos > pos + 1 && (isEOF(decimalPos) || NUMBER_TERMINATORS.contains(peek(decimalPos)))) {
                 currentPos(decimalPos);
-                addToken(TOKEN_FLOAT);
-                return true;
+                return addToken(TOKEN_FLOAT);
             }
         }
 
-        return false;
+        return null;
     }
 
-    private boolean tryMatchFloat() {
+    private Token tryMatchFloat() {
         int pos = source.pos();
         while (Character.isDigit(peek(pos))) pos++;
         if (pos != source.pos() && (isEOF(pos) || NUMBER_TERMINATORS.contains(peek(pos)))) {
             currentPos(pos);
-            addToken(TOKEN_FLOAT);
-            return true;
+            return addToken(TOKEN_FLOAT);
         }
-        return false;
+        return null;
     }
 
-    private boolean tryMatchListener(char c) {
+    private Token tryMatchListener(char c) {
         for (String listener : LISTENER_TYPES) {
             char[] chars = listener.toCharArray();
             if (c == chars[0]) {
@@ -450,28 +462,27 @@ public class Lexer {
 
                 if (isListenerCandidate && (isEOF(pos) || LISTENER_TERMINATORS.contains(peek(pos)))) {
                     currentPos(pos);
-                    addToken(TOKEN_LISTENER);
-                    return true;
+                    return addToken(TOKEN_LISTENER);
                 }
             }
         }
-        return false;
+        return null;
     }
 
-    private boolean tryMatchString() {
+    private Token tryMatchString() {
         int pos = source.pos();
         while (!NEW_LINE.contains(peek(pos)) && !isEOF(pos)) {
             if (peek(pos) == '"' && peek(pos - 1) != '\\') {
                 currentPos(pos + 1);
-                addToken(TOKEN_STRING);
-                return true;
+                return addToken(TOKEN_STRING);
             }
             pos++;
         }
-        return false;
+        return null;
     }
 
-    private void matchIdentifier(boolean lookupKeywords) {
+    private Token matchIdentifier(boolean lookupKeywords) {
+        Token token = null;
         boolean matchedKeyword = false;
         while (!isEOF() && (
                 (!isScanningVariable() && !IDENTIFIER_TERMINATORS.contains(peek())) ||
@@ -483,15 +494,17 @@ public class Lexer {
             if (lookupKeywords && KEYWORDS.containsKey(tokenString)) {
                 if (KEYWORD_TERMINATORS.contains(peek())) {
                     matchedKeyword = true;
-                    addToken(KEYWORDS.getOrDefault(tokenString, TOKEN_IDENTIFIER));
+                    token = addToken(KEYWORDS.getOrDefault(tokenString, TOKEN_IDENTIFIER));
                     break;
                 }
             }
         }
 
         if (!matchedKeyword) {
-            addToken(TOKEN_IDENTIFIER);
+            token = addToken(TOKEN_IDENTIFIER);
         }
+
+        return token;
     }
 
     private void pushScope() {
@@ -555,11 +568,12 @@ public class Lexer {
         return matched;
     }
 
-    private void addToken(TokenType type) {
-        tokens.add(type, tokenString(startPos, source.pos()), startPos, cursor.line(), cursor.col() - (source.pos() - startPos));
+    private Token addToken(TokenType type) {
+        Token token = Token.of(type, tokenString(startPos, source.pos()), startPos, cursor.line(), cursor.col() - (source.pos() - startPos));
         if (type != TOKEN_EOL) {
             currentLineHasStatement = true;
         }
+        return token;
     }
 
     private char next() {
