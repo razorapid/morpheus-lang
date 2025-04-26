@@ -3,7 +3,6 @@ package com.github.razorapid.morpheus.lang;
 import lombok.Data;
 import lombok.Value;
 
-import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -164,7 +163,7 @@ public class Lexer {
 
     private final Scopes scopes = new Scopes();
     private final Tokens tokens = new Tokens();
-    private long startPos = 0;
+    private int startPos = 0;
     private final Cursor cursor = new Cursor();
     private final Tape<Character> source;
     private boolean currentLineHasStatement = false;
@@ -402,7 +401,7 @@ public class Lexer {
     }
 
     private boolean tryMatchNumber() {
-        long pos = source.pos();
+        int pos = source.pos();
 
         while (Character.isDigit(peek(pos))) pos++;
         if (isEOF(pos) || NUMBER_TERMINATORS.contains(peek(pos))) {
@@ -412,7 +411,7 @@ public class Lexer {
         }
 
         if (!isEOF(pos) && peek(pos) == '.') {
-            long decimalPos = pos + 1;
+            int decimalPos = pos + 1;
             while (Character.isDigit(peek(decimalPos))) decimalPos++;
             if (decimalPos > pos + 1 && (isEOF(decimalPos) || NUMBER_TERMINATORS.contains(peek(decimalPos)))) {
                 currentPos(decimalPos);
@@ -425,7 +424,7 @@ public class Lexer {
     }
 
     private boolean tryMatchFloat() {
-        long pos = source.pos();
+        int pos = source.pos();
         while (Character.isDigit(peek(pos))) pos++;
         if (pos != source.pos() && (isEOF(pos) || NUMBER_TERMINATORS.contains(peek(pos)))) {
             currentPos(pos);
@@ -440,7 +439,7 @@ public class Lexer {
             char[] chars = listener.toCharArray();
             if (c == chars[0]) {
                 boolean isListenerCandidate = true;
-                long pos = source.pos();
+                int pos = source.pos();
                 for (int i = 1; i < chars.length; i++) {
                     if (peek(pos) != chars[i]) {
                         isListenerCandidate = false;
@@ -460,7 +459,7 @@ public class Lexer {
     }
 
     private boolean tryMatchString() {
-        long pos = source.pos();
+        int pos = source.pos();
         while (!NEW_LINE.contains(peek(pos)) && !isEOF(pos)) {
             if (peek(pos) == '"' && peek(pos - 1) != '\\') {
                 currentPos(pos + 1);
@@ -480,7 +479,7 @@ public class Lexer {
         )) {
             next();
 
-            String tokenString = tokenString((int) startPos, source.pos());
+            String tokenString = tokenString(startPos, source.pos());
             if (lookupKeywords && KEYWORDS.containsKey(tokenString)) {
                 if (KEYWORD_TERMINATORS.contains(peek())) {
                     matchedKeyword = true;
@@ -557,7 +556,7 @@ public class Lexer {
     }
 
     private void addToken(TokenType type) {
-        tokens.add(type, tokenString((int)startPos, source.pos()), startPos, cursor.line(), cursor.col() - (source.pos() - startPos));
+        tokens.add(type, tokenString(startPos, source.pos()), startPos, cursor.line(), cursor.col() - (source.pos() - startPos));
         if (type != TOKEN_EOL) {
             currentLineHasStatement = true;
         }
@@ -568,17 +567,17 @@ public class Lexer {
         return source.next();
     }
 
-    private void currentPos(long pos) {
-        cursor.right((int) (pos - source.pos()));
-        source.pos((int) pos);
+    private void currentPos(int pos) {
+        cursor.right(pos - source.pos());
+        source.pos(pos);
     }
 
     private boolean isEOF() {
         return source.isEOB();
     }
 
-    private boolean isEOF(long pos) {
-        return source.isEOB((int) pos);
+    private boolean isEOF(int pos) {
+        return source.isEOB(pos);
     }
 
     private String tokenString(int from, int to) {
