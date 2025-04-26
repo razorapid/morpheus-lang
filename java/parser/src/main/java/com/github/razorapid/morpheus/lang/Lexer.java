@@ -93,7 +93,27 @@ public class Lexer {
     private static final Set<Character> NEW_LINE = Set.of(
             '\n'
     );
-    private final Map<String, TokenType> KEYWORDS = new HashMap<>();
+    private static final Map<String, TokenType> KEYWORDS = new HashMap<>();
+    static {
+        KEYWORDS.put("case", TokenType.TOKEN_CASE);
+        KEYWORDS.put("if", TokenType.TOKEN_IF);
+        KEYWORDS.put("else", TokenType.TOKEN_ELSE);
+        KEYWORDS.put("while", TokenType.TOKEN_WHILE);
+        KEYWORDS.put("for", TokenType.TOKEN_FOR);
+        KEYWORDS.put("try", TokenType.TOKEN_TRY);
+        KEYWORDS.put("catch", TokenType.TOKEN_CATCH);
+        KEYWORDS.put("switch", TokenType.TOKEN_SWITCH);
+        KEYWORDS.put("break", TokenType.TOKEN_BREAK);
+        KEYWORDS.put("continue", TokenType.TOKEN_CONTINUE);
+        KEYWORDS.put("NULL", TokenType.TOKEN_NULL);
+        KEYWORDS.put("NIL", TokenType.TOKEN_NIL);
+        KEYWORDS.put("size", TokenType.TOKEN_SIZE);
+        KEYWORDS.put("end", TokenType.TOKEN_END);
+        KEYWORDS.put("makeArray", TokenType.TOKEN_MAKEARRAY);
+        KEYWORDS.put("makearray", TokenType.TOKEN_MAKEARRAY);
+        KEYWORDS.put("endArray", TokenType.TOKEN_ENDARRAY);
+        KEYWORDS.put("endarray", TokenType.TOKEN_ENDARRAY);
+    }
 
     private static final Set<String> LISTENER_TYPES = Set.of(
             "game", "level", "local", "parm", "self", "group"
@@ -170,26 +190,6 @@ public class Lexer {
 
     public Lexer(Source script) {
         this.source = createSource(script);
-
-        this.KEYWORDS.put("case", TokenType.TOKEN_CASE);
-        this.KEYWORDS.put("if", TokenType.TOKEN_IF);
-        this.KEYWORDS.put("else", TokenType.TOKEN_ELSE);
-        this.KEYWORDS.put("while", TokenType.TOKEN_WHILE);
-        this.KEYWORDS.put("for", TokenType.TOKEN_FOR);
-        this.KEYWORDS.put("try", TokenType.TOKEN_TRY);
-        this.KEYWORDS.put("catch", TokenType.TOKEN_CATCH);
-        this.KEYWORDS.put("switch", TokenType.TOKEN_SWITCH);
-        this.KEYWORDS.put("break", TokenType.TOKEN_BREAK);
-        this.KEYWORDS.put("continue", TokenType.TOKEN_CONTINUE);
-        this.KEYWORDS.put("NULL", TokenType.TOKEN_NULL);
-        this.KEYWORDS.put("NIL", TokenType.TOKEN_NIL);
-        this.KEYWORDS.put("size", TokenType.TOKEN_SIZE);
-        this.KEYWORDS.put("end", TokenType.TOKEN_END);
-        this.KEYWORDS.put("makeArray", TokenType.TOKEN_MAKEARRAY);
-        this.KEYWORDS.put("makearray", TokenType.TOKEN_MAKEARRAY);
-        this.KEYWORDS.put("endArray", TokenType.TOKEN_ENDARRAY);
-        this.KEYWORDS.put("endarray", TokenType.TOKEN_ENDARRAY);
-
         pushScope();
     }
 
