@@ -125,9 +125,18 @@ public class Lexer {
         ',', '\\'
     );
 
+    private enum StateName {
+        BEGIN,
+        BLOCK_COMMENT,
+    }
     private interface State {
         Token nextToken();
     }
+
+    private final Map<StateName, State> STATES = Map.of(
+        StateName.BEGIN, new BeginState(),
+        StateName.BLOCK_COMMENT, new BlockCommentState()
+    );
 
     @Data
     private static class Scope {
@@ -185,7 +194,7 @@ public class Lexer {
         }
     }
 
-    private final State state = new BeginState();
+    private StateName state = StateName.BEGIN;
     private final Scopes scopes = new Scopes();
     private final Tokens tokens = new Tokens();
     private int startPos = 0;
@@ -235,7 +244,16 @@ public class Lexer {
     }
 
     private Token nextToken() {
+        State state = currentState();
         return state.nextToken();
+    }
+
+    private State currentState() {
+        return STATES.get(state);
+    }
+
+    private void switchState(StateName newState) {
+        state = newState;
     }
 
     private class BeginState implements State {
@@ -359,19 +377,7 @@ public class Lexer {
                             cursor.newLine();
                         }
                     } else if (match('*')) {
-                        while (!(peek() == '*' && peekNext() == '/') && !isEOF()) {
-                            char n = next();
-                            if (n == '\n') {
-                                if (currentLineHasStatement) {
-                                    currentLineHasStatement = false;
-                                    startPos = source.pos() - 1;
-                                    token = addToken(TOKEN_EOL);
-                                }
-                                cursor.newLine();
-                            }
-                        }
-                        next();
-                        next();
+                        switchState(StateName.BLOCK_COMMENT);
                     } else {
                         token = addToken(TOKEN_DIVIDE);
                     }
@@ -423,6 +429,29 @@ public class Lexer {
                     break;
                 }
             }
+            return token;
+        }
+    }
+
+    private class BlockCommentState implements State {
+
+        @Override
+        public Token nextToken() {
+            Token token = null;
+            while (!(peek() == '*' && peekNext() == '/') && !isEOF()) {
+                char n = next();
+                if (n == '\n') {
+                    if (currentLineHasStatement) {
+                        currentLineHasStatement = false;
+                        startPos = source.pos() - 1;
+                        token = addToken(TOKEN_EOL);
+                    }
+                    cursor.newLine();
+                }
+            }
+            next();
+            next();
+            switchState(StateName.BEGIN);
             return token;
         }
     }
