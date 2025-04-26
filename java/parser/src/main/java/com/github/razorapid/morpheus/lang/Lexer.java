@@ -3,6 +3,7 @@ package com.github.razorapid.morpheus.lang;
 import lombok.Data;
 import lombok.Value;
 
+import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -144,15 +145,16 @@ public class Lexer {
 
     private final Scopes scopes = new Scopes();
     private final Tokens tokens = new Tokens();
-    private String source;
+    //private String source;
     private long startPos = 0;
-    private long currentPos = 0;
+    //private long currentPos = 0;
     private long currentLine = 1;
     private long currentCol = 1;
     private boolean currentLineHasStatement = false;
+    private Tape<Character> source;
 
     public Lexer(Source script) {
-        this.source = script != null ? script.source() : null;
+        this.source = createSource(script);
 
         this.KEYWORDS.put("case", TokenType.TOKEN_CASE);
         this.KEYWORDS.put("if", TokenType.TOKEN_IF);
@@ -176,15 +178,23 @@ public class Lexer {
         pushScope();
     }
 
-    public Optional<Tokens> scan() {
-        if (source == null) return Optional.empty();
+    private static Tape<Character> createSource(Source script) {
+        if (script == null) {
+            return null;
+        }
+        String source = script.source();
         // make sure source end with new line
         if (!source.endsWith("\n")) {
             source += "\n";
         }
+        return Tape.of(source.chars().mapToObj(c -> (char) c).toArray(Character[]::new));
+    }
+
+    public Optional<Tokens> scan() {
+        if (source == null) return Optional.empty();
 
         while (!isEOF()) {
-            startPos = currentPos;
+            startPos = source.pos();
             scanToken();
         }
 
@@ -304,7 +314,7 @@ public class Lexer {
                         next();
                         if (currentLineHasStatement) {
                             currentLineHasStatement = false;
-                            startPos = currentPos - 1;
+                            startPos = source.pos() - 1;
                             addToken(TOKEN_EOL);
                         }
                         currentLine++;
@@ -316,7 +326,7 @@ public class Lexer {
                         if (n == '\n') {
                             if (currentLineHasStatement) {
                                 currentLineHasStatement = false;
-                                startPos = currentPos - 1;
+                                startPos = source.pos() - 1;
                                 addToken(TOKEN_EOL);
                             }
                             currentLine++;
@@ -379,7 +389,7 @@ public class Lexer {
     }
 
     private boolean tryMatchNumber() {
-        long pos = currentPos;
+        long pos = source.pos();
 
         while (Character.isDigit(peek(pos))) pos++;
         if (isEOF(pos) || NUMBER_TERMINATORS.contains(peek(pos))) {
@@ -402,9 +412,9 @@ public class Lexer {
     }
 
     private boolean tryMatchFloat() {
-        long pos = currentPos;
+        long pos = source.pos();
         while (Character.isDigit(peek(pos))) pos++;
-        if (pos != currentPos && (isEOF(pos) || NUMBER_TERMINATORS.contains(peek(pos)))) {
+        if (pos != source.pos() && (isEOF(pos) || NUMBER_TERMINATORS.contains(peek(pos)))) {
             currentPos(pos);
             addToken(TOKEN_FLOAT);
             return true;
@@ -417,7 +427,7 @@ public class Lexer {
             char[] chars = listener.toCharArray();
             if (c == chars[0]) {
                 boolean isListenerCandidate = true;
-                long pos = currentPos;
+                long pos = source.pos();
                 for (int i = 1; i < chars.length; i++) {
                     if (peek(pos) != chars[i]) {
                         isListenerCandidate = false;
@@ -437,7 +447,7 @@ public class Lexer {
     }
 
     private boolean tryMatchString() {
-        long pos = currentPos;
+        long pos = source.pos();
         while (!NEW_LINE.contains(peek(pos)) && !isEOF(pos)) {
             if (peek(pos) == '"' && peek(pos - 1) != '\\') {
                 currentPos(pos + 1);
@@ -457,10 +467,11 @@ public class Lexer {
         )) {
             next();
 
-            if (lookupKeywords && KEYWORDS.containsKey(source.substring((int) startPos, (int) currentPos))) {
+            String tokenString = tokenString((int) startPos, source.pos());
+            if (lookupKeywords && KEYWORDS.containsKey(tokenString)) {
                 if (KEYWORD_TERMINATORS.contains(peek())) {
                     matchedKeyword = true;
-                    addToken(KEYWORDS.getOrDefault(source.substring((int) startPos, (int) currentPos), TOKEN_IDENTIFIER));
+                    addToken(KEYWORDS.getOrDefault(tokenString, TOKEN_IDENTIFIER));
                     break;
                 }
             }
@@ -513,54 +524,56 @@ public class Lexer {
     }
 
     private char peekNext() {
-        return peek(currentPos + 1);
+        return source.peekNext();
     }
 
     private char peek(long pos) {
-        if (isEOF(pos)) return '\0';
-        return source.charAt((int) pos);
+        return source.peek((int) pos);
     }
 
     private char peek() {
-        return peek(currentPos);
+        return source.peek();
     }
 
     private boolean match(char c) {
-        if (isEOF()) return false;
-        if (source.charAt((int) currentPos) != c) return false;
-
-        currentPosInc();
-        return true;
+        boolean matched = source.match(c);
+        if (matched) {
+            currentCol++;
+        }
+        return matched;
     }
 
     private void addToken(TokenType type) {
-        tokens.add(type, source.substring((int) startPos, (int) currentPos), startPos, currentLine, currentCol - (currentPos - startPos));
+        tokens.add(type, tokenString((int)startPos, source.pos()), startPos, currentLine, currentCol - (source.pos() - startPos));
         if (type != TOKEN_EOL) {
             currentLineHasStatement = true;
         }
     }
 
     private char next() {
-        return source.charAt((int) currentPosInc());
-    }
-
-    private long currentPosInc() {
-        var old = currentPos;
         currentCol++;
-        currentPos++;
-        return old;
+        return source.next();
     }
 
     private void currentPos(long pos) {
-        currentCol += pos - currentPos;
-        currentPos = pos;
+        currentCol += pos - source.pos();
+        source.pos((int) pos);
     }
 
     private boolean isEOF() {
-        return isEOF(currentPos);
+        return source.isEOB();
     }
 
     private boolean isEOF(long pos) {
-        return source.isEmpty() || pos >= source.length();
+        return source.isEOB((int) pos);
+    }
+
+    private String tokenString(int from, int to) {
+        Character[] data = source.data(from, to);
+        StringBuilder sb = new StringBuilder(data.length);
+        for (char c : data) {
+            sb.append(c);
+        }
+        return sb.toString();
     }
 }
