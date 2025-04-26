@@ -263,19 +263,10 @@ public class Lexer {
 
             Token token = null;
             switch (c) {
-                case ' ': {
-                    if (peek() == '+' && (!WHITE_SPACE.contains(peekNext()) && peekNext() != '+' && peekNext() != '=' && peekNext() != '\0')) {
-                        next();
-                        token = addToken(TOKEN_POS);
-                    } else if (peek() == '-' && (!WHITE_SPACE.contains(peekNext()) && peekNext() != '-' && peekNext() != '=' && peekNext() != '\0')) {
-                        next();
-                        token = addToken(TOKEN_NEG);
-                    }
-                    break;
-                }
-                case '\r':
-                case '\t':
-                    break;
+                // skip carriage return
+                case '\r': break;
+
+                // count multiple new lines as one
                 case '\n': {
                     if (currentLineHasStatement) {
                         currentLineHasStatement = false;
@@ -284,7 +275,17 @@ public class Lexer {
                     cursor.newLine();
                     break;
                 }
-                // braces and brackets
+
+                // single character cases
+                case ';': { token = addToken(TOKEN_SEMICOLON); break; }
+                case '$': {
+                    token = addToken(TOKEN_DOLLAR);
+                    startScanningVariable();
+                    break;
+                }
+                case '~': { token = addToken(TOKEN_COMPLEMENT); break; }
+                case '%': { token = addToken(TOKEN_PERCENTAGE); break; }
+                case '^': { token = addToken(TOKEN_BITWISE_EXCL_OR); break; }
                 case '(': {
                     token = addToken(TOKEN_LEFT_BRACKET);
                     pushScope();
@@ -316,19 +317,8 @@ public class Lexer {
                     break;
                 }
 
-                // single character operators
-                case ';': { token = addToken(TOKEN_SEMICOLON); break; }
-                case '$': {
-                    token = addToken(TOKEN_DOLLAR);
-                    startScanningVariable();
-                    break;
-                }
-                case '~': { token = addToken(TOKEN_COMPLEMENT); break; }
-                case '%': { token = addToken(TOKEN_PERCENTAGE); break; }
-                case '*': { token = addToken(TOKEN_MULTIPLY); break; }
-                case '^': { token = addToken(TOKEN_BITWISE_EXCL_OR); break; }
 
-                // multi character operators
+                // multi character cases
                 case ':': { token = addToken(match(':') ? TOKEN_DOUBLE_COLON : TOKEN_COLON); break; }
                 case '|': { token = addToken(match('|') ? TOKEN_LOGICAL_OR : TOKEN_BITWISE_OR); break; }
                 case '&': { token = addToken(match('&') ? TOKEN_LOGICAL_AND : TOKEN_BITWISE_AND); break; }
@@ -336,16 +326,6 @@ public class Lexer {
                 case '!': { token = addToken(match('=') ? TOKEN_INEQUALITY : TOKEN_NOT); break; }
                 case '<': { token = addToken(match('=') ? TOKEN_LESS_THAN_OR_EQUAL : TOKEN_LESS_THAN); break; }
                 case '>': { token = addToken(match('=') ? TOKEN_GREATER_THAN_OR_EQUAL : TOKEN_GREATER_THAN); break; }
-                case '-': {
-                    if (match('=')) {
-                        token = addToken(TOKEN_MINUS_EQUALS);
-                    } else if (match('-')) {
-                        token = addToken(TOKEN_DEC);
-                    } else {
-                        token = addToken(TOKEN_MINUS);
-                    }
-                    break;
-                }
                 case '+': {
                     if (match('=')) {
                         token = addToken(TOKEN_PLUS_EQUALS);
@@ -356,6 +336,29 @@ public class Lexer {
                     }
                     break;
                 }
+                case '-': {
+                    if (match('=')) {
+                        token = addToken(TOKEN_MINUS_EQUALS);
+                    } else if (match('-')) {
+                        token = addToken(TOKEN_DEC);
+                    } else {
+                        token = addToken(TOKEN_MINUS);
+                    }
+                    break;
+                }
+
+                case '\t':
+                case ' ': {
+                    if (peek() == '+' && (!WHITE_SPACE.contains(peekNext()) && peekNext() != '+' && peekNext() != '=' && peekNext() != '\0')) {
+                        next();
+                        token = addToken(TOKEN_POS);
+                    } else if (peek() == '-' && (!WHITE_SPACE.contains(peekNext()) && peekNext() != '-' && peekNext() != '=' && peekNext() != '\0')) {
+                        next();
+                        token = addToken(TOKEN_NEG);
+                    }
+                    break;
+                }
+                case '*': { token = addToken(TOKEN_MULTIPLY); break; } // TODO Missing cases
                 case '.': {
                     token = tryMatchFloat();
                     if (token == null) {
