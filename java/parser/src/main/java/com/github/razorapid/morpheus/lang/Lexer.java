@@ -200,7 +200,7 @@ public class Lexer {
     private int startPos = 0;
     private final Cursor cursor = new Cursor();
     private final Tape<Character> source;
-    private boolean currentLineHasStatement = false;
+    private TokenType prevToken = null;
 
     public Lexer(Source script) {
         this.source = createSource(script);
@@ -211,11 +211,7 @@ public class Lexer {
         if (script == null) {
             return null;
         }
-        String source = script.source();
-        // make sure source end with new line
-        if (!source.endsWith("\n")) {
-            source += "\n";
-        }
+        String source = script.source() + "\n"; // make sure source end with new line
         return Tape.of(source.chars().mapToObj(c -> (char) c).toArray(Character[]::new));
     }
 
@@ -245,7 +241,11 @@ public class Lexer {
 
     private Token nextToken() {
         State state = currentState();
-        return state.nextToken();
+        Token t = state.nextToken();
+        if (t != null) {
+            prevToken = t.type();
+        }
+        return t;
     }
 
     private State currentState() {
@@ -268,8 +268,7 @@ public class Lexer {
 
                 // count multiple new lines as one
                 case '\n': {
-                    if (currentLineHasStatement) {
-                        currentLineHasStatement = false;
+                    if (prevToken != TOKEN_EOL) {
                         token = addToken(TOKEN_EOL);
                     }
                     cursor.newLine();
@@ -368,17 +367,8 @@ public class Lexer {
                 }
                 case '/': {
 
-                    if (match('/')) {
+                    if (match('/')) { // Single line comment, eat up to the new line without it
                         while (peek() != '\n' && !isEOF()) next();
-                        if (peek() == '\n') {
-                            next();
-                            if (currentLineHasStatement) {
-                                currentLineHasStatement = false;
-                                startPos = source.pos() - 1;
-                                token = addToken(TOKEN_EOL);
-                            }
-                            cursor.newLine();
-                        }
                     } else if (match('*')) {
                         switchState(StateName.BLOCK_COMMENT);
                     } else {
@@ -387,10 +377,15 @@ public class Lexer {
 
                     break;
                 }
-                case '\\': {
-                    if (WHITE_SPACE.contains(peek())) {
-                        // line break => ignore and continue line without emitting EOL token on new line
-                        currentLineHasStatement = false;
+                case '\\': { // Multiline break
+                    if (match('\n')) {
+                        cursor.newLine();
+                        break;
+                    }
+                    if (peek() == '\r' && peekNext() == '\n') {
+                        next();
+                        next();
+                        cursor.newLine();
                         break;
                     }
                     //fallthrough
@@ -444,11 +439,6 @@ public class Lexer {
             while (!(peek() == '*' && peekNext() == '/') && !isEOF()) {
                 char n = next();
                 if (n == '\n') {
-                    if (currentLineHasStatement) {
-                        currentLineHasStatement = false;
-                        startPos = source.pos() - 1;
-                        token = addToken(TOKEN_EOL);
-                    }
                     cursor.newLine();
                 }
             }
@@ -613,11 +603,7 @@ public class Lexer {
     }
 
     private Token addToken(TokenType type) {
-        Token token = Token.of(type, tokenString(startPos, source.pos()), startPos, cursor.line(), cursor.col() - (source.pos() - startPos));
-        if (type != TOKEN_EOL) {
-            currentLineHasStatement = true;
-        }
-        return token;
+        return Token.of(type, tokenString(startPos, source.pos()), startPos, cursor.line(), cursor.col() - (source.pos() - startPos));
     }
 
     private char next() {

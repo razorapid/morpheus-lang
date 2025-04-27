@@ -7,7 +7,7 @@ import static TokenType.*
 
 class LexerSpec extends Specification {
 
-    def "no tokens for empty input"() {
+    def "no tokens for no input"() {
         setup:
         def lexer = new Lexer(null)
 
@@ -18,7 +18,7 @@ class LexerSpec extends Specification {
         result.isEmpty()
     }
 
-    def "EOF token on end of input"() {
+    def "EOL token on empty input"() {
         setup:
         def script = new Source("test_script.scr", "")
         def lexer = new Lexer(script)
@@ -27,7 +27,8 @@ class LexerSpec extends Specification {
         def result = lexer.scan().get()
 
         then:
-        result.size() == 0
+        result.size() == 1
+        result.get(0).type() == TOKEN_EOL
     }
 
     def "ignores whitespace"() {
@@ -39,15 +40,15 @@ class LexerSpec extends Specification {
         def result = lexer.scan().get()
 
         then:
-        result.size() == 0
+        result.list().collect { it.type() } == expectedTokenType
 
         where:
 
-        input    | _
-        "     "  | _
-        "   "    | _
-        "\n\n\n" | _
-        " \n \t" | _
+        input    || expectedTokenType
+        "     "  || [TOKEN_EOL]
+        "   "    || [TOKEN_EOL]
+        "\n\n\n" || [TOKEN_EOL]
+        " \n \t" || [TOKEN_EOL]
     }
 
     def "ignores line comments"() {
@@ -59,7 +60,8 @@ class LexerSpec extends Specification {
         def result = lexer.scan().get()
 
         then:
-        result.size() == 0
+        result.size() == 1
+        result.get(0).type() == TOKEN_EOL
 
         where:
 
@@ -80,7 +82,8 @@ class LexerSpec extends Specification {
         def result = lexer.scan().get()
 
         then:
-        result.size() == 0
+        result.size() == 1
+        result.get(0).type() == TOKEN_EOL
 
         where:
 
@@ -801,12 +804,13 @@ class LexerSpec extends Specification {
 
     def "scans basic script"() {
         setup:
-        def script = new Source("test_script.scr", """
+        def script = new Source("test_script.scr",
+        """\
         main:
           local.i = "some text";
           println local.i;
         end
-        """)
+        """.stripIndent())
         def lexer = new Lexer(script)
 
         when:

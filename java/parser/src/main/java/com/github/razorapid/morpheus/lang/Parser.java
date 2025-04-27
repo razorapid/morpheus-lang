@@ -127,6 +127,7 @@ public class Parser {
         var statements = new ArrayList<ConcreteSyntaxTree.Node>();
         while (isNotEOF()) {
             try {
+                consumeNewLines();
                 var statement = parseStatement();
                 if (!isMatched(statement)) {
                     if (strict && !check(TOKEN_EOL, TOKEN_SEMICOLON)) {
