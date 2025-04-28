@@ -357,7 +357,12 @@ public class Lexer {
                     }
                     break;
                 }
-                case '*': { token = addToken(TOKEN_MULTIPLY); break; } // TODO Missing cases
+                case '*': {
+                    if (match('/')) {
+                        throw new IllegalStateException("\'*/\' found outside of comment");
+                    }
+                    token = addToken(TOKEN_MULTIPLY); break;
+                } // TODO Missing cases
                 case '.': {
                     token = tryMatchFloat();
                     if (token == null) {

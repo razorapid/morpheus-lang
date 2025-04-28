@@ -99,6 +99,23 @@ class LexerSpec extends Specification {
         "/*te\n\n\nst*/" | _
     }
 
+    def "*/ illegal outside of block comment"() {
+        setup:
+        def script = new Source("test_script.scr", input)
+        def lexer = new Lexer(script)
+
+        when:
+        def result = lexer.scan().get()
+
+        then:
+        thrown IllegalStateException
+
+        where:
+
+        input | _
+        "*/"  | _
+    }
+
     def "scans brackets and braces"() {
         setup:
         def script = new Source("test_script.scr", input)
