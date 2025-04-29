@@ -82,7 +82,7 @@ public class Lexer {
             '$', '@', '#', '`', '"', '\'', '?'
     );
     private static final Set<Character> NUMBER_TERMINATORS = Set.of( // identifiers: . @ # $ _ " ' ` ? \
-            ' ', '\t', '\r', '\n', '\f', // whitespace
+            ' ', '\t', '\r', '\n', // whitespace
             '(', ')', '{', '}', '[', ']', ':', ';',
             '=', '/', '+', '-', '*', '%', '!', '^', '|', '&', '<', '>', '~',
             ','
@@ -396,6 +396,13 @@ public class Lexer {
                     //fallthrough
                 }
                 default: {
+                    if (Character.isDigit(c)) {
+                        token = tryMatchNumber();
+                        if (token == null) {
+                            token = matchIdentifier(false);
+                        }
+                        break;
+                    }
 
                     if (isScanningVariable() && !matchLastToken(TOKEN_DOLLAR, TOKEN_PERIOD)) {
                         stopScanningVariable();
@@ -414,13 +421,7 @@ public class Lexer {
                         break;
                     }
 
-                    if (Character.isDigit(c)) {
-                        token = tryMatchNumber();
-                        if (token == null) {
-                            token = matchIdentifier(false);
-                        }
-                        break;
-                    }
+
 
                     token = tryMatchListener(c);
                     if (token != null) {
@@ -455,20 +456,48 @@ public class Lexer {
     }
 
     private Token tryMatchNumber() {
-        int pos = source.pos();
-
-        while (Character.isDigit(peek(pos))) pos++;
-        if (isEOF(pos) || NUMBER_TERMINATORS.contains(peek(pos))) {
-            currentPos(pos);
+        int digits = source.pos();
+        while (Character.isDigit(peek(digits))) digits++;
+        if (isEOF(digits) || NUMBER_TERMINATORS.contains(peek(digits))) {
+            currentPos(digits);
             return addToken(TOKEN_INTEGER);
         }
 
-        if (!isEOF(pos) && peek(pos) == '.') {
-            int decimalPos = pos + 1;
-            while (Character.isDigit(peek(decimalPos))) decimalPos++;
-            if (decimalPos > pos + 1 && (isEOF(decimalPos) || NUMBER_TERMINATORS.contains(peek(decimalPos)))) {
-                currentPos(decimalPos);
+        if (peek(digits) == 'E') {
+            int exponentPos = digits + 1;
+            if (peek(exponentPos) == '+' || peek(exponentPos) == '-') { // optional +- character, eg. 1.2E+1
+                exponentPos++;
+            }
+            if (Character.isDigit(peek(exponentPos))) {
+                while (Character.isDigit(peek(exponentPos))) exponentPos++;
+                if (isEOF(exponentPos) || NUMBER_TERMINATORS.contains(peek(exponentPos))) {
+                    currentPos(exponentPos);
+                    return addToken(TOKEN_FLOAT);
+                }
+            }
+        }
+
+        if (peek(digits) == '.' && Character.isDigit(peek(digits + 1))) {
+            digits++;
+
+            while (Character.isDigit(peek(digits))) digits++;
+            if (isEOF(digits) || NUMBER_TERMINATORS.contains(peek(digits))) {
+                currentPos(digits);
                 return addToken(TOKEN_FLOAT);
+            }
+
+            if (peek(digits) == 'E') {
+                int exponentPos = digits + 1;
+                if (peek(exponentPos) == '+' || peek(exponentPos) == '-') { // optional +- character, eg. 1.2E+1
+                    exponentPos++;
+                }
+                if (Character.isDigit(peek(exponentPos))) {
+                    while (Character.isDigit(peek(exponentPos))) exponentPos++;
+                    if (isEOF(exponentPos) || NUMBER_TERMINATORS.contains(peek(exponentPos))) {
+                        currentPos(exponentPos);
+                        return addToken(TOKEN_FLOAT);
+                    }
+                }
             }
         }
 
@@ -477,10 +506,25 @@ public class Lexer {
 
     private Token tryMatchFloat() {
         int pos = source.pos();
-        while (Character.isDigit(peek(pos))) pos++;
-        if (pos != source.pos() && (isEOF(pos) || NUMBER_TERMINATORS.contains(peek(pos)))) {
-            currentPos(pos);
+        int digits = pos;
+        while (Character.isDigit(peek(digits))) digits++;
+        if (digits > pos && (isEOF(digits) || NUMBER_TERMINATORS.contains(peek(digits)))) {
+            currentPos(digits);
             return addToken(TOKEN_FLOAT);
+        }
+
+        if (peek(digits) == 'E') {
+            int exponentPos = digits + 1;
+            if (peek(exponentPos) == '+' || peek(exponentPos) == '-') { // optional +- character, eg. .2E+1
+                exponentPos++;
+            }
+            if (Character.isDigit(peek(exponentPos))) {
+                while (Character.isDigit(peek(exponentPos))) exponentPos++;
+                if (isEOF(exponentPos) || NUMBER_TERMINATORS.contains(peek(exponentPos))) {
+                    currentPos(exponentPos);
+                    return addToken(TOKEN_FLOAT);
+                }
+            }
         }
         return null;
     }

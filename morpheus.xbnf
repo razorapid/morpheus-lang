@@ -150,8 +150,9 @@ TOKEN_SIZE: 'size';
 TOKEN_STRING: '"' S_CHAR_SEQUENCE? '"';
 TOKEN_INTEGER: [0-9]+;
 TOKEN_FLOAT
- : [0-9]+ '.' [0-9]*
- | '.' [0-9]+
+ : [0-9]+ 'E' (+|-)? [0-9]+
+ | [0-9]+ '.' ('E' (+|-)?)? [0-9]+
+ | '.' ('E' (+|-)?)? [0-9]+
  ;
 
 // Below definition in not complete, refer to implementation to infer tokenization rules for identifiers

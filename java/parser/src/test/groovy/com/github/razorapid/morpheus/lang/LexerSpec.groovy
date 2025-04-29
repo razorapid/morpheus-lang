@@ -244,12 +244,20 @@ class LexerSpec extends Specification {
 
         where:
 
-        input   | expectedTokenType
-        ".0"    | TOKEN_FLOAT
-        ".1"    | TOKEN_FLOAT
-        "0.0"   | TOKEN_FLOAT
-        "123.0" | TOKEN_FLOAT
-        "12.05" | TOKEN_FLOAT
+        input    | expectedTokenType
+        ".0"     | TOKEN_FLOAT
+        ".1"     | TOKEN_FLOAT
+        ".1E+1"  | TOKEN_FLOAT
+        ".10E-2" | TOKEN_FLOAT
+        "0.0"    | TOKEN_FLOAT
+        "123.0"  | TOKEN_FLOAT
+        "12.05"  | TOKEN_FLOAT
+        "1.0E+1" | TOKEN_FLOAT
+        "2.5E-2" | TOKEN_FLOAT
+        "1.2E3"  | TOKEN_FLOAT
+        "48E8"   | TOKEN_FLOAT
+        "18E+8"  | TOKEN_FLOAT
+        "09E-5"  | TOKEN_FLOAT
     }
 
     def "scans negative float numbers"() {
