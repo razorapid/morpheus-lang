@@ -55,6 +55,11 @@ import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_STRING;
 
 public class Lexer {
 
+    private static final Set<Character> STRING_TERMINATORS = Set.of(
+            ' ', '\t', '\r', '\n', '!', '%', '&', '*', '/', '<', '>',
+            '^', '|', '~', '(', ')', ',', ':', ';', '[', ']', '{', '}',
+            '+', '-', '='
+    );
     private static final Set<Character> KEYWORD_TERMINATORS = Set.of(
             ' ', '\t', '\r', '\n', '\f',
             '(', ')', '[', ']', '{', '}', ':', ';',
@@ -382,6 +387,13 @@ public class Lexer {
 
                     break;
                 }
+                case '"': {
+                    token = tryMatchString();
+                    if (token == null) {
+                        token = matchIdentifier(false);
+                    }
+                    break;
+                }
                 case '\\': { // Multiline break
                     if (match('\n')) {
                         cursor.newLine();
@@ -412,15 +424,6 @@ public class Lexer {
                         token = matchIdentifier(false);
                         break;
                     }
-
-                    if (c == '"') {
-                        token = tryMatchString();
-                        if (token == null) {
-                            token = matchIdentifier(false);
-                        }
-                        break;
-                    }
-
 
 
                     token = tryMatchListener(c);
@@ -555,7 +558,7 @@ public class Lexer {
     private Token tryMatchString() {
         int pos = source.pos();
         while (!NEW_LINE.contains(peek(pos)) && !isEOF(pos)) {
-            if (peek(pos) == '"' && peek(pos - 1) != '\\') {
+            if (peek(pos) == '"' && peek(pos - 1) != '\\' && STRING_TERMINATORS.contains(peek(pos + 1))) {
                 currentPos(pos + 1);
                 return addToken(TOKEN_STRING);
             }
