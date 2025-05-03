@@ -1,11 +1,8 @@
 package com.github.razorapid.morpheus.lang;
 
 import lombok.Data;
-import lombok.Value;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -133,6 +130,8 @@ public class Lexer {
     private enum StateName {
         BEGIN,
         BLOCK_COMMENT,
+        FIELD,
+        IDENTIFIER,
     }
     private interface State {
         Token nextToken();
@@ -140,45 +139,10 @@ public class Lexer {
 
     private final Map<StateName, State> STATES = Map.of(
         StateName.BEGIN, new BeginState(),
-        StateName.BLOCK_COMMENT, new BlockCommentState()
+        StateName.BLOCK_COMMENT, new BlockCommentState(),
+        StateName.FIELD, new FieldState(),
+        StateName.IDENTIFIER, new IdentifierState()
     );
-
-    @Data
-    private static class Scope {
-        boolean scanningVariable = false;
-
-        boolean isScanningVariable() {
-            return scanningVariable;
-        }
-
-        void scanningVariable(boolean val) {
-            scanningVariable = val;
-        }
-    }
-
-    @Value
-    private static class Scopes {
-        List<Scope> scope = new ArrayList<>();
-
-        void push(Scope newScope) {
-            scope.add(newScope);
-        }
-
-        Optional<Scope> pop() {
-            if (!scope.isEmpty()) {
-                return Optional.of(scope.remove(stackTop()));
-            }
-            return Optional.empty();
-        }
-
-        Scope currentScope() {
-            return scope.isEmpty() ? new Scope() : scope.get(stackTop());
-        }
-
-        private int stackTop() {
-            return scope.size() - 1;
-        }
-    }
 
     @Data
     private static class Cursor {
@@ -200,7 +164,6 @@ public class Lexer {
     }
 
     private StateName state = StateName.BEGIN;
-    private final Scopes scopes = new Scopes();
     private final Tokens tokens = new Tokens();
     private int startPos = 0;
     private final Cursor cursor = new Cursor();
@@ -209,7 +172,6 @@ public class Lexer {
 
     public Lexer(Source script) {
         this.source = createSource(script);
-        pushScope();
     }
 
     private static Tape<Character> createSource(Source script) {
@@ -284,7 +246,6 @@ public class Lexer {
                 case ';': { token = addToken(TOKEN_SEMICOLON); break; }
                 case '$': {
                     token = addToken(TOKEN_DOLLAR);
-                    startScanningVariable();
                     break;
                 }
                 case '~': { token = addToken(TOKEN_COMPLEMENT); break; }
@@ -292,32 +253,26 @@ public class Lexer {
                 case '^': { token = addToken(TOKEN_BITWISE_EXCL_OR); break; }
                 case '(': {
                     token = addToken(TOKEN_LEFT_BRACKET);
-                    pushScope();
                     break;
                 }
                 case ')': {
                     token = addToken(TOKEN_RIGHT_BRACKET);
-                    popScope();
                     break;
                 }
                 case '[': {
                     token = addToken(TOKEN_LEFT_SQUARE_BRACKET);
-                    pushScope();
                     break;
                 }
                 case ']': {
                     token = addToken(TOKEN_RIGHT_SQUARE_BRACKET);
-                    popScope();
                     break;
                 }
                 case '{': {
                     token = addToken(TOKEN_LEFT_BRACES);
-                    pushScope();
                     break;
                 }
                 case '}': {
                     token = addToken(TOKEN_RIGHT_BRACES);
-                    popScope();
                     break;
                 }
 
@@ -367,7 +322,7 @@ public class Lexer {
                         throw new IllegalStateException("\'*/\' found outside of comment");
                     }
                     token = addToken(TOKEN_MULTIPLY); break;
-                } // TODO Missing cases
+                }
                 case '.': {
                     token = tryMatchFloat();
                     if (token == null) {
@@ -385,6 +340,15 @@ public class Lexer {
                         token = addToken(TOKEN_DIVIDE);
                     }
 
+                    break;
+                }
+                case '@':
+                case ',': {
+                    if (isScanningVariable()) {
+                        switchState(StateName.FIELD);
+                    } else {
+                        switchState(StateName.IDENTIFIER);
+                    }
                     break;
                 }
                 case '"': {
@@ -416,11 +380,7 @@ public class Lexer {
                         break;
                     }
 
-                    if (isScanningVariable() && !matchLastToken(TOKEN_DOLLAR, TOKEN_PERIOD)) {
-                        stopScanningVariable();
-                    }
-
-                    if (c == '@' || c == '#' || c == '`' || c == '\\' || c == '\'' || c == ',' || c == '?' || c == '_') {
+                    if (c == '#' || c == '`' || c == '\\' || c == '\'' || c == '?' || c == '_') {
                         token = matchIdentifier(false);
                         break;
                     }
@@ -428,7 +388,6 @@ public class Lexer {
 
                     token = tryMatchListener(c);
                     if (token != null) {
-                        if (peek() == '.') startScanningVariable();
                         break;
                     }
 
@@ -455,6 +414,60 @@ public class Lexer {
             next();
             switchState(StateName.BEGIN);
             return token;
+        }
+    }
+
+    private class FieldState implements State {
+        private static final Set<Character> BAD_TOKEN_CHARS = Set.of(
+            ' ', '\t', '\r', '[', ']', '^', '!', '%', '&', '(', ')',
+            '*', '+', ',', '-', '.', '/', ':', ';', '{', '}', '<', '>',
+            '|', '=', '~'
+        );
+        private static final Set<Character> FIELD_TERMINATORS = Set.of(
+            '\n', '\t', '\r', ' ', '!', '%', '&', '*', '/', '<', '>',
+            '^', '|', '~', '(', ')', ',', ':', ';', '[', ']', '{', '}',
+            '+', '-', '=', '.'
+        );
+
+        @Override
+        public Token nextToken() {
+            if (NEW_LINE.contains(peek())) { // ignore the character that put us in FIELD state and continue
+                next();
+                return null;
+            } else if (BAD_TOKEN_CHARS.contains(peek())) {
+                next();
+                throw new IllegalStateException("bad token");
+            }
+            while (!isEOF() && !FIELD_TERMINATORS.contains(peek())) {
+                next();
+            }
+            switchState(StateName.BEGIN);
+            return addToken(TOKEN_IDENTIFIER);
+        }
+    }
+
+    private class IdentifierState implements State {
+        private static final Set<Character> BAD_TOKEN_CHARS = Set.of(
+            ' ', '\t', '\r', '(', ')', '[', ']', '{', '}',
+            ':', ';', ','
+        );
+        private static final Set<Character> IDENTIFIER_TERMINATORS = Set.of(
+            '\n', '\t', '\r', ' ', '(', ')', ',', ':', ';', '[', ']', '{', '}'
+        );
+        @Override
+        public Token nextToken() {
+            if (NEW_LINE.contains(peek())) { // ignore the character that put us in Identifier state and continue
+                next();
+                return null;
+            } else if (BAD_TOKEN_CHARS.contains(peek())) {
+                next();
+                throw new IllegalStateException("bad token");
+            }
+            while (!isEOF() && !IDENTIFIER_TERMINATORS.contains(peek())) {
+                next();
+            }
+            switchState(StateName.BEGIN);
+            return addToken(TOKEN_IDENTIFIER);
         }
     }
 
@@ -593,24 +606,8 @@ public class Lexer {
         return token;
     }
 
-    private void pushScope() {
-        scopes.push(new Scope());
-    }
-
-    private void popScope() {
-        scopes.pop();
-    }
-
-    private void startScanningVariable() {
-        scopes.currentScope().scanningVariable(true);
-    }
-
-    private void stopScanningVariable() {
-        scopes.currentScope().scanningVariable(false);
-    }
-
     private boolean isScanningVariable() {
-        return scopes.currentScope().isScanningVariable();
+        return prevToken == TOKEN_PERIOD || prevToken == TOKEN_DOLLAR;
     }
 
     private TokenType lastScannedToken() {
