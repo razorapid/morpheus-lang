@@ -5,71 +5,71 @@ import lombok.RequiredArgsConstructor;
 import java.util.Arrays;
 
 @RequiredArgsConstructor(staticName = "of")
-class Tape<T> {
+public class Tape<T> {
     private final T[] data;
     private int currentPos = 0;
 
-    boolean isEOB() {
+    public boolean isEOB() {
         return isEOB(currentPos);
     }
 
-    boolean isEOB(int pos) {
+    public boolean isEOB(int pos) {
         return data.length == 0 || pos >= data.length || pos < 0;
     }
 
-    T peek() {
+    public T peek() {
         return peek(currentPos);
     }
 
-    T peekNext() {
+    public T peekNext() {
         return peek(currentPos + 1);
     }
 
-    T peekPrev() {
+    public T peekPrev() {
         return peek(currentPos - 1);
     }
 
-    T peek(int pos) {
+    public T peek(int pos) {
         return isEOB(pos) ? null : data[pos];
     }
 
-    T next() {
+    public T next() {
         return peek(forward());
     }
 
-    T prev() {
+    public T prev() {
         return peek(backward());
     }
 
-    boolean match(T e) {
+    public boolean match(T e) {
         if (isEOB() || peek() != e) return false;
         forward();
         return true;
     }
 
-    int forward() {
+    public int forward() {
         return pos(pos() + 1);
     }
 
-    int backward() {
+    public int backward() {
         return pos(pos() - 1);
     }
 
-    void rewind() {
+    public void rewind() {
         pos(0);
     }
 
-    int pos() {
+    public int pos() {
         return currentPos;
     }
 
-    int pos(int newPos) {
+    public int pos(int newPos) {
         int ret = currentPos;
         currentPos = capPos(newPos);
         return ret;
     }
 
-    T[] data(int from, int to) {
+    public T[] data(int from, int to) {
         return Arrays.copyOfRange(data, from, to);
     }
 

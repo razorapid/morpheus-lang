@@ -1,5 +1,6 @@
 package com.github.razorapid.morpheus.lang
 
+import com.github.razorapid.morpheus.lang.lexer.Lexer
 import spock.lang.Specification
 import spock.lang.Unroll
 

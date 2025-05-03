@@ -1,6 +1,10 @@
-package com.github.razorapid.morpheus.lang;
+package com.github.razorapid.morpheus.lang.lexer;
 
-import lombok.Data;
+import com.github.razorapid.morpheus.lang.Source;
+import com.github.razorapid.morpheus.lang.Tape;
+import com.github.razorapid.morpheus.lang.Token;
+import com.github.razorapid.morpheus.lang.TokenType;
+import com.github.razorapid.morpheus.lang.Tokens;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -127,43 +131,14 @@ public class Lexer {
         ',', '\\'
     );
 
-    private enum StateName {
-        BEGIN,
-        BLOCK_COMMENT,
-        FIELD,
-        IDENTIFIER,
-    }
-    private interface State {
-        Token nextToken();
-    }
-
-    private final Map<StateName, State> STATES = Map.of(
-        StateName.BEGIN, new BeginState(),
-        StateName.BLOCK_COMMENT, new BlockCommentState(),
-        StateName.FIELD, new FieldState(),
-        StateName.IDENTIFIER, new IdentifierState()
+    private final Map<LexerStateName, LexerState> STATES = Map.of(
+        LexerStateName.BEGIN, new BeginState(),
+        LexerStateName.BLOCK_COMMENT, new BlockCommentState(),
+        LexerStateName.FIELD, new FieldState(),
+        LexerStateName.IDENTIFIER, new IdentifierState()
     );
 
-    @Data
-    private static class Cursor {
-        private int line = 1;
-        private int col = 1;
-
-        void newLine() {
-            line++;
-            col = 1;
-        }
-
-        void right() {
-            col++;
-        }
-
-        void right(int offset) {
-            col += offset;
-        }
-    }
-
-    private StateName state = StateName.BEGIN;
+    private LexerStateName state = LexerStateName.BEGIN;
     private final Tokens tokens = new Tokens();
     private int startPos = 0;
     private final Cursor cursor = new Cursor();
@@ -207,7 +182,7 @@ public class Lexer {
     }
 
     private Token nextToken() {
-        State state = currentState();
+        LexerState state = currentState();
         Token t = state.nextToken();
         if (t != null) {
             prevToken = t.type();
@@ -215,15 +190,15 @@ public class Lexer {
         return t;
     }
 
-    private State currentState() {
+    private LexerState currentState() {
         return STATES.get(state);
     }
 
-    private void switchState(StateName newState) {
+    private void switchState(LexerStateName newState) {
         state = newState;
     }
 
-    private class BeginState implements State {
+    private class BeginState implements LexerState {
         @Override
         public Token nextToken() {
             char c = next();
@@ -335,7 +310,7 @@ public class Lexer {
                     if (match('/')) { // Single line comment, eat up to the new line without it
                         while (peek() != '\n' && !isEOF()) next();
                     } else if (match('*')) {
-                        switchState(StateName.BLOCK_COMMENT);
+                        switchState(LexerStateName.BLOCK_COMMENT);
                     } else {
                         token = addToken(TOKEN_DIVIDE);
                     }
@@ -345,9 +320,9 @@ public class Lexer {
                 case '@':
                 case ',': {
                     if (isScanningVariable()) {
-                        switchState(StateName.FIELD);
+                        switchState(LexerStateName.FIELD);
                     } else {
-                        switchState(StateName.IDENTIFIER);
+                        switchState(LexerStateName.IDENTIFIER);
                     }
                     break;
                 }
@@ -399,7 +374,7 @@ public class Lexer {
         }
     }
 
-    private class BlockCommentState implements State {
+    private class BlockCommentState implements LexerState {
 
         @Override
         public Token nextToken() {
@@ -412,12 +387,12 @@ public class Lexer {
             }
             next();
             next();
-            switchState(StateName.BEGIN);
+            switchState(LexerStateName.BEGIN);
             return token;
         }
     }
 
-    private class FieldState implements State {
+    private class FieldState implements LexerState {
         private static final Set<Character> BAD_TOKEN_CHARS = Set.of(
             ' ', '\t', '\r', '[', ']', '^', '!', '%', '&', '(', ')',
             '*', '+', ',', '-', '.', '/', ':', ';', '{', '}', '<', '>',
@@ -441,12 +416,12 @@ public class Lexer {
             while (!isEOF() && !FIELD_TERMINATORS.contains(peek())) {
                 next();
             }
-            switchState(StateName.BEGIN);
+            switchState(LexerStateName.BEGIN);
             return addToken(TOKEN_IDENTIFIER);
         }
     }
 
-    private class IdentifierState implements State {
+    private class IdentifierState implements LexerState {
         private static final Set<Character> BAD_TOKEN_CHARS = Set.of(
             ' ', '\t', '\r', '(', ')', '[', ']', '{', '}',
             ':', ';', ','
@@ -466,7 +441,7 @@ public class Lexer {
             while (!isEOF() && !IDENTIFIER_TERMINATORS.contains(peek())) {
                 next();
             }
-            switchState(StateName.BEGIN);
+            switchState(LexerStateName.BEGIN);
             return addToken(TOKEN_IDENTIFIER);
         }
     }

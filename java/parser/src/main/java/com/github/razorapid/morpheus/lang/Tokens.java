@@ -17,23 +17,23 @@ public class Tokens {
         return result;
     }
 
-    Token lastToken() {
+    public Token lastToken() {
         return lastToken;
     }
 
-    void restore(long pos) {
+    public void restore(long pos) {
         currentPos = pos;
     }
 
-    Token consume(TokenType... type) {
+    public Token consume(TokenType... type) {
         return match(type) ? lastToken : null;
     }
 
-    long mark() {
+    public long mark() {
         return currentPos;
     }
 
-    boolean match(TokenType... types) {
+    public boolean match(TokenType... types) {
         for (var type : types) {
             if (check(type)) {
                 lastToken = nextToken();
@@ -43,7 +43,7 @@ public class Tokens {
         return false;
     }
 
-    boolean check(TokenType... types) {
+    public boolean check(TokenType... types) {
         for (var type : types) {
             if (peekToken().isType(type)) {
                 return true;
@@ -52,47 +52,47 @@ public class Tokens {
         return false;
     }
 
-    Token nextToken() {
+    public Token nextToken() {
         var result = tokens.get((int) currentPos);
         currentPos++;
         return result;
     }
 
-    Token peekToken() {
+    public Token peekToken() {
         return peekTokenAhead(0);
     }
 
-    Token peekTokenAhead(long lookAhead) {
+    public Token peekTokenAhead(long lookAhead) {
         return currentPos + lookAhead < tokens.size() ?
                 tokens.get(Math.toIntExact(currentPos + lookAhead)) :
                 Token.of(TokenType.TOKEN_EOF, "", -1, -1, -1);
     }
 
-    boolean isEOF() {
+    public boolean isEOF() {
         return currentPos >= tokens.size();
     }
 
-    Token get(long idx) {
+    public Token get(long idx) {
         return tokens.get((int) idx);
     }
 
-    List<Token> list() {
+    public List<Token> list() {
         return new ArrayList<>(tokens);
     }
 
-    void add(TokenType type, String lexeme, long pos, long line, long col) {
+    public void add(TokenType type, String lexeme, long pos, long line, long col) {
         add(Token.of(type, lexeme, pos, line, col));
     }
 
-    void add(Token token) {
+    public void add(Token token) {
         tokens.add(token);
     }
 
-    long size() {
+    public long size() {
         return tokens.size();
     }
 
-    void rewind(long offset) {
+    public void rewind(long offset) {
         currentPos -= offset;
     }
 }
