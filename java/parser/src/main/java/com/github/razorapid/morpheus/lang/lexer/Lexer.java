@@ -59,7 +59,7 @@ public class Lexer {
 
     private final Map<LexerStateName, LexerState> STATES = Map.of(
         LexerStateName.BEGIN, new BeginState(),
-        LexerStateName.BLOCK_COMMENT, new BlockCommentState(),
+        LexerStateName.BLOCK_COMMENT, new BlockCommentState(this),
         LexerStateName.FIELD, new FieldState(),
         LexerStateName.IDENTIFIER, new IdentifierState()
     );
@@ -507,29 +507,6 @@ public class Lexer {
                 token = addToken(TOKEN_IDENTIFIER);
             }
 
-            return token;
-        }
-    }
-
-    private class BlockCommentState implements LexerState {
-
-        @Override
-        public Lexer lexer() {
-            return Lexer.this;
-        }
-
-        @Override
-        public MatchedToken nextToken() {
-            MatchedToken token = MatchedToken.notMatched();
-            while (!(peek() == '*' && peekNext() == '/') && !isEOF()) {
-                char n = next();
-                if (n == '\n') {
-                    caret().newLine();
-                }
-            }
-            next();
-            next();
-            switchTo(LexerStateName.BEGIN);
             return token;
         }
     }
