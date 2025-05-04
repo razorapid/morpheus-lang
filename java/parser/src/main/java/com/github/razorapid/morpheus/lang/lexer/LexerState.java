@@ -38,6 +38,10 @@ interface LexerState {
         return lexer().currentPos();
     }
 
+    default String sourceString(int from, int to) {
+        return lexer().sourceString(from, to);
+    }
+
     default int tokenStartPos() {
         return lexer().tokenStartPos();
     }
