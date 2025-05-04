@@ -14,7 +14,7 @@ interface LexerState {
         return lexer().peekNext();
     }
 
-    default char peek(long pos) {
+    default char peek(int pos) {
         return lexer().peek(pos);
     }
 

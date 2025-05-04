@@ -118,8 +118,8 @@ public class Lexer {
         return source.peekNext();
     }
 
-    char peek(long pos) {
-        return source.peek((int) pos);
+    char peek(int pos) {
+        return source.peek(pos);
     }
 
     char next() {
