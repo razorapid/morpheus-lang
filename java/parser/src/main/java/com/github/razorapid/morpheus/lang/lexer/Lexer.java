@@ -57,81 +57,6 @@ import static java.util.Objects.requireNonNull;
 
 public class Lexer {
 
-    private static final Set<Character> STRING_TERMINATORS = Set.of(
-            ' ', '\t', '\r', '\n', '!', '%', '&', '*', '/', '<', '>',
-            '^', '|', '~', '(', ')', ',', ':', ';', '[', ']', '{', '}',
-            '+', '-', '='
-    );
-    private static final Set<Character> KEYWORD_TERMINATORS = Set.of(
-            ' ', '\t', '\r', '\n', '\f',
-            '(', ')', '[', ']', '{', '}', ':', ';',
-            '=', '/', '-', '+', '*', '%', '!', '^', '|', '&', '<', '>', '~',
-            ',', '.', '\\',
-
-            '$', '@', '#', '`', '"', '\'', '?'
-    );
-    private static final Set<Character> IDENTIFIER_TERMINATORS = Set.of(
-            ' ', '\t', '\r', '\n', '\f',
-            '(', ')', '[', ']', '{', '}', ':', ';'
-    );
-    private static final Set<Character> VARIABLE_IDENTIFIER_TERMINATORS = Set.of(
-            ' ', '\t', '\r', '\n', '\f',
-            '(', ')', '[', ']', '{', '}', ':', ';',
-            '=', '/', '+', '-', '*', '%', '!', '^', '|', '&', '<', '>', '~',
-            ',', '.', '\\'
-    );
-    private static final Set<Character> LISTENER_TERMINATORS = Set.of( //identifier can start with @ # ` \ " ' , ?
-            ' ', '\t', '\r', '\n', '\f', // whitespace
-            '(', ')', '{', '}', '[', ']', ':', ';',
-            '=', '!', '%', '^', '*', '-', '+', '~', '|', '&', '/', '<', '>',
-            ',', '.',  '\\',
-
-            '$', '@', '#', '`', '"', '\'', '?'
-    );
-    private static final Set<Character> NUMBER_TERMINATORS = Set.of( // identifiers: . @ # $ _ " ' ` ? \
-            ' ', '\t', '\r', '\n', // whitespace
-            '(', ')', '{', '}', '[', ']', ':', ';',
-            '=', '/', '+', '-', '*', '%', '!', '^', '|', '&', '<', '>', '~',
-            ','
-    );
-    private static final Set<Character> WHITE_SPACE = Set.of(
-            ' ', '\t', '\r', '\n', '\f'
-    );
-    private static final Set<Character> NEW_LINE = Set.of(
-            '\n'
-    );
-    private static final Map<String, TokenType> KEYWORDS = new HashMap<>();
-    static {
-        KEYWORDS.put("case", TokenType.TOKEN_CASE);
-        KEYWORDS.put("if", TokenType.TOKEN_IF);
-        KEYWORDS.put("else", TokenType.TOKEN_ELSE);
-        KEYWORDS.put("while", TokenType.TOKEN_WHILE);
-        KEYWORDS.put("for", TokenType.TOKEN_FOR);
-        KEYWORDS.put("try", TokenType.TOKEN_TRY);
-        KEYWORDS.put("catch", TokenType.TOKEN_CATCH);
-        KEYWORDS.put("switch", TokenType.TOKEN_SWITCH);
-        KEYWORDS.put("break", TokenType.TOKEN_BREAK);
-        KEYWORDS.put("continue", TokenType.TOKEN_CONTINUE);
-        KEYWORDS.put("NULL", TokenType.TOKEN_NULL);
-        KEYWORDS.put("NIL", TokenType.TOKEN_NIL);
-        KEYWORDS.put("size", TokenType.TOKEN_SIZE);
-        KEYWORDS.put("end", TokenType.TOKEN_END);
-        KEYWORDS.put("makeArray", TokenType.TOKEN_MAKEARRAY);
-        KEYWORDS.put("makearray", TokenType.TOKEN_MAKEARRAY);
-        KEYWORDS.put("endArray", TokenType.TOKEN_ENDARRAY);
-        KEYWORDS.put("endarray", TokenType.TOKEN_ENDARRAY);
-    }
-
-    private static final Set<String> LISTENER_TYPES = Set.of(
-            "game", "level", "local", "parm", "self", "group"
-    );
-
-    private static final Set<Character> VARIABLE_SCANNING_TERMINATORS = Set.of(
-        ':', ';',
-        '=', '/', '+', '-', '*', '%', '!', '^', '|', '&', '<', '>', '~',
-        ',', '\\'
-    );
-
     private final Map<LexerStateName, LexerState> STATES = Map.of(
         LexerStateName.BEGIN, new BeginState(),
         LexerStateName.BLOCK_COMMENT, new BlockCommentState(),
@@ -195,6 +120,75 @@ public class Lexer {
     }
 
     private class BeginState implements LexerState {
+        private static final Set<Character> NEW_LINE = Set.of(
+            '\n'
+        );
+        private static final Set<Character> WHITE_SPACE = Set.of(
+            ' ', '\t', '\r', '\n', '\f'
+        );
+        private static final Set<Character> STRING_TERMINATORS = Set.of(
+            ' ', '\t', '\r', '\n', '!', '%', '&', '*', '/', '<', '>',
+            '^', '|', '~', '(', ')', ',', ':', ';', '[', ']', '{', '}',
+            '+', '-', '='
+        );
+        private static final Set<Character> KEYWORD_TERMINATORS = Set.of(
+            ' ', '\t', '\r', '\n', '\f',
+            '(', ')', '[', ']', '{', '}', ':', ';',
+            '=', '/', '-', '+', '*', '%', '!', '^', '|', '&', '<', '>', '~',
+            ',', '.', '\\',
+
+            '$', '@', '#', '`', '"', '\'', '?'
+        );
+        private static final Set<Character> IDENTIFIER_TERMINATORS = Set.of(
+            ' ', '\t', '\r', '\n', '\f',
+            '(', ')', '[', ']', '{', '}', ':', ';'
+        );
+        private static final Set<Character> VARIABLE_IDENTIFIER_TERMINATORS = Set.of(
+            ' ', '\t', '\r', '\n', '\f',
+            '(', ')', '[', ']', '{', '}', ':', ';',
+            '=', '/', '+', '-', '*', '%', '!', '^', '|', '&', '<', '>', '~',
+            ',', '.', '\\'
+        );
+        private static final Set<Character> LISTENER_TERMINATORS = Set.of( //identifier can start with @ # ` \ " ' , ?
+            ' ', '\t', '\r', '\n', '\f', // whitespace
+            '(', ')', '{', '}', '[', ']', ':', ';',
+            '=', '!', '%', '^', '*', '-', '+', '~', '|', '&', '/', '<', '>',
+            ',', '.',  '\\',
+
+            '$', '@', '#', '`', '"', '\'', '?'
+        );
+        private static final Set<Character> NUMBER_TERMINATORS = Set.of( // identifiers: . @ # $ _ " ' ` ? \
+            ' ', '\t', '\r', '\n', // whitespace
+            '(', ')', '{', '}', '[', ']', ':', ';',
+            '=', '/', '+', '-', '*', '%', '!', '^', '|', '&', '<', '>', '~',
+            ','
+        );
+        private static final Map<String, TokenType> KEYWORDS = new HashMap<>();
+        static {
+            KEYWORDS.put("case", TokenType.TOKEN_CASE);
+            KEYWORDS.put("if", TokenType.TOKEN_IF);
+            KEYWORDS.put("else", TokenType.TOKEN_ELSE);
+            KEYWORDS.put("while", TokenType.TOKEN_WHILE);
+            KEYWORDS.put("for", TokenType.TOKEN_FOR);
+            KEYWORDS.put("try", TokenType.TOKEN_TRY);
+            KEYWORDS.put("catch", TokenType.TOKEN_CATCH);
+            KEYWORDS.put("switch", TokenType.TOKEN_SWITCH);
+            KEYWORDS.put("break", TokenType.TOKEN_BREAK);
+            KEYWORDS.put("continue", TokenType.TOKEN_CONTINUE);
+            KEYWORDS.put("NULL", TokenType.TOKEN_NULL);
+            KEYWORDS.put("NIL", TokenType.TOKEN_NIL);
+            KEYWORDS.put("size", TokenType.TOKEN_SIZE);
+            KEYWORDS.put("end", TokenType.TOKEN_END);
+            KEYWORDS.put("makeArray", TokenType.TOKEN_MAKEARRAY);
+            KEYWORDS.put("makearray", TokenType.TOKEN_MAKEARRAY);
+            KEYWORDS.put("endArray", TokenType.TOKEN_ENDARRAY);
+            KEYWORDS.put("endarray", TokenType.TOKEN_ENDARRAY);
+        }
+
+        private static final Set<String> LISTENER_TYPES = Set.of(
+            "game", "level", "local", "parm", "self", "group"
+        );
+
         @Override
         public Token nextToken() {
             char c = next();
@@ -368,6 +362,141 @@ public class Lexer {
             }
             return token;
         }
+
+        private Token tryMatchString() {
+            int pos = source.pos();
+            while (!NEW_LINE.contains(peek(pos)) && !isEOF(pos)) {
+                if (peek(pos) == '"' && peek(pos - 1) != '\\' && STRING_TERMINATORS.contains(peek(pos + 1))) {
+                    currentPos(pos + 1);
+                    return addToken(TOKEN_STRING);
+                }
+                pos++;
+            }
+            return null;
+        }
+
+        private Token tryMatchNumber() {
+            int digits = source.pos();
+            while (Character.isDigit(peek(digits))) digits++;
+            if (isEOF(digits) || NUMBER_TERMINATORS.contains(peek(digits))) {
+                currentPos(digits);
+                return addToken(TOKEN_INTEGER);
+            }
+
+            if (peek(digits) == 'E') {
+                int exponentPos = digits + 1;
+                if (peek(exponentPos) == '+' || peek(exponentPos) == '-') { // optional +- character, eg. 1.2E+1
+                    exponentPos++;
+                }
+                if (Character.isDigit(peek(exponentPos))) {
+                    while (Character.isDigit(peek(exponentPos))) exponentPos++;
+                    if (isEOF(exponentPos) || NUMBER_TERMINATORS.contains(peek(exponentPos))) {
+                        currentPos(exponentPos);
+                        return addToken(TOKEN_FLOAT);
+                    }
+                }
+            }
+
+            if (peek(digits) == '.' && Character.isDigit(peek(digits + 1))) {
+                digits++;
+
+                while (Character.isDigit(peek(digits))) digits++;
+                if (isEOF(digits) || NUMBER_TERMINATORS.contains(peek(digits))) {
+                    currentPos(digits);
+                    return addToken(TOKEN_FLOAT);
+                }
+
+                if (peek(digits) == 'E') {
+                    int exponentPos = digits + 1;
+                    if (peek(exponentPos) == '+' || peek(exponentPos) == '-') { // optional +- character, eg. 1.2E+1
+                        exponentPos++;
+                    }
+                    if (Character.isDigit(peek(exponentPos))) {
+                        while (Character.isDigit(peek(exponentPos))) exponentPos++;
+                        if (isEOF(exponentPos) || NUMBER_TERMINATORS.contains(peek(exponentPos))) {
+                            currentPos(exponentPos);
+                            return addToken(TOKEN_FLOAT);
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private Token tryMatchFloat() {
+            int pos = source.pos();
+            int digits = pos;
+            while (Character.isDigit(peek(digits))) digits++;
+            if (digits > pos && (isEOF(digits) || NUMBER_TERMINATORS.contains(peek(digits)))) {
+                currentPos(digits);
+                return addToken(TOKEN_FLOAT);
+            }
+
+            if (peek(digits) == 'E') {
+                int exponentPos = digits + 1;
+                if (peek(exponentPos) == '+' || peek(exponentPos) == '-') { // optional +- character, eg. .2E+1
+                    exponentPos++;
+                }
+                if (Character.isDigit(peek(exponentPos))) {
+                    while (Character.isDigit(peek(exponentPos))) exponentPos++;
+                    if (isEOF(exponentPos) || NUMBER_TERMINATORS.contains(peek(exponentPos))) {
+                        currentPos(exponentPos);
+                        return addToken(TOKEN_FLOAT);
+                    }
+                }
+            }
+            return null;
+        }
+
+        private Token tryMatchListener(char c) {
+            for (String listener : LISTENER_TYPES) {
+                char[] chars = listener.toCharArray();
+                if (c == chars[0]) {
+                    boolean isListenerCandidate = true;
+                    int pos = source.pos();
+                    for (int i = 1; i < chars.length; i++) {
+                        if (peek(pos) != chars[i]) {
+                            isListenerCandidate = false;
+                            break;
+                        }
+                        pos++;
+                    }
+
+                    if (isListenerCandidate && (isEOF(pos) || LISTENER_TERMINATORS.contains(peek(pos)))) {
+                        currentPos(pos);
+                        return addToken(TOKEN_LISTENER);
+                    }
+                }
+            }
+            return null;
+        }
+
+        private Token matchIdentifier(boolean lookupKeywords) {
+            Token token = null;
+            boolean matchedKeyword = false;
+            while (!isEOF() && (
+                (!isScanningVariable() && !IDENTIFIER_TERMINATORS.contains(peek())) ||
+                    (isScanningVariable() && !VARIABLE_IDENTIFIER_TERMINATORS.contains(peek()))
+            )) {
+                next();
+
+                String tokenString = tokenString(startPos, source.pos());
+                if (lookupKeywords && KEYWORDS.containsKey(tokenString)) {
+                    if (KEYWORD_TERMINATORS.contains(peek())) {
+                        matchedKeyword = true;
+                        token = addToken(KEYWORDS.getOrDefault(tokenString, TOKEN_IDENTIFIER));
+                        break;
+                    }
+                }
+            }
+
+            if (!matchedKeyword) {
+                token = addToken(TOKEN_IDENTIFIER);
+            }
+
+            return token;
+        }
     }
 
     private class BlockCommentState implements LexerState {
@@ -389,6 +518,9 @@ public class Lexer {
     }
 
     private class FieldState implements LexerState {
+        private static final Set<Character> NEW_LINE = Set.of(
+            '\n'
+        );
         private static final Set<Character> BAD_TOKEN_CHARS = Set.of(
             ' ', '\t', '\r', '[', ']', '^', '!', '%', '&', '(', ')',
             '*', '+', ',', '-', '.', '/', ':', ';', '{', '}', '<', '>',
@@ -418,6 +550,9 @@ public class Lexer {
     }
 
     private class IdentifierState implements LexerState {
+        private static final Set<Character> NEW_LINE = Set.of(
+            '\n'
+        );
         private static final Set<Character> BAD_TOKEN_CHARS = Set.of(
             ' ', '\t', '\r', '(', ')', '[', ']', '{', '}',
             ':', ';', ','
@@ -442,140 +577,7 @@ public class Lexer {
         }
     }
 
-    private Token tryMatchNumber() {
-        int digits = source.pos();
-        while (Character.isDigit(peek(digits))) digits++;
-        if (isEOF(digits) || NUMBER_TERMINATORS.contains(peek(digits))) {
-            currentPos(digits);
-            return addToken(TOKEN_INTEGER);
-        }
 
-        if (peek(digits) == 'E') {
-            int exponentPos = digits + 1;
-            if (peek(exponentPos) == '+' || peek(exponentPos) == '-') { // optional +- character, eg. 1.2E+1
-                exponentPos++;
-            }
-            if (Character.isDigit(peek(exponentPos))) {
-                while (Character.isDigit(peek(exponentPos))) exponentPos++;
-                if (isEOF(exponentPos) || NUMBER_TERMINATORS.contains(peek(exponentPos))) {
-                    currentPos(exponentPos);
-                    return addToken(TOKEN_FLOAT);
-                }
-            }
-        }
-
-        if (peek(digits) == '.' && Character.isDigit(peek(digits + 1))) {
-            digits++;
-
-            while (Character.isDigit(peek(digits))) digits++;
-            if (isEOF(digits) || NUMBER_TERMINATORS.contains(peek(digits))) {
-                currentPos(digits);
-                return addToken(TOKEN_FLOAT);
-            }
-
-            if (peek(digits) == 'E') {
-                int exponentPos = digits + 1;
-                if (peek(exponentPos) == '+' || peek(exponentPos) == '-') { // optional +- character, eg. 1.2E+1
-                    exponentPos++;
-                }
-                if (Character.isDigit(peek(exponentPos))) {
-                    while (Character.isDigit(peek(exponentPos))) exponentPos++;
-                    if (isEOF(exponentPos) || NUMBER_TERMINATORS.contains(peek(exponentPos))) {
-                        currentPos(exponentPos);
-                        return addToken(TOKEN_FLOAT);
-                    }
-                }
-            }
-        }
-
-        return null;
-    }
-
-    private Token tryMatchFloat() {
-        int pos = source.pos();
-        int digits = pos;
-        while (Character.isDigit(peek(digits))) digits++;
-        if (digits > pos && (isEOF(digits) || NUMBER_TERMINATORS.contains(peek(digits)))) {
-            currentPos(digits);
-            return addToken(TOKEN_FLOAT);
-        }
-
-        if (peek(digits) == 'E') {
-            int exponentPos = digits + 1;
-            if (peek(exponentPos) == '+' || peek(exponentPos) == '-') { // optional +- character, eg. .2E+1
-                exponentPos++;
-            }
-            if (Character.isDigit(peek(exponentPos))) {
-                while (Character.isDigit(peek(exponentPos))) exponentPos++;
-                if (isEOF(exponentPos) || NUMBER_TERMINATORS.contains(peek(exponentPos))) {
-                    currentPos(exponentPos);
-                    return addToken(TOKEN_FLOAT);
-                }
-            }
-        }
-        return null;
-    }
-
-    private Token tryMatchListener(char c) {
-        for (String listener : LISTENER_TYPES) {
-            char[] chars = listener.toCharArray();
-            if (c == chars[0]) {
-                boolean isListenerCandidate = true;
-                int pos = source.pos();
-                for (int i = 1; i < chars.length; i++) {
-                    if (peek(pos) != chars[i]) {
-                        isListenerCandidate = false;
-                        break;
-                    }
-                    pos++;
-                }
-
-                if (isListenerCandidate && (isEOF(pos) || LISTENER_TERMINATORS.contains(peek(pos)))) {
-                    currentPos(pos);
-                    return addToken(TOKEN_LISTENER);
-                }
-            }
-        }
-        return null;
-    }
-
-    private Token tryMatchString() {
-        int pos = source.pos();
-        while (!NEW_LINE.contains(peek(pos)) && !isEOF(pos)) {
-            if (peek(pos) == '"' && peek(pos - 1) != '\\' && STRING_TERMINATORS.contains(peek(pos + 1))) {
-                currentPos(pos + 1);
-                return addToken(TOKEN_STRING);
-            }
-            pos++;
-        }
-        return null;
-    }
-
-    private Token matchIdentifier(boolean lookupKeywords) {
-        Token token = null;
-        boolean matchedKeyword = false;
-        while (!isEOF() && (
-                (!isScanningVariable() && !IDENTIFIER_TERMINATORS.contains(peek())) ||
-                (isScanningVariable() && !VARIABLE_IDENTIFIER_TERMINATORS.contains(peek()))
-        )) {
-            next();
-
-            String tokenString = tokenString(startPos, source.pos());
-            if (lookupKeywords && KEYWORDS.containsKey(tokenString)) {
-                if (KEYWORD_TERMINATORS.contains(peek())) {
-                    matchedKeyword = true;
-                    token = addToken(KEYWORDS.getOrDefault(tokenString, TOKEN_IDENTIFIER));
-                    break;
-                }
-            }
-        }
-
-        if (!matchedKeyword) {
-            token = addToken(TOKEN_IDENTIFIER);
-        }
-
-        return token;
-    }
 
     private boolean isScanningVariable() {
         return prevToken == TOKEN_PERIOD || prevToken == TOKEN_DOLLAR;
