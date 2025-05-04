@@ -21,11 +21,11 @@ public class Lexer {
         LexerStateName.IDENTIFIER, new IdentifierState(this)
     );
 
-    private LexerStateName state = LexerStateName.BEGIN;
-    private int startPos = 0;
-    private final Caret caret = new Caret();
     private final Tape<Character> source;
+    private final Caret caret = new Caret();
+    private LexerStateName state = LexerStateName.BEGIN;
     private TokenType prevToken = null;
+    private int startPos = 0;
 
     public Lexer(Source script) {
         this.source = createSource(requireNonNull(script, "script must not be null"));
