@@ -56,17 +56,8 @@ public class Lexer {
     }
 
     private MatchedToken nextToken() {
-        startPos = source.pos();
-        if (isEOF()) {
-            prevToken = TOKEN_EOF;
-            return matched(TOKEN_EOF);
-        }
-
-        MatchedToken t = currentState().nextToken();
-        if (t.isMatched()) {
-            prevToken = t.val().type();
-        }
-        return t;
+        startPos = currentPos();
+        return isEOF() ? matched(TOKEN_EOF) : currentState().nextToken();
     }
 
     LexerState currentState() {
@@ -141,6 +132,7 @@ public class Lexer {
     }
 
     MatchedToken matched(TokenType type) {
+        prevToken = type;
         return MatchedToken.matched(
             Token.of(type, sourceString(startPos, source.pos()), startPos, caret.line(), caret.col() - (source.pos() - startPos))
         );
