@@ -35,7 +35,7 @@ class IdentifierState implements LexerState {
             return notMatched();
         } else if (BAD_TOKEN_CHARS.contains(peek())) {
             next();
-            throw new IllegalStateException("bad token");
+            return error("bad token");
         }
         while (!isEOF() && !IDENTIFIER_TERMINATORS.contains(peek())) {
             next();

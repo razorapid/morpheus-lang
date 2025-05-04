@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_EOF;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_ERROR;
 import static java.util.Objects.requireNonNull;
 
 public class Lexer {
@@ -135,6 +136,13 @@ public class Lexer {
         prevToken = type;
         return MatchedToken.matched(
             Token.of(type, sourceString(startPos, source.pos()), startPos, caret.line(), caret.col() - (source.pos() - startPos))
+        );
+    }
+
+    MatchedToken error(String message) {
+        prevToken = TOKEN_ERROR;
+        return MatchedToken.matched(
+            Token.of(TOKEN_ERROR, message, startPos, caret.line(), caret.col() - (source.pos() - startPos))
         );
     }
 }

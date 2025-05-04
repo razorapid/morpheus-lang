@@ -59,7 +59,8 @@ public enum TokenType {
     TOKEN_COLON(":"),
     TOKEN_SEMICOLON(";"),
     TOKEN_EOL("\n"),
-    TOKEN_EOF(null);
+    TOKEN_EOF(null),
+    TOKEN_ERROR(null);
 
     private final String def;
 

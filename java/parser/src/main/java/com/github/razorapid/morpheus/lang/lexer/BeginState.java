@@ -204,7 +204,8 @@ class BeginState implements LexerState {
             }
             case '*': {
                 if (match('/')) {
-                    throw new IllegalStateException("\'*/\' found outside of comment");
+                    token = error("\'*/\' found outside of comment");
+                    break;
                 }
                 token = matched(TOKEN_MULTIPLY); break;
             }

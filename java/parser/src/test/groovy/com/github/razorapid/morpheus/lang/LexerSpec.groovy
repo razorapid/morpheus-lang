@@ -109,7 +109,10 @@ class LexerSpec extends Specification {
         def result = lexer.scan().get()
 
         then:
-        thrown IllegalStateException
+        result.size() == 3
+        result.get(0).type() == TOKEN_ERROR
+        result.get(1).type() == TOKEN_EOL
+        result.get(2).type() == TOKEN_EOF
 
         where:
 
