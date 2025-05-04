@@ -50,6 +50,8 @@ import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_RIGHT_SQUARE_BR
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_SEMICOLON;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_STRING;
 import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.BLOCK_COMMENT;
+import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.ESCAPED_FIELD;
+import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.ESCAPED_IDENTIFIER;
 import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.FIELD;
 import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.IDENTIFIER;
 import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.SKIP_TILL_EOL;
@@ -76,8 +78,8 @@ class BeginState implements LexerState {
         '$', '@', '#', '`', '"', '\'', '?'
     );
     private static final Set<Character> IDENTIFIER_TERMINATORS = Set.of(
-        ' ', '\t', '\r', '\n', '\f',
-        '(', ')', '[', ']', '{', '}', ':', ';'
+        ' ', '\t', '\r', '\n',
+        '(', ')', '[', ']', '{', '}', ':', ';', ','
     );
     private static final Set<Character> VARIABLE_IDENTIFIER_TERMINATORS = Set.of(
         ' ', '\t', '\r', '\n', '\f',
@@ -98,6 +100,10 @@ class BeginState implements LexerState {
         '(', ')', '{', '}', '[', ']', ':', ';',
         '=', '/', '+', '-', '*', '%', '!', '^', '|', '&', '<', '>', '~',
         ','
+    );
+    private static final Set<Character> ESCAPED_FIELD_TERMINATORS = Set.of(
+        '!', '%', '&', '*', '+', '-', '.', '/', '<', '>', '\\', '|',
+        '=', '^', '~'
     );
     private static final Map<String, TokenType> KEYWORDS = new HashMap<>();
     static {
@@ -248,12 +254,30 @@ class BeginState implements LexerState {
                 if (match('\n')) {
                     caret().newLine();
                     break;
-                }
-                if (peek() == '\r' && peekNext() == '\n') {
+                } else if (peek() == '\r' && peekNext() == '\n') {
                     next();
                     next();
                     caret().newLine();
                     break;
+                } else if (IDENTIFIER_TERMINATORS.contains(peek())) { // \n and \r\n are treated separately in this case
+                    token = matchedEscaped(TOKEN_IDENTIFIER);
+                    break;
+                } else if (ESCAPED_FIELD_TERMINATORS.contains(peek())) {
+                    if (isScanningVariable()) {
+                        token = matchedEscaped(TOKEN_IDENTIFIER);
+                        break;
+                    } else {
+                        switchTo(ESCAPED_IDENTIFIER);
+                        break;
+                    }
+                } else {
+                    if (isScanningVariable()) {
+                        switchTo(ESCAPED_FIELD);
+                        break;
+                    } else {
+                        switchTo(ESCAPED_IDENTIFIER);
+                        break;
+                    }
                 }
                 //fallthrough
             }

@@ -25,6 +25,7 @@ class FieldState implements LexerState {
     );
 
     private final Lexer lexer;
+    private final boolean escape;
 
     @Override
     public Lexer lexer() {
@@ -44,6 +45,6 @@ class FieldState implements LexerState {
             next();
         }
         switchTo(BEGIN);
-        return matched(TOKEN_IDENTIFIER);
+        return escape ? matchedEscaped(TOKEN_IDENTIFIER) : matched(TOKEN_IDENTIFIER);
     }
 }

@@ -26,6 +26,10 @@ interface LexerState {
         return lexer().matched(type);
     }
 
+    default MatchedToken matchedEscaped(TokenType type) {
+        return lexer().matchedEscaped(type);
+    }
+
     default MatchedToken error(String message) {
         return lexer().error(message);
     }

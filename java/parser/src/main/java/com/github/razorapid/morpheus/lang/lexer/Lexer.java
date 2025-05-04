@@ -18,8 +18,10 @@ public class Lexer {
     private final Map<LexerStateName, LexerState> STATES = Map.of(
         LexerStateName.BEGIN, new BeginState(this),
         LexerStateName.BLOCK_COMMENT, new BlockCommentState(this),
-        LexerStateName.FIELD, new FieldState(this),
-        LexerStateName.IDENTIFIER, new IdentifierState(this),
+        LexerStateName.FIELD, new FieldState(this, false),
+        LexerStateName.ESCAPED_FIELD, new FieldState(this, true),
+        LexerStateName.IDENTIFIER, new IdentifierState(this, false),
+        LexerStateName.ESCAPED_IDENTIFIER, new IdentifierState(this, true),
         LexerStateName.SKIP_TILL_EOL, new SkipTillEolState(this)
     );
 
@@ -134,6 +136,13 @@ public class Lexer {
     }
 
     MatchedToken matched(TokenType type) {
+        prevToken = type;
+        return MatchedToken.matched(
+            Token.of(type, sourceString(startPos, source.pos()), startPos, caret.line(), caret.col() - (source.pos() - startPos))
+        );
+    }
+
+    MatchedToken matchedEscaped(TokenType type) {
         prevToken = type;
         return MatchedToken.matched(
             Token.of(type, sourceString(startPos, source.pos()), startPos, caret.line(), caret.col() - (source.pos() - startPos))

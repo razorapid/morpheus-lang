@@ -785,7 +785,6 @@ class LexerSpec extends Specification {
         "something"   | _
         "s*omething"  | _
         "s+omething"  | _
-        "s,omething"  | _
         "s-omething"  | _
         "s.omething"  | _
         "s/omething"  | _
@@ -863,6 +862,78 @@ class LexerSpec extends Specification {
         "s|omething"  | _
         "s~omething"  | _
         "1.2.3"       | _
+    }
+
+    def "comma separates identifiers"() {
+        setup:
+        def script = new Source("test_script.scr", input)
+        def lexer = new Lexer(script)
+
+        when:
+        def result = lexer.scan().get()
+
+        then:
+        result.size() == 4
+        result.get(0).type() == TOKEN_IDENTIFIER
+        result.get(0).lexeme() == expectedLexemes[0]
+        result.get(1).type() == TOKEN_IDENTIFIER
+        result.get(1).lexeme() == expectedLexemes[1]
+        result.get(2).type() == TOKEN_EOL
+        result.get(3).type() == TOKEN_EOF
+
+        where:
+        input          | expectedLexemes
+        "s,omething"   | ["s", "omething"]
+        "s\\,omething" | ["s\\", "omething"]
+    }
+
+    def "scans escaped identifiers"() {
+        setup:
+        def script = new Source("test_script.scr", input)
+        def lexer = new Lexer(script)
+
+        when:
+        def result = lexer.scan().get()
+
+        then:
+        result.list().collect { it.type() } == expectedTokenTypes
+
+        where:
+        input   | expectedTokenTypes
+        "\\ "   | [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "\\\t"  | [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "\\("   | [TOKEN_IDENTIFIER, TOKEN_LEFT_BRACKET, TOKEN_EOL, TOKEN_EOF]
+        "\\)"   | [TOKEN_IDENTIFIER, TOKEN_RIGHT_BRACKET, TOKEN_EOL, TOKEN_EOF]
+        "\\["   | [TOKEN_IDENTIFIER, TOKEN_LEFT_SQUARE_BRACKET, TOKEN_EOL, TOKEN_EOF]
+        "\\]"   | [TOKEN_IDENTIFIER, TOKEN_RIGHT_SQUARE_BRACKET, TOKEN_EOL, TOKEN_EOF]
+        "\\{"   | [TOKEN_IDENTIFIER, TOKEN_LEFT_BRACES, TOKEN_EOL, TOKEN_EOF]
+        "\\}"   | [TOKEN_IDENTIFIER, TOKEN_RIGHT_BRACES, TOKEN_EOL, TOKEN_EOF]
+        "\\:"   | [TOKEN_IDENTIFIER, TOKEN_COLON, TOKEN_EOL, TOKEN_EOF]
+        "\\;"   | [TOKEN_IDENTIFIER, TOKEN_SEMICOLON, TOKEN_EOL, TOKEN_EOF]
+        "\\,"   | [TOKEN_IDENTIFIER, TOKEN_EOF]
+        "\\!"   | [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "\\%"   | [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "\\&"   | [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "\\*"   | [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "\\+"   | [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "\\-"   | [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "\\."   | [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "\\/"   | [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "\\\\"  | [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "\\|"   | [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "\\<"   | [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "\\>"   | [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "\\="   | [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "\\^"   | [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "\\~"   | [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "\\\ra" | [TOKEN_IDENTIFIER, TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "\\a"   | [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "\\A"   | [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "\\@"   | [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "\\1"   | [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "\\2"   | [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "\\\""  | [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "\\_"   | [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
     }
 
     def "scans listener variable as float token instead of identifier when it contains only digits"() {
