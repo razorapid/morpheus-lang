@@ -212,10 +212,10 @@ public class Lexer {
 
                 // count multiple new lines as one
                 case '\n': {
-                    if (prevToken != TOKEN_EOL) {
+                    if (prevToken() != TOKEN_EOL) {
                         token = addToken(TOKEN_EOL);
                     }
-                    caret.newLine();
+                    caret().newLine();
                     break;
                 }
 
@@ -337,13 +337,13 @@ public class Lexer {
                 }
                 case '\\': { // Multiline break
                     if (match('\n')) {
-                        caret.newLine();
+                        caret().newLine();
                         break;
                     }
                     if (peek() == '\r' && peekNext() == '\n') {
                         next();
                         next();
-                        caret.newLine();
+                        caret().newLine();
                         break;
                     }
                     //fallthrough
@@ -376,7 +376,7 @@ public class Lexer {
         }
 
         private MatchedToken tryMatchString() {
-            int pos = source.pos();
+            int pos = currentPos();
             while (!NEW_LINE.contains(peek(pos)) && !isEOF(pos)) {
                 if (peek(pos) == '"' && peek(pos - 1) != '\\' && STRING_TERMINATORS.contains(peek(pos + 1))) {
                     currentPos(pos + 1);
@@ -388,7 +388,7 @@ public class Lexer {
         }
 
         private MatchedToken tryMatchNumber() {
-            int digits = source.pos();
+            int digits = currentPos();
             while (Character.isDigit(peek(digits))) digits++;
             if (isEOF(digits) || NUMBER_TERMINATORS.contains(peek(digits))) {
                 currentPos(digits);
@@ -437,7 +437,7 @@ public class Lexer {
         }
 
         private MatchedToken tryMatchFloat() {
-            int pos = source.pos();
+            int pos = currentPos();
             int digits = pos;
             while (Character.isDigit(peek(digits))) digits++;
             if (digits > pos && (isEOF(digits) || NUMBER_TERMINATORS.contains(peek(digits)))) {
@@ -466,7 +466,7 @@ public class Lexer {
                 char[] chars = listener.toCharArray();
                 if (c == chars[0]) {
                     boolean isListenerCandidate = true;
-                    int pos = source.pos();
+                    int pos = currentPos();
                     for (int i = 1; i < chars.length; i++) {
                         if (peek(pos) != chars[i]) {
                             isListenerCandidate = false;
@@ -493,7 +493,7 @@ public class Lexer {
             )) {
                 next();
 
-                String tokenString = tokenString(startPos, source.pos());
+                String tokenString = tokenString(tokenStartPos(), currentPos());
                 if (lookupKeywords && KEYWORDS.containsKey(tokenString)) {
                     if (KEYWORD_TERMINATORS.contains(peek())) {
                         matchedKeyword = true;
@@ -524,7 +524,7 @@ public class Lexer {
             while (!(peek() == '*' && peekNext() == '/') && !isEOF()) {
                 char n = next();
                 if (n == '\n') {
-                    caret.newLine();
+                    caret().newLine();
                 }
             }
             next();
