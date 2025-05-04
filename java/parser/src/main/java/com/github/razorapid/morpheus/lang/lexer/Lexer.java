@@ -21,7 +21,6 @@ public class Lexer {
     );
 
     private LexerStateName state = LexerStateName.BEGIN;
-    private final Tokens tokens = new Tokens();
     private int startPos = 0;
     private final Caret caret = new Caret();
     private final Tape<Character> source;
@@ -32,13 +31,11 @@ public class Lexer {
     }
 
     public Optional<Tokens> scan() {
-        while (!isEOF()) {
-            MatchedToken token = nextToken();
-            if (token.isMatched()) {
-                tokens.add(token.val());
-            }
+        Tokens tokens = new Tokens();
+        Optional<Token> t;
+        while((t = scanToken()).isPresent()) {
+            tokens.add(t.get());
         }
-
         return Optional.of(tokens);
     }
 
@@ -47,8 +44,9 @@ public class Lexer {
         MatchedToken token;
         do {
             token = nextToken();
-        } while (token.isNotMatched());
-        return Optional.of(token.val());
+        } while (token.isNotMatched() && !isEOF());
+
+        return token.isMatched() ? Optional.of(token.val()) : Optional.empty();
     }
 
     private static Tape<Character> createSource(Source script) {
