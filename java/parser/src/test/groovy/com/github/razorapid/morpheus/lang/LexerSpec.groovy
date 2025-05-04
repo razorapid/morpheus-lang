@@ -120,6 +120,26 @@ class LexerSpec extends Specification {
         "*/"  | _
     }
 
+    def "*/ outside of block comment skips scanning till end of line"() {
+        setup:
+        def script = new Source("test_script.scr", input)
+        def lexer = new Lexer(script)
+
+        when:
+        def result = lexer.scan().get()
+
+        then:
+        result.size() == 3
+        result.get(0).type() == TOKEN_ERROR
+        result.get(1).type() == TOKEN_EOL
+        result.get(2).type() == TOKEN_EOF
+
+        where:
+
+        input               | _
+        "*/ level.test = 0" | _
+    }
+
     def "scans brackets and braces"() {
         setup:
         def script = new Source("test_script.scr", input)

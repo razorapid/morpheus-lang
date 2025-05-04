@@ -19,7 +19,8 @@ public class Lexer {
         LexerStateName.BEGIN, new BeginState(this),
         LexerStateName.BLOCK_COMMENT, new BlockCommentState(this),
         LexerStateName.FIELD, new FieldState(this),
-        LexerStateName.IDENTIFIER, new IdentifierState(this)
+        LexerStateName.IDENTIFIER, new IdentifierState(this),
+        LexerStateName.SKIP_TILL_EOL, new SkipTillEolState(this)
     );
 
     private final Tape<Character> source;

@@ -5,4 +5,5 @@ enum LexerStateName {
     BLOCK_COMMENT,
     FIELD,
     IDENTIFIER,
+    SKIP_TILL_EOL,
 }

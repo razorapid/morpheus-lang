@@ -52,6 +52,7 @@ import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_STRING;
 import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.BLOCK_COMMENT;
 import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.FIELD;
 import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.IDENTIFIER;
+import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.SKIP_TILL_EOL;
 
 @RequiredArgsConstructor
 class BeginState implements LexerState {
@@ -205,6 +206,7 @@ class BeginState implements LexerState {
             case '*': {
                 if (match('/')) {
                     token = error("\'*/\' found outside of comment");
+                    switchTo(SKIP_TILL_EOL);
                     break;
                 }
                 token = matched(TOKEN_MULTIPLY); break;
