@@ -31,11 +31,6 @@ public class Lexer {
         this.source = createSource(requireNonNull(script, "script must not be null"));
     }
 
-    private static Tape<Character> createSource(Source script) {
-        String source = script.source() + "\n"; // make sure source end with new line
-        return Tape.of(source.chars().mapToObj(c -> (char) c).toArray(Character[]::new));
-    }
-
     public Optional<Tokens> scan() {
         while (!isEOF()) {
             MatchedToken token = nextToken();
@@ -56,6 +51,11 @@ public class Lexer {
         return Optional.of(token.val());
     }
 
+    private static Tape<Character> createSource(Source script) {
+        String source = script.source() + "\n"; // make sure source end with new line
+        return Tape.of(source.chars().mapToObj(c -> (char) c).toArray(Character[]::new));
+    }
+
     private MatchedToken nextToken() {
         LexerState state = currentState();
         startPos = source.pos();
@@ -72,67 +72,6 @@ public class Lexer {
 
     void switchTo(LexerStateName newState) {
         state = newState;
-    }
-
-    Caret caret() {
-        return caret;
-    }
-
-    TokenType prevToken() {
-        return prevToken;
-    }
-
-
-    private TokenType lastScannedToken() {
-        if (tokens.list().isEmpty()) {
-            return null;
-        }
-        return tokens.list().get(tokens.list().size() - 1).type();
-    }
-
-    private boolean matchLastToken(TokenType ...types) {
-        if (lastScannedToken() == null) {
-            return false;
-        }
-
-        TokenType lastTokenType = lastScannedToken();
-        for (var type : types) {
-            if (type == lastTokenType) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    char peekNext() {
-        return source.peekNext();
-    }
-
-    char peek(long pos) {
-        return source.peek((int) pos);
-    }
-
-    char peek() {
-        return source.peek();
-    }
-
-    boolean match(char c) {
-        boolean matched = source.match(c);
-        if (matched) {
-            caret.right();
-        }
-        return matched;
-    }
-
-    MatchedToken addToken(TokenType type) {
-        return MatchedToken.matched(
-            Token.of(type, sourceString(startPos, source.pos()), startPos, caret.line(), caret.col() - (source.pos() - startPos))
-        );
-    }
-
-    char next() {
-        caret.right();
-        return source.next();
     }
 
     int currentPos() {
@@ -163,5 +102,44 @@ public class Lexer {
             sb.append(c);
         }
         return sb.toString();
+    }
+
+    Caret caret() {
+        return caret;
+    }
+
+    TokenType prevToken() {
+        return prevToken;
+    }
+
+    char peek() {
+        return source.peek();
+    }
+
+    char peekNext() {
+        return source.peekNext();
+    }
+
+    char peek(long pos) {
+        return source.peek((int) pos);
+    }
+
+    char next() {
+        caret.right();
+        return source.next();
+    }
+
+    boolean match(char c) {
+        boolean matched = source.match(c);
+        if (matched) {
+            caret.right();
+        }
+        return matched;
+    }
+
+    MatchedToken addToken(TokenType type) {
+        return MatchedToken.matched(
+            Token.of(type, sourceString(startPos, source.pos()), startPos, caret.line(), caret.col() - (source.pos() - startPos))
+        );
     }
 }
