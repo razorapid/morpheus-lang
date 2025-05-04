@@ -22,8 +22,8 @@ interface LexerState {
         return lexer().match(c);
     }
 
-    default MatchedToken addToken(TokenType type) {
-        return lexer().addToken(type);
+    default MatchedToken matched(TokenType type) {
+        return lexer().matched(type);
     }
 
     default char next() {

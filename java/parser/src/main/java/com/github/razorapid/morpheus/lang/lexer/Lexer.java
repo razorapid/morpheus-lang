@@ -59,7 +59,7 @@ public class Lexer {
         startPos = source.pos();
         if (isEOF()) {
             prevToken = TOKEN_EOF;
-            return addToken(TOKEN_EOF);
+            return matched(TOKEN_EOF);
         }
 
         MatchedToken t = currentState().nextToken();
@@ -140,7 +140,7 @@ public class Lexer {
         return matched;
     }
 
-    MatchedToken addToken(TokenType type) {
+    MatchedToken matched(TokenType type) {
         return MatchedToken.matched(
             Token.of(type, sourceString(startPos, source.pos()), startPos, caret.line(), caret.col() - (source.pos() - startPos))
         );

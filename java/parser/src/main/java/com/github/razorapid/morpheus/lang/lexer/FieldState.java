@@ -42,6 +42,6 @@ class FieldState implements LexerState {
             next();
         }
         switchTo(LexerStateName.BEGIN);
-        return addToken(TOKEN_IDENTIFIER);
+        return matched(TOKEN_IDENTIFIER);
     }
 }

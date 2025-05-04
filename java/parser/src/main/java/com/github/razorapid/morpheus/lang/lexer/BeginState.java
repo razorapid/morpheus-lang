@@ -140,72 +140,72 @@ class BeginState implements LexerState {
             // count multiple new lines as one
             case '\n': {
                 if (prevToken() != TOKEN_EOL) {
-                    token = addToken(TOKEN_EOL);
+                    token = matched(TOKEN_EOL);
                 }
                 caret().newLine();
                 break;
             }
 
             // single character cases
-            case ';': { token = addToken(TOKEN_SEMICOLON); break; }
+            case ';': { token = matched(TOKEN_SEMICOLON); break; }
             case '$': {
-                token = addToken(TOKEN_DOLLAR);
+                token = matched(TOKEN_DOLLAR);
                 break;
             }
-            case '~': { token = addToken(TOKEN_COMPLEMENT); break; }
-            case '%': { token = addToken(TOKEN_PERCENTAGE); break; }
-            case '^': { token = addToken(TOKEN_BITWISE_EXCL_OR); break; }
+            case '~': { token = matched(TOKEN_COMPLEMENT); break; }
+            case '%': { token = matched(TOKEN_PERCENTAGE); break; }
+            case '^': { token = matched(TOKEN_BITWISE_EXCL_OR); break; }
             case '(': {
-                token = addToken(TOKEN_LEFT_BRACKET);
+                token = matched(TOKEN_LEFT_BRACKET);
                 break;
             }
             case ')': {
-                token = addToken(TOKEN_RIGHT_BRACKET);
+                token = matched(TOKEN_RIGHT_BRACKET);
                 break;
             }
             case '[': {
-                token = addToken(TOKEN_LEFT_SQUARE_BRACKET);
+                token = matched(TOKEN_LEFT_SQUARE_BRACKET);
                 break;
             }
             case ']': {
-                token = addToken(TOKEN_RIGHT_SQUARE_BRACKET);
+                token = matched(TOKEN_RIGHT_SQUARE_BRACKET);
                 break;
             }
             case '{': {
-                token = addToken(TOKEN_LEFT_BRACES);
+                token = matched(TOKEN_LEFT_BRACES);
                 break;
             }
             case '}': {
-                token = addToken(TOKEN_RIGHT_BRACES);
+                token = matched(TOKEN_RIGHT_BRACES);
                 break;
             }
 
 
             // multi character cases
-            case ':': { token = addToken(match(':') ? TOKEN_DOUBLE_COLON : TOKEN_COLON); break; }
-            case '|': { token = addToken(match('|') ? TOKEN_LOGICAL_OR : TOKEN_BITWISE_OR); break; }
-            case '&': { token = addToken(match('&') ? TOKEN_LOGICAL_AND : TOKEN_BITWISE_AND); break; }
-            case '=': { token = addToken(match('=') ? TOKEN_EQUALITY : TOKEN_ASSIGNMENT); break; }
-            case '!': { token = addToken(match('=') ? TOKEN_INEQUALITY : TOKEN_NOT); break; }
-            case '<': { token = addToken(match('=') ? TOKEN_LESS_THAN_OR_EQUAL : TOKEN_LESS_THAN); break; }
-            case '>': { token = addToken(match('=') ? TOKEN_GREATER_THAN_OR_EQUAL : TOKEN_GREATER_THAN); break; }
+            case ':': { token = matched(match(':') ? TOKEN_DOUBLE_COLON : TOKEN_COLON); break; }
+            case '|': { token = matched(match('|') ? TOKEN_LOGICAL_OR : TOKEN_BITWISE_OR); break; }
+            case '&': { token = matched(match('&') ? TOKEN_LOGICAL_AND : TOKEN_BITWISE_AND); break; }
+            case '=': { token = matched(match('=') ? TOKEN_EQUALITY : TOKEN_ASSIGNMENT); break; }
+            case '!': { token = matched(match('=') ? TOKEN_INEQUALITY : TOKEN_NOT); break; }
+            case '<': { token = matched(match('=') ? TOKEN_LESS_THAN_OR_EQUAL : TOKEN_LESS_THAN); break; }
+            case '>': { token = matched(match('=') ? TOKEN_GREATER_THAN_OR_EQUAL : TOKEN_GREATER_THAN); break; }
             case '+': {
                 if (match('=')) {
-                    token = addToken(TOKEN_PLUS_EQUALS);
+                    token = matched(TOKEN_PLUS_EQUALS);
                 } else if (match('+')) {
-                    token = addToken(TOKEN_INC);
+                    token = matched(TOKEN_INC);
                 } else {
-                    token = addToken(TOKEN_PLUS);
+                    token = matched(TOKEN_PLUS);
                 }
                 break;
             }
             case '-': {
                 if (match('=')) {
-                    token = addToken(TOKEN_MINUS_EQUALS);
+                    token = matched(TOKEN_MINUS_EQUALS);
                 } else if (match('-')) {
-                    token = addToken(TOKEN_DEC);
+                    token = matched(TOKEN_DEC);
                 } else {
-                    token = addToken(TOKEN_MINUS);
+                    token = matched(TOKEN_MINUS);
                 }
                 break;
             }
@@ -214,10 +214,10 @@ class BeginState implements LexerState {
             case ' ': {
                 if (peek() == '+' && (!WHITE_SPACE.contains(peekNext()) && peekNext() != '+' && peekNext() != '=' && peekNext() != '\0')) {
                     next();
-                    token = addToken(TOKEN_POS);
+                    token = matched(TOKEN_POS);
                 } else if (peek() == '-' && (!WHITE_SPACE.contains(peekNext()) && peekNext() != '-' && peekNext() != '=' && peekNext() != '\0')) {
                     next();
-                    token = addToken(TOKEN_NEG);
+                    token = matched(TOKEN_NEG);
                 }
                 break;
             }
@@ -225,12 +225,12 @@ class BeginState implements LexerState {
                 if (match('/')) {
                     throw new IllegalStateException("\'*/\' found outside of comment");
                 }
-                token = addToken(TOKEN_MULTIPLY); break;
+                token = matched(TOKEN_MULTIPLY); break;
             }
             case '.': {
                 token = tryMatchFloat();
                 if (token.isNotMatched()) {
-                    token = addToken(TOKEN_PERIOD);
+                    token = matched(TOKEN_PERIOD);
                 }
                 break;
             }
@@ -241,7 +241,7 @@ class BeginState implements LexerState {
                 } else if (match('*')) {
                     switchTo(LexerStateName.BLOCK_COMMENT);
                 } else {
-                    token = addToken(TOKEN_DIVIDE);
+                    token = matched(TOKEN_DIVIDE);
                 }
 
                 break;
@@ -307,7 +307,7 @@ class BeginState implements LexerState {
         while (!NEW_LINE.contains(peek(pos)) && !isEOF(pos)) {
             if (peek(pos) == '"' && peek(pos - 1) != '\\' && STRING_TERMINATORS.contains(peek(pos + 1))) {
                 currentPos(pos + 1);
-                return addToken(TOKEN_STRING);
+                return matched(TOKEN_STRING);
             }
             pos++;
         }
@@ -319,7 +319,7 @@ class BeginState implements LexerState {
         while (Character.isDigit(peek(digits))) digits++;
         if (isEOF(digits) || NUMBER_TERMINATORS.contains(peek(digits))) {
             currentPos(digits);
-            return addToken(TOKEN_INTEGER);
+            return matched(TOKEN_INTEGER);
         }
 
         if (peek(digits) == 'E') {
@@ -331,7 +331,7 @@ class BeginState implements LexerState {
                 while (Character.isDigit(peek(exponentPos))) exponentPos++;
                 if (isEOF(exponentPos) || NUMBER_TERMINATORS.contains(peek(exponentPos))) {
                     currentPos(exponentPos);
-                    return addToken(TOKEN_FLOAT);
+                    return matched(TOKEN_FLOAT);
                 }
             }
         }
@@ -342,7 +342,7 @@ class BeginState implements LexerState {
             while (Character.isDigit(peek(digits))) digits++;
             if (isEOF(digits) || NUMBER_TERMINATORS.contains(peek(digits))) {
                 currentPos(digits);
-                return addToken(TOKEN_FLOAT);
+                return matched(TOKEN_FLOAT);
             }
 
             if (peek(digits) == 'E') {
@@ -354,7 +354,7 @@ class BeginState implements LexerState {
                     while (Character.isDigit(peek(exponentPos))) exponentPos++;
                     if (isEOF(exponentPos) || NUMBER_TERMINATORS.contains(peek(exponentPos))) {
                         currentPos(exponentPos);
-                        return addToken(TOKEN_FLOAT);
+                        return matched(TOKEN_FLOAT);
                     }
                 }
             }
@@ -369,7 +369,7 @@ class BeginState implements LexerState {
         while (Character.isDigit(peek(digits))) digits++;
         if (digits > pos && (isEOF(digits) || NUMBER_TERMINATORS.contains(peek(digits)))) {
             currentPos(digits);
-            return addToken(TOKEN_FLOAT);
+            return matched(TOKEN_FLOAT);
         }
 
         if (peek(digits) == 'E') {
@@ -381,7 +381,7 @@ class BeginState implements LexerState {
                 while (Character.isDigit(peek(exponentPos))) exponentPos++;
                 if (isEOF(exponentPos) || NUMBER_TERMINATORS.contains(peek(exponentPos))) {
                     currentPos(exponentPos);
-                    return addToken(TOKEN_FLOAT);
+                    return matched(TOKEN_FLOAT);
                 }
             }
         }
@@ -404,7 +404,7 @@ class BeginState implements LexerState {
 
                 if (isListenerCandidate && (isEOF(pos) || LISTENER_TERMINATORS.contains(peek(pos)))) {
                     currentPos(pos);
-                    return addToken(TOKEN_LISTENER);
+                    return matched(TOKEN_LISTENER);
                 }
             }
         }
@@ -424,14 +424,14 @@ class BeginState implements LexerState {
             if (lookupKeywords && KEYWORDS.containsKey(tokenString)) {
                 if (KEYWORD_TERMINATORS.contains(peek())) {
                     matchedKeyword = true;
-                    token = addToken(KEYWORDS.getOrDefault(tokenString, TOKEN_IDENTIFIER));
+                    token = matched(KEYWORDS.getOrDefault(tokenString, TOKEN_IDENTIFIER));
                     break;
                 }
             }
         }
 
         if (!matchedKeyword) {
-            token = addToken(TOKEN_IDENTIFIER);
+            token = matched(TOKEN_IDENTIFIER);
         }
 
         return token;
