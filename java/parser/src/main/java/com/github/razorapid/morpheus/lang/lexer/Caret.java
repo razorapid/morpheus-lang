@@ -3,7 +3,7 @@ package com.github.razorapid.morpheus.lang.lexer;
 import lombok.Data;
 
 @Data
-class Cursor {
+class Caret {
     private int line = 1;
     private int col = 1;
 

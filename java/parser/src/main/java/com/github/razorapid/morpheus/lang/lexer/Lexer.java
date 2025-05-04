@@ -142,7 +142,7 @@ public class Lexer {
     private LexerStateName state = LexerStateName.BEGIN;
     private final Tokens tokens = new Tokens();
     private int startPos = 0;
-    private final Cursor cursor = new Cursor();
+    private final Caret caret = new Caret();
     private final Tape<Character> source;
     private TokenType prevToken = null;
 
@@ -209,7 +209,7 @@ public class Lexer {
                     if (prevToken != TOKEN_EOL) {
                         token = addToken(TOKEN_EOL);
                     }
-                    cursor.newLine();
+                    caret.newLine();
                     break;
                 }
 
@@ -331,13 +331,13 @@ public class Lexer {
                 }
                 case '\\': { // Multiline break
                     if (match('\n')) {
-                        cursor.newLine();
+                        caret.newLine();
                         break;
                     }
                     if (peek() == '\r' && peekNext() == '\n') {
                         next();
                         next();
-                        cursor.newLine();
+                        caret.newLine();
                         break;
                     }
                     //fallthrough
@@ -378,7 +378,7 @@ public class Lexer {
             while (!(peek() == '*' && peekNext() == '/') && !isEOF()) {
                 char n = next();
                 if (n == '\n') {
-                    cursor.newLine();
+                    caret.newLine();
                 }
             }
             next();
@@ -617,22 +617,22 @@ public class Lexer {
     private boolean match(char c) {
         boolean matched = source.match(c);
         if (matched) {
-            cursor.right();
+            caret.right();
         }
         return matched;
     }
 
     private Token addToken(TokenType type) {
-        return Token.of(type, tokenString(startPos, source.pos()), startPos, cursor.line(), cursor.col() - (source.pos() - startPos));
+        return Token.of(type, tokenString(startPos, source.pos()), startPos, caret.line(), caret.col() - (source.pos() - startPos));
     }
 
     private char next() {
-        cursor.right();
+        caret.right();
         return source.next();
     }
 
     private void currentPos(int pos) {
-        cursor.right(pos - source.pos());
+        caret.right(pos - source.pos());
         source.pos(pos);
     }
 
