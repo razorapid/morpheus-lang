@@ -60,7 +60,7 @@ public class Lexer {
     private final Map<LexerStateName, LexerState> STATES = Map.of(
         LexerStateName.BEGIN, new BeginState(),
         LexerStateName.BLOCK_COMMENT, new BlockCommentState(this),
-        LexerStateName.FIELD, new FieldState(),
+        LexerStateName.FIELD, new FieldState(this),
         LexerStateName.IDENTIFIER, new IdentifierState()
     );
 
@@ -508,43 +508,6 @@ public class Lexer {
             }
 
             return token;
-        }
-    }
-
-    private class FieldState implements LexerState {
-        private static final Set<Character> NEW_LINE = Set.of(
-            '\n'
-        );
-        private static final Set<Character> BAD_TOKEN_CHARS = Set.of(
-            ' ', '\t', '\r', '[', ']', '^', '!', '%', '&', '(', ')',
-            '*', '+', ',', '-', '.', '/', ':', ';', '{', '}', '<', '>',
-            '|', '=', '~'
-        );
-        private static final Set<Character> FIELD_TERMINATORS = Set.of(
-            '\n', '\t', '\r', ' ', '!', '%', '&', '*', '/', '<', '>',
-            '^', '|', '~', '(', ')', ',', ':', ';', '[', ']', '{', '}',
-            '+', '-', '=', '.'
-        );
-
-        @Override
-        public Lexer lexer() {
-            return Lexer.this;
-        }
-
-        @Override
-        public MatchedToken nextToken() {
-            if (NEW_LINE.contains(peek())) { // ignore the character that put us in FIELD state and continue
-                next();
-                return MatchedToken.notMatched();
-            } else if (BAD_TOKEN_CHARS.contains(peek())) {
-                next();
-                throw new IllegalStateException("bad token");
-            }
-            while (!isEOF() && !FIELD_TERMINATORS.contains(peek())) {
-                next();
-            }
-            switchTo(LexerStateName.BEGIN);
-            return addToken(TOKEN_IDENTIFIER);
         }
     }
 
