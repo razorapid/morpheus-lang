@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import java.util.Set;
 
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_IDENTIFIER;
+import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.BEGIN;
+import static com.github.razorapid.morpheus.lang.lexer.MatchedToken.notMatched;
 
 @RequiredArgsConstructor
 class FieldState implements LexerState {
@@ -33,7 +35,7 @@ class FieldState implements LexerState {
     public MatchedToken nextToken() {
         if (NEW_LINE.contains(peek())) { // ignore the character that put us in FIELD state and continue
             next();
-            return MatchedToken.notMatched();
+            return notMatched();
         } else if (BAD_TOKEN_CHARS.contains(peek())) {
             next();
             throw new IllegalStateException("bad token");
@@ -41,7 +43,7 @@ class FieldState implements LexerState {
         while (!isEOF() && !FIELD_TERMINATORS.contains(peek())) {
             next();
         }
-        switchTo(LexerStateName.BEGIN);
+        switchTo(BEGIN);
         return matched(TOKEN_IDENTIFIER);
     }
 }

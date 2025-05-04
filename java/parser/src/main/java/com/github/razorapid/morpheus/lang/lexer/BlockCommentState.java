@@ -2,6 +2,9 @@ package com.github.razorapid.morpheus.lang.lexer;
 
 import lombok.RequiredArgsConstructor;
 
+import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.BEGIN;
+import static com.github.razorapid.morpheus.lang.lexer.MatchedToken.notMatched;
+
 @RequiredArgsConstructor
 class BlockCommentState implements LexerState {
 
@@ -14,7 +17,7 @@ class BlockCommentState implements LexerState {
 
     @Override
     public MatchedToken nextToken() {
-        MatchedToken token = MatchedToken.notMatched();
+        MatchedToken token = notMatched();
         while (!(peek() == '*' && peekNext() == '/') && !isEOF()) {
             char n = next();
             if (n == '\n') {
@@ -23,7 +26,7 @@ class BlockCommentState implements LexerState {
         }
         next();
         next();
-        switchTo(LexerStateName.BEGIN);
+        switchTo(BEGIN);
         return token;
     }
 }

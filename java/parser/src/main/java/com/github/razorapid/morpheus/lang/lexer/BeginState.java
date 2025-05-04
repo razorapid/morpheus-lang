@@ -49,6 +49,9 @@ import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_RIGHT_BRACKET;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_RIGHT_SQUARE_BRACKET;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_SEMICOLON;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_STRING;
+import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.BLOCK_COMMENT;
+import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.FIELD;
+import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.IDENTIFIER;
 
 @RequiredArgsConstructor
 class BeginState implements LexerState {
@@ -148,38 +151,16 @@ class BeginState implements LexerState {
 
             // single character cases
             case ';': { token = matched(TOKEN_SEMICOLON); break; }
-            case '$': {
-                token = matched(TOKEN_DOLLAR);
-                break;
-            }
+            case '$': { token = matched(TOKEN_DOLLAR); break; }
             case '~': { token = matched(TOKEN_COMPLEMENT); break; }
             case '%': { token = matched(TOKEN_PERCENTAGE); break; }
             case '^': { token = matched(TOKEN_BITWISE_EXCL_OR); break; }
-            case '(': {
-                token = matched(TOKEN_LEFT_BRACKET);
-                break;
-            }
-            case ')': {
-                token = matched(TOKEN_RIGHT_BRACKET);
-                break;
-            }
-            case '[': {
-                token = matched(TOKEN_LEFT_SQUARE_BRACKET);
-                break;
-            }
-            case ']': {
-                token = matched(TOKEN_RIGHT_SQUARE_BRACKET);
-                break;
-            }
-            case '{': {
-                token = matched(TOKEN_LEFT_BRACES);
-                break;
-            }
-            case '}': {
-                token = matched(TOKEN_RIGHT_BRACES);
-                break;
-            }
-
+            case '(': { token = matched(TOKEN_LEFT_BRACKET); break; }
+            case ')': { token = matched(TOKEN_RIGHT_BRACKET); break; }
+            case '[': { token = matched(TOKEN_LEFT_SQUARE_BRACKET); break; }
+            case ']': { token = matched(TOKEN_RIGHT_SQUARE_BRACKET); break; }
+            case '{': { token = matched(TOKEN_LEFT_BRACES); break; }
+            case '}': { token = matched(TOKEN_RIGHT_BRACES); break; }
 
             // multi character cases
             case ':': { token = matched(match(':') ? TOKEN_DOUBLE_COLON : TOKEN_COLON); break; }
@@ -235,23 +216,21 @@ class BeginState implements LexerState {
                 break;
             }
             case '/': {
-
                 if (match('/')) { // Single line comment, eat up to the new line without it
                     while (peek() != '\n' && !isEOF()) next();
                 } else if (match('*')) {
-                    switchTo(LexerStateName.BLOCK_COMMENT);
+                    switchTo(BLOCK_COMMENT);
                 } else {
                     token = matched(TOKEN_DIVIDE);
                 }
-
                 break;
             }
             case '@':
             case ',': {
                 if (isScanningVariable()) {
-                    switchTo(LexerStateName.FIELD);
+                    switchTo(FIELD);
                 } else {
-                    switchTo(LexerStateName.IDENTIFIER);
+                    switchTo(IDENTIFIER);
                 }
                 break;
             }
@@ -288,7 +267,6 @@ class BeginState implements LexerState {
                     token = matchIdentifier(false);
                     break;
                 }
-
 
                 token = tryMatchListener(c);
                 if (token.isMatched()) {
