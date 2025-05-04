@@ -61,7 +61,7 @@ public class Lexer {
         LexerStateName.BEGIN, new BeginState(),
         LexerStateName.BLOCK_COMMENT, new BlockCommentState(this),
         LexerStateName.FIELD, new FieldState(this),
-        LexerStateName.IDENTIFIER, new IdentifierState()
+        LexerStateName.IDENTIFIER, new IdentifierState(this)
     );
 
     private LexerStateName state = LexerStateName.BEGIN;
@@ -510,41 +510,6 @@ public class Lexer {
             return token;
         }
     }
-
-    private class IdentifierState implements LexerState {
-        private static final Set<Character> NEW_LINE = Set.of(
-            '\n'
-        );
-        private static final Set<Character> BAD_TOKEN_CHARS = Set.of(
-            ' ', '\t', '\r', '(', ')', '[', ']', '{', '}',
-            ':', ';', ','
-        );
-        private static final Set<Character> IDENTIFIER_TERMINATORS = Set.of(
-            '\n', '\t', '\r', ' ', '(', ')', ',', ':', ';', '[', ']', '{', '}'
-        );
-
-        @Override
-        public Lexer lexer() {
-            return Lexer.this;
-        }
-
-        @Override
-        public MatchedToken nextToken() {
-            if (NEW_LINE.contains(peek())) { // ignore the character that put us in Identifier state and continue
-                next();
-                return MatchedToken.notMatched();
-            } else if (BAD_TOKEN_CHARS.contains(peek())) {
-                next();
-                throw new IllegalStateException("bad token");
-            }
-            while (!isEOF() && !IDENTIFIER_TERMINATORS.contains(peek())) {
-                next();
-            }
-            switchTo(LexerStateName.BEGIN);
-            return addToken(TOKEN_IDENTIFIER);
-        }
-    }
-
 
 
     private boolean isScanningVariable() {
