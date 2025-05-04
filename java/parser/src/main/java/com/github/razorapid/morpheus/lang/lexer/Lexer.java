@@ -110,12 +110,20 @@ public class Lexer {
         return t;
     }
 
-    private LexerState currentState() {
+    LexerState currentState() {
         return STATES.get(state);
     }
 
-    private void switchState(LexerStateName newState) {
+    void switchTo(LexerStateName newState) {
         state = newState;
+    }
+
+    Caret caret() {
+        return caret;
+    }
+
+    TokenType prevToken() {
+        return prevToken;
     }
 
     private class BeginState implements LexerState {
@@ -187,6 +195,11 @@ public class Lexer {
         private static final Set<String> LISTENER_TYPES = Set.of(
             "game", "level", "local", "parm", "self", "group"
         );
+
+        @Override
+        public Lexer lexer() {
+            return Lexer.this;
+        }
 
         @Override
         public MatchedToken nextToken() {
@@ -299,7 +312,7 @@ public class Lexer {
                     if (match('/')) { // Single line comment, eat up to the new line without it
                         while (peek() != '\n' && !isEOF()) next();
                     } else if (match('*')) {
-                        switchState(LexerStateName.BLOCK_COMMENT);
+                        switchTo(LexerStateName.BLOCK_COMMENT);
                     } else {
                         token = addToken(TOKEN_DIVIDE);
                     }
@@ -309,9 +322,9 @@ public class Lexer {
                 case '@':
                 case ',': {
                     if (isScanningVariable()) {
-                        switchState(LexerStateName.FIELD);
+                        switchTo(LexerStateName.FIELD);
                     } else {
-                        switchState(LexerStateName.IDENTIFIER);
+                        switchTo(LexerStateName.IDENTIFIER);
                     }
                     break;
                 }
@@ -501,6 +514,11 @@ public class Lexer {
     private class BlockCommentState implements LexerState {
 
         @Override
+        public Lexer lexer() {
+            return Lexer.this;
+        }
+
+        @Override
         public MatchedToken nextToken() {
             MatchedToken token = MatchedToken.notMatched();
             while (!(peek() == '*' && peekNext() == '/') && !isEOF()) {
@@ -511,7 +529,7 @@ public class Lexer {
             }
             next();
             next();
-            switchState(LexerStateName.BEGIN);
+            switchTo(LexerStateName.BEGIN);
             return token;
         }
     }
@@ -532,6 +550,11 @@ public class Lexer {
         );
 
         @Override
+        public Lexer lexer() {
+            return Lexer.this;
+        }
+
+        @Override
         public MatchedToken nextToken() {
             if (NEW_LINE.contains(peek())) { // ignore the character that put us in FIELD state and continue
                 next();
@@ -543,7 +566,7 @@ public class Lexer {
             while (!isEOF() && !FIELD_TERMINATORS.contains(peek())) {
                 next();
             }
-            switchState(LexerStateName.BEGIN);
+            switchTo(LexerStateName.BEGIN);
             return addToken(TOKEN_IDENTIFIER);
         }
     }
@@ -559,6 +582,12 @@ public class Lexer {
         private static final Set<Character> IDENTIFIER_TERMINATORS = Set.of(
             '\n', '\t', '\r', ' ', '(', ')', ',', ':', ';', '[', ']', '{', '}'
         );
+
+        @Override
+        public Lexer lexer() {
+            return Lexer.this;
+        }
+
         @Override
         public MatchedToken nextToken() {
             if (NEW_LINE.contains(peek())) { // ignore the character that put us in Identifier state and continue
@@ -571,7 +600,7 @@ public class Lexer {
             while (!isEOF() && !IDENTIFIER_TERMINATORS.contains(peek())) {
                 next();
             }
-            switchState(LexerStateName.BEGIN);
+            switchTo(LexerStateName.BEGIN);
             return addToken(TOKEN_IDENTIFIER);
         }
     }
@@ -603,19 +632,19 @@ public class Lexer {
         return false;
     }
 
-    private char peekNext() {
+    char peekNext() {
         return source.peekNext();
     }
 
-    private char peek(long pos) {
+    char peek(long pos) {
         return source.peek((int) pos);
     }
 
-    private char peek() {
+    char peek() {
         return source.peek();
     }
 
-    private boolean match(char c) {
+    boolean match(char c) {
         boolean matched = source.match(c);
         if (matched) {
             caret.right();
@@ -623,27 +652,35 @@ public class Lexer {
         return matched;
     }
 
-    private MatchedToken addToken(TokenType type) {
+    MatchedToken addToken(TokenType type) {
         return MatchedToken.matched(
             Token.of(type, tokenString(startPos, source.pos()), startPos, caret.line(), caret.col() - (source.pos() - startPos))
         );
     }
 
-    private char next() {
+    char next() {
         caret.right();
         return source.next();
     }
 
-    private void currentPos(int pos) {
+    int currentPos() {
+        return source.pos();
+    }
+
+    void currentPos(int pos) {
         caret.right(pos - source.pos());
         source.pos(pos);
     }
 
-    private boolean isEOF() {
+    int tokenStartPos() {
+        return startPos;
+    }
+
+    boolean isEOF() {
         return source.isEOB();
     }
 
-    private boolean isEOF(int pos) {
+    boolean isEOF(int pos) {
         return source.isEOB(pos);
     }
 
