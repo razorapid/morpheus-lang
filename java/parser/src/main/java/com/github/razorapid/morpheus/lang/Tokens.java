@@ -3,6 +3,8 @@ package com.github.razorapid.morpheus.lang;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_EOF;
+
 /**
  * Token stream for operations on tokens scanned by the lexer
  */
@@ -65,11 +67,11 @@ public class Tokens {
     public Token peekTokenAhead(long lookAhead) {
         return currentPos + lookAhead < tokens.size() ?
                 tokens.get(Math.toIntExact(currentPos + lookAhead)) :
-                Token.of(TokenType.TOKEN_EOF, "", -1, -1, -1);
+                Token.of(TOKEN_EOF, "", -1, -1, -1);
     }
 
     public boolean isEOF() {
-        return currentPos >= tokens.size();
+        return peekToken().isType(TOKEN_EOF) || currentPos >= tokens.size();
     }
 
     public Token get(long idx) {

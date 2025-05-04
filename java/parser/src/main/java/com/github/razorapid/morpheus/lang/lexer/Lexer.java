@@ -9,6 +9,7 @@ import com.github.razorapid.morpheus.lang.Tokens;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_EOF;
 import static java.util.Objects.requireNonNull;
 
 public class Lexer {
@@ -40,11 +41,11 @@ public class Lexer {
     }
 
     public Optional<Token> scanToken() {
-        if (isEOF()) return Optional.empty();
+        if (prevToken() == TOKEN_EOF) return Optional.empty();
         MatchedToken token;
         do {
             token = nextToken();
-        } while (token.isNotMatched() && !isEOF());
+        } while (token.isNotMatched());
 
         return token.isMatched() ? Optional.of(token.val()) : Optional.empty();
     }
@@ -55,9 +56,13 @@ public class Lexer {
     }
 
     private MatchedToken nextToken() {
-        LexerState state = currentState();
         startPos = source.pos();
-        MatchedToken t = state.nextToken();
+        if (isEOF()) {
+            prevToken = TOKEN_EOF;
+            return addToken(TOKEN_EOF);
+        }
+
+        MatchedToken t = currentState().nextToken();
         if (t.isMatched()) {
             prevToken = t.val().type();
         }

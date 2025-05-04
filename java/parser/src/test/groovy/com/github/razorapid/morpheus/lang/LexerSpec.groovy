@@ -25,8 +25,9 @@ class LexerSpec extends Specification {
         def result = lexer.scan().get()
 
         then:
-        result.size() == 1
+        result.size() == 2
         result.get(0).type() == TOKEN_EOL
+        result.get(1).type() == TOKEN_EOF
     }
 
     def "ignores whitespace"() {
@@ -43,10 +44,10 @@ class LexerSpec extends Specification {
         where:
 
         input    || expectedTokenType
-        "     "  || [TOKEN_EOL]
-        "   "    || [TOKEN_EOL]
-        "\n\n\n" || [TOKEN_EOL]
-        " \n \t" || [TOKEN_EOL]
+        "     "  || [TOKEN_EOL, TOKEN_EOF]
+        "   "    || [TOKEN_EOL, TOKEN_EOF]
+        "\n\n\n" || [TOKEN_EOL, TOKEN_EOF]
+        " \n \t" || [TOKEN_EOL, TOKEN_EOF]
     }
 
     def "ignores line comments"() {
@@ -58,8 +59,9 @@ class LexerSpec extends Specification {
         def result = lexer.scan().get()
 
         then:
-        result.size() == 1
+        result.size() == 2
         result.get(0).type() == TOKEN_EOL
+        result.get(1).type() == TOKEN_EOF
 
         where:
 
@@ -80,8 +82,9 @@ class LexerSpec extends Specification {
         def result = lexer.scan().get()
 
         then:
-        result.size() == 1
+        result.size() == 2
         result.get(0).type() == TOKEN_EOL
+        result.get(1).type() == TOKEN_EOF
 
         where:
 
@@ -123,9 +126,10 @@ class LexerSpec extends Specification {
         def result = lexer.scan().get()
 
         then:
-        result.size() == 2
+        result.size() == 3
         result.get(0).type() == expectedTokenType
         result.get(1).type() == TOKEN_EOL
+        result.get(2).type() == TOKEN_EOF
 
         where:
 
@@ -147,9 +151,10 @@ class LexerSpec extends Specification {
         def result = lexer.scan().get()
 
         then:
-        result.size() == 2
+        result.size() == 3
         result.get(0).type() == expectedTokenType
         result.get(1).type() == TOKEN_EOL
+        result.get(2).type() == TOKEN_EOF
 
         where:
 
@@ -180,9 +185,10 @@ class LexerSpec extends Specification {
         def result = lexer.scan().get()
 
         then:
-        result.size() == 2
+        result.size() == 3
         result.get(0).type() == expectedTokenType
         result.get(1).type() == TOKEN_EOL
+        result.get(2).type() == TOKEN_EOF
 
         where:
 
@@ -215,10 +221,11 @@ class LexerSpec extends Specification {
         def result = lexer.scan().get()
 
         then:
-        result.size() == 3
+        result.size() == 4
         result.get(0).type() == expectedTokenType
         result.get(1).type() == TOKEN_INTEGER
         result.get(2).type() == TOKEN_EOL
+        result.get(3).type() == TOKEN_EOF
 
         where:
 
@@ -236,9 +243,10 @@ class LexerSpec extends Specification {
         def result = lexer.scan().get()
 
         then:
-        result.size() == 2
+        result.size() == 3
         result.get(0).type() == expectedTokenType
         result.get(1).type() == TOKEN_EOL
+        result.get(2).type() == TOKEN_EOF
 
         where:
 
@@ -299,10 +307,11 @@ class LexerSpec extends Specification {
         def result = lexer.scan().get()
 
         then:
-        result.size() == 3
+        result.size() == 4
         result.get(0).type() == TOKEN_NEG
         result.get(1).type() == expectedTokenType
         result.get(2).type() == TOKEN_EOL
+        result.get(3).type() == TOKEN_EOF
 
         where:
 
@@ -323,10 +332,11 @@ class LexerSpec extends Specification {
         def result = lexer.scan().get()
 
         then:
-        result.size() == 3
+        result.size() == 4
         result.get(0).type() == TOKEN_POS
         result.get(1).type() == expectedTokenType
         result.get(2).type() == TOKEN_EOL
+        result.get(3).type() == TOKEN_EOF
 
         where:
 
@@ -369,9 +379,10 @@ class LexerSpec extends Specification {
         def result = lexer.scan().get()
 
         then:
-        result.size() == 2
+        result.size() == 3
         result.get(0).type() == expectedTokenType
         result.get(1).type() == TOKEN_EOL
+        result.get(2).type() == TOKEN_EOF
 
         where:
 
@@ -394,10 +405,11 @@ class LexerSpec extends Specification {
         def result = lexer.scan().get()
 
         then:
-        result.size() == 3
+        result.size() == 4
         result.get(0).type() == TOKEN_NEG
         result.get(1).type() == expectedTokenType
         result.get(2).type() == TOKEN_EOL
+        result.get(3).type() == TOKEN_EOF
 
         where:
 
@@ -420,10 +432,11 @@ class LexerSpec extends Specification {
         def result = lexer.scan().get()
 
         then:
-        result.size() == 3
+        result.size() == 4
         result.get(0).type() == TOKEN_POS
         result.get(1).type() == expectedTokenType
         result.get(2).type() == TOKEN_EOL
+        result.get(3).type() == TOKEN_EOF
 
         where:
 
@@ -446,9 +459,10 @@ class LexerSpec extends Specification {
         def result = lexer.scan().get()
 
         then:
-        result.size() == 2
+        result.size() == 3
         result.get(0).type() == expectedTokenType
         result.get(1).type() == TOKEN_EOL
+        result.get(2).type() == TOKEN_EOF
 
         where:
 
@@ -471,9 +485,10 @@ class LexerSpec extends Specification {
         def result = lexer.scan().get()
 
         then:
-        result.size() == 2
+        result.size() == 3
         result.get(0).type() != notExpectedTokenType
         result.get(1).type() == TOKEN_EOL
+        result.get(2).type() == TOKEN_EOF
 
         where:
 
@@ -494,9 +509,10 @@ class LexerSpec extends Specification {
         def result = lexer.scan().get()
 
         then:
-        result.size() == 2
+        result.size() == 3
         result.get(0).type() == expectedTokenType
         result.get(1).type() == TOKEN_EOL
+        result.get(2).type() == TOKEN_EOF
 
         where:
 
@@ -536,48 +552,48 @@ class LexerSpec extends Specification {
         where:
 
         input         || expectedTokenType
-        "continue"    || [TOKEN_CONTINUE, TOKEN_EOL]
-        "continuea"   || [TOKEN_IDENTIFIER, TOKEN_EOL]
-        "continue1"   || [TOKEN_IDENTIFIER, TOKEN_EOL]
-        "continue;"   || [TOKEN_CONTINUE, TOKEN_SEMICOLON, TOKEN_EOL]
-        "continue\$"  || [TOKEN_CONTINUE, TOKEN_DOLLAR, TOKEN_EOL]
-        "continue~"   || [TOKEN_CONTINUE, TOKEN_COMPLEMENT, TOKEN_EOL]
-        "continue!"   || [TOKEN_CONTINUE, TOKEN_NOT, TOKEN_EOL]
-        "continue%"   || [TOKEN_CONTINUE, TOKEN_PERCENTAGE, TOKEN_EOL]
-        "continue*"   || [TOKEN_CONTINUE, TOKEN_MULTIPLY, TOKEN_EOL]
-        "continue/"   || [TOKEN_CONTINUE, TOKEN_DIVIDE, TOKEN_EOL]
-        "continue^"   || [TOKEN_CONTINUE, TOKEN_BITWISE_EXCL_OR, TOKEN_EOL]
-        "continue."   || [TOKEN_CONTINUE, TOKEN_PERIOD, TOKEN_EOL]
-        "continue:"   || [TOKEN_CONTINUE, TOKEN_COLON, TOKEN_EOL]
-        "continue="   || [TOKEN_CONTINUE, TOKEN_ASSIGNMENT, TOKEN_EOL]
-        "continue-"   || [TOKEN_CONTINUE, TOKEN_MINUS, TOKEN_EOL]
-        "continue+"   || [TOKEN_CONTINUE, TOKEN_PLUS, TOKEN_EOL]
-        "continue&"   || [TOKEN_CONTINUE, TOKEN_BITWISE_AND, TOKEN_EOL]
-        "continue|"   || [TOKEN_CONTINUE, TOKEN_BITWISE_OR, TOKEN_EOL]
-        "continue["   || [TOKEN_CONTINUE, TOKEN_LEFT_SQUARE_BRACKET, TOKEN_EOL]
-        "continue]"   || [TOKEN_CONTINUE, TOKEN_RIGHT_SQUARE_BRACKET, TOKEN_EOL]
-        "continue("   || [TOKEN_CONTINUE, TOKEN_LEFT_BRACKET, TOKEN_EOL]
-        "continue)"   || [TOKEN_CONTINUE, TOKEN_RIGHT_BRACKET, TOKEN_EOL]
-        "continue{"   || [TOKEN_CONTINUE, TOKEN_LEFT_BRACES, TOKEN_EOL]
-        "continue}"   || [TOKEN_CONTINUE, TOKEN_RIGHT_BRACES, TOKEN_EOL]
-        "continue\\"  || [TOKEN_CONTINUE]
-        "continue,"   || [TOKEN_CONTINUE]
-        "continue@"   || [TOKEN_CONTINUE]
-        "continue#"   || [TOKEN_CONTINUE, TOKEN_IDENTIFIER, TOKEN_EOL]
-        "continue?"   || [TOKEN_CONTINUE, TOKEN_IDENTIFIER, TOKEN_EOL]
-        "continue::"  || [TOKEN_CONTINUE, TOKEN_DOUBLE_COLON, TOKEN_EOL]
-        "continue!="  || [TOKEN_CONTINUE, TOKEN_INEQUALITY, TOKEN_EOL]
-        "continue=="  || [TOKEN_CONTINUE, TOKEN_EQUALITY, TOKEN_EOL]
-        "continue<="  || [TOKEN_CONTINUE, TOKEN_LESS_THAN_OR_EQUAL, TOKEN_EOL]
-        "continue>="  || [TOKEN_CONTINUE, TOKEN_GREATER_THAN_OR_EQUAL, TOKEN_EOL]
-        "continue-="  || [TOKEN_CONTINUE, TOKEN_MINUS_EQUALS, TOKEN_EOL]
-        "continue+="  || [TOKEN_CONTINUE, TOKEN_PLUS_EQUALS, TOKEN_EOL]
-        "continue--"  || [TOKEN_CONTINUE, TOKEN_DEC, TOKEN_EOL]
-        "continue++"  || [TOKEN_CONTINUE, TOKEN_INC, TOKEN_EOL]
-        "continue&&"  || [TOKEN_CONTINUE, TOKEN_LOGICAL_AND, TOKEN_EOL]
-        "continue||"  || [TOKEN_CONTINUE, TOKEN_LOGICAL_OR, TOKEN_EOL]
-        "continue\$a" || [TOKEN_CONTINUE, TOKEN_DOLLAR, TOKEN_IDENTIFIER, TOKEN_EOL]
-        "continue.a"  || [TOKEN_CONTINUE, TOKEN_PERIOD, TOKEN_IDENTIFIER, TOKEN_EOL]
+        "continue"    || [TOKEN_CONTINUE, TOKEN_EOL, TOKEN_EOF]
+        "continuea"   || [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "continue1"   || [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "continue;"   || [TOKEN_CONTINUE, TOKEN_SEMICOLON, TOKEN_EOL, TOKEN_EOF]
+        "continue\$"  || [TOKEN_CONTINUE, TOKEN_DOLLAR, TOKEN_EOL, TOKEN_EOF]
+        "continue~"   || [TOKEN_CONTINUE, TOKEN_COMPLEMENT, TOKEN_EOL, TOKEN_EOF]
+        "continue!"   || [TOKEN_CONTINUE, TOKEN_NOT, TOKEN_EOL, TOKEN_EOF]
+        "continue%"   || [TOKEN_CONTINUE, TOKEN_PERCENTAGE, TOKEN_EOL, TOKEN_EOF]
+        "continue*"   || [TOKEN_CONTINUE, TOKEN_MULTIPLY, TOKEN_EOL, TOKEN_EOF]
+        "continue/"   || [TOKEN_CONTINUE, TOKEN_DIVIDE, TOKEN_EOL, TOKEN_EOF]
+        "continue^"   || [TOKEN_CONTINUE, TOKEN_BITWISE_EXCL_OR, TOKEN_EOL, TOKEN_EOF]
+        "continue."   || [TOKEN_CONTINUE, TOKEN_PERIOD, TOKEN_EOL, TOKEN_EOF]
+        "continue:"   || [TOKEN_CONTINUE, TOKEN_COLON, TOKEN_EOL, TOKEN_EOF]
+        "continue="   || [TOKEN_CONTINUE, TOKEN_ASSIGNMENT, TOKEN_EOL, TOKEN_EOF]
+        "continue-"   || [TOKEN_CONTINUE, TOKEN_MINUS, TOKEN_EOL, TOKEN_EOF]
+        "continue+"   || [TOKEN_CONTINUE, TOKEN_PLUS, TOKEN_EOL, TOKEN_EOF]
+        "continue&"   || [TOKEN_CONTINUE, TOKEN_BITWISE_AND, TOKEN_EOL, TOKEN_EOF]
+        "continue|"   || [TOKEN_CONTINUE, TOKEN_BITWISE_OR, TOKEN_EOL, TOKEN_EOF]
+        "continue["   || [TOKEN_CONTINUE, TOKEN_LEFT_SQUARE_BRACKET, TOKEN_EOL, TOKEN_EOF]
+        "continue]"   || [TOKEN_CONTINUE, TOKEN_RIGHT_SQUARE_BRACKET, TOKEN_EOL, TOKEN_EOF]
+        "continue("   || [TOKEN_CONTINUE, TOKEN_LEFT_BRACKET, TOKEN_EOL, TOKEN_EOF]
+        "continue)"   || [TOKEN_CONTINUE, TOKEN_RIGHT_BRACKET, TOKEN_EOL, TOKEN_EOF]
+        "continue{"   || [TOKEN_CONTINUE, TOKEN_LEFT_BRACES, TOKEN_EOL, TOKEN_EOF]
+        "continue}"   || [TOKEN_CONTINUE, TOKEN_RIGHT_BRACES, TOKEN_EOL, TOKEN_EOF]
+        "continue\\"  || [TOKEN_CONTINUE, TOKEN_EOF]
+        "continue,"   || [TOKEN_CONTINUE, TOKEN_EOF]
+        "continue@"   || [TOKEN_CONTINUE, TOKEN_EOF]
+        "continue#"   || [TOKEN_CONTINUE, TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "continue?"   || [TOKEN_CONTINUE, TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "continue::"  || [TOKEN_CONTINUE, TOKEN_DOUBLE_COLON, TOKEN_EOL, TOKEN_EOF]
+        "continue!="  || [TOKEN_CONTINUE, TOKEN_INEQUALITY, TOKEN_EOL, TOKEN_EOF]
+        "continue=="  || [TOKEN_CONTINUE, TOKEN_EQUALITY, TOKEN_EOL, TOKEN_EOF]
+        "continue<="  || [TOKEN_CONTINUE, TOKEN_LESS_THAN_OR_EQUAL, TOKEN_EOL, TOKEN_EOF]
+        "continue>="  || [TOKEN_CONTINUE, TOKEN_GREATER_THAN_OR_EQUAL, TOKEN_EOL, TOKEN_EOF]
+        "continue-="  || [TOKEN_CONTINUE, TOKEN_MINUS_EQUALS, TOKEN_EOL, TOKEN_EOF]
+        "continue+="  || [TOKEN_CONTINUE, TOKEN_PLUS_EQUALS, TOKEN_EOL, TOKEN_EOF]
+        "continue--"  || [TOKEN_CONTINUE, TOKEN_DEC, TOKEN_EOL, TOKEN_EOF]
+        "continue++"  || [TOKEN_CONTINUE, TOKEN_INC, TOKEN_EOL, TOKEN_EOF]
+        "continue&&"  || [TOKEN_CONTINUE, TOKEN_LOGICAL_AND, TOKEN_EOL, TOKEN_EOF]
+        "continue||"  || [TOKEN_CONTINUE, TOKEN_LOGICAL_OR, TOKEN_EOL, TOKEN_EOF]
+        "continue\$a" || [TOKEN_CONTINUE, TOKEN_DOLLAR, TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "continue.a"  || [TOKEN_CONTINUE, TOKEN_PERIOD, TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
 
     }
 
@@ -595,10 +611,10 @@ class LexerSpec extends Specification {
         where:
 
         input                     || expectedTokenType
-        "end1"                    || [TOKEN_IDENTIFIER, TOKEN_EOL]
-        "enda"                    || [TOKEN_IDENTIFIER, TOKEN_EOL]
-        "end_tank_destroyed"      || [TOKEN_IDENTIFIER, TOKEN_EOL]
-        "continue_tank_destroyed" || [TOKEN_IDENTIFIER, TOKEN_EOL]
+        "end1"                    || [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "enda"                    || [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "end_tank_destroyed"      || [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "continue_tank_destroyed" || [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
 
     }
 
@@ -616,10 +632,10 @@ class LexerSpec extends Specification {
         where:
 
         input                    || expectedTokenType
-        "\$(sdkfz.gunner) test"  || [TOKEN_DOLLAR, TOKEN_LEFT_BRACKET, TOKEN_IDENTIFIER, TOKEN_RIGHT_BRACKET, TOKEN_IDENTIFIER, TOKEN_EOL]
-        "\$enemy[local.i].set--" || [TOKEN_DOLLAR, TOKEN_IDENTIFIER, TOKEN_LEFT_SQUARE_BRACKET, TOKEN_LISTENER, TOKEN_PERIOD, TOKEN_IDENTIFIER, TOKEN_RIGHT_SQUARE_BRACKET, TOKEN_PERIOD, TOKEN_IDENTIFIER, TOKEN_DEC, TOKEN_EOL]
-        "\$enemy[local.i]abcd.set--" || [TOKEN_DOLLAR, TOKEN_IDENTIFIER, TOKEN_LEFT_SQUARE_BRACKET, TOKEN_LISTENER, TOKEN_PERIOD, TOKEN_IDENTIFIER, TOKEN_RIGHT_SQUARE_BRACKET, TOKEN_IDENTIFIER, TOKEN_EOL]
-        "\$santatarget .collisionent=\$opelcollision_mask" || [TOKEN_DOLLAR, TOKEN_IDENTIFIER, TOKEN_PERIOD, TOKEN_IDENTIFIER, TOKEN_ASSIGNMENT, TOKEN_DOLLAR, TOKEN_IDENTIFIER, TOKEN_EOL]
+        "\$(sdkfz.gunner) test"  || [TOKEN_DOLLAR, TOKEN_LEFT_BRACKET, TOKEN_IDENTIFIER, TOKEN_RIGHT_BRACKET, TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "\$enemy[local.i].set--" || [TOKEN_DOLLAR, TOKEN_IDENTIFIER, TOKEN_LEFT_SQUARE_BRACKET, TOKEN_LISTENER, TOKEN_PERIOD, TOKEN_IDENTIFIER, TOKEN_RIGHT_SQUARE_BRACKET, TOKEN_PERIOD, TOKEN_IDENTIFIER, TOKEN_DEC, TOKEN_EOL, TOKEN_EOF]
+        "\$enemy[local.i]abcd.set--" || [TOKEN_DOLLAR, TOKEN_IDENTIFIER, TOKEN_LEFT_SQUARE_BRACKET, TOKEN_LISTENER, TOKEN_PERIOD, TOKEN_IDENTIFIER, TOKEN_RIGHT_SQUARE_BRACKET, TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "\$santatarget .collisionent=\$opelcollision_mask" || [TOKEN_DOLLAR, TOKEN_IDENTIFIER, TOKEN_PERIOD, TOKEN_IDENTIFIER, TOKEN_ASSIGNMENT, TOKEN_DOLLAR, TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
     }
 
     def "scans listeners"() {
@@ -631,9 +647,10 @@ class LexerSpec extends Specification {
         def result = lexer.scan().get()
 
         then:
-        result.size() == 2
+        result.size() == 3
         result.get(0).type() == expectedTokenType
         result.get(1).type() == TOKEN_EOL
+        result.get(2).type() == TOKEN_EOF
 
         where:
 
@@ -655,9 +672,10 @@ class LexerSpec extends Specification {
         def result = lexer.scan().get()
 
         then:
-        result.size() == 2
+        result.size() == 3
         result.get(0).type() == TOKEN_IDENTIFIER
         result.get(1).type() == TOKEN_EOL
+        result.get(2).type() == TOKEN_EOF
 
         where:
 
@@ -838,7 +856,7 @@ class LexerSpec extends Specification {
         where:
 
         input      || expectedTokenType
-        "local.25" || [TOKEN_LISTENER, TOKEN_FLOAT, TOKEN_EOL]
+        "local.25" || [TOKEN_LISTENER, TOKEN_FLOAT, TOKEN_EOL, TOKEN_EOF]
     }
 
     def "doesn't scan empty targetname identifier"() {
@@ -855,8 +873,8 @@ class LexerSpec extends Specification {
         where:
 
         input     || expectedTokenType
-        "\$."     || [TOKEN_DOLLAR, TOKEN_PERIOD, TOKEN_EOL]
-        "\$.test" || [TOKEN_DOLLAR, TOKEN_PERIOD, TOKEN_IDENTIFIER, TOKEN_EOL]
+        "\$."     || [TOKEN_DOLLAR, TOKEN_PERIOD, TOKEN_EOL, TOKEN_EOF]
+        "\$.test" || [TOKEN_DOLLAR, TOKEN_PERIOD, TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
     }
 
     def "scans double character positive and negative tokens"() {
@@ -868,10 +886,11 @@ class LexerSpec extends Specification {
         def result = lexer.scan().get()
 
         then:
-        result.size() == 3
+        result.size() == 4
         result.get(0).type() == expectedTokenType
         result.get(1).type() == TOKEN_INTEGER
         result.get(2).type() == TOKEN_EOL
+        result.get(3).type() == TOKEN_EOF
 
         where:
 
@@ -919,7 +938,8 @@ class LexerSpec extends Specification {
                         TOKEN_SEMICOLON,
                         TOKEN_EOL,
                         TOKEN_END,
-                        TOKEN_EOL
+                        TOKEN_EOL,
+                        TOKEN_EOF
                 ]
         ]
     }
