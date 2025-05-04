@@ -8,15 +8,12 @@ import static TokenType.*
 
 class LexerSpec extends Specification {
 
-    def "no tokens for no input"() {
-        setup:
-        def lexer = new Lexer(null)
-
+    def "script cannot be null"() {
         when:
-        def result = lexer.scan()
+        new Lexer(null)
 
         then:
-        result.isEmpty()
+        thrown(NullPointerException)
     }
 
     def "EOL token on empty input"() {

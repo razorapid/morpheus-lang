@@ -53,6 +53,7 @@ import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_RIGHT_BRACKET;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_RIGHT_SQUARE_BRACKET;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_SEMICOLON;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_STRING;
+import static java.util.Objects.requireNonNull;
 
 public class Lexer {
 
@@ -146,20 +147,15 @@ public class Lexer {
     private TokenType prevToken = null;
 
     public Lexer(Source script) {
-        this.source = createSource(script);
+        this.source = createSource(requireNonNull(script, "script must not be null"));
     }
 
     private static Tape<Character> createSource(Source script) {
-        if (script == null) {
-            return null;
-        }
         String source = script.source() + "\n"; // make sure source end with new line
         return Tape.of(source.chars().mapToObj(c -> (char) c).toArray(Character[]::new));
     }
 
     public Optional<Tokens> scan() {
-        if (source == null) return Optional.empty();
-
         while (!isEOF()) {
             startPos = source.pos();
             Token token = nextToken();
