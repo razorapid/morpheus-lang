@@ -82,10 +82,9 @@ public class Lexer {
 
     public Optional<Tokens> scan() {
         while (!isEOF()) {
-            startPos = source.pos();
-            Token token = nextToken();
-            if (token != null) {
-                tokens.add(token);
+            MatchedToken token = nextToken();
+            if (token.isMatched()) {
+                tokens.add(token.val());
             }
         }
 
@@ -94,19 +93,19 @@ public class Lexer {
 
     public Optional<Token> scanToken() {
         if (isEOF()) return Optional.empty();
-        Token token = null;
+        MatchedToken token;
         do {
-            startPos = source.pos();
             token = nextToken();
-        } while (token == null);
-        return Optional.of(token);
+        } while (token.isNotMatched());
+        return Optional.of(token.val());
     }
 
-    private Token nextToken() {
+    private MatchedToken nextToken() {
         LexerState state = currentState();
-        Token t = state.nextToken();
-        if (t != null) {
-            prevToken = t.type();
+        startPos = source.pos();
+        MatchedToken t = state.nextToken();
+        if (t.isMatched()) {
+            prevToken = t.val().type();
         }
         return t;
     }
@@ -190,10 +189,10 @@ public class Lexer {
         );
 
         @Override
-        public Token nextToken() {
+        public MatchedToken nextToken() {
             char c = next();
 
-            Token token = null;
+            MatchedToken token = MatchedToken.notMatched();
             switch (c) {
                 // skip carriage return
                 case '\r': break;
@@ -290,7 +289,7 @@ public class Lexer {
                 }
                 case '.': {
                     token = tryMatchFloat();
-                    if (token == null) {
+                    if (token.isNotMatched()) {
                         token = addToken(TOKEN_PERIOD);
                     }
                     break;
@@ -318,7 +317,7 @@ public class Lexer {
                 }
                 case '"': {
                     token = tryMatchString();
-                    if (token == null) {
+                    if (token.isNotMatched()) {
                         token = matchIdentifier(false);
                     }
                     break;
@@ -339,7 +338,7 @@ public class Lexer {
                 default: {
                     if (Character.isDigit(c)) {
                         token = tryMatchNumber();
-                        if (token == null) {
+                        if (token.isNotMatched()) {
                             token = matchIdentifier(false);
                         }
                         break;
@@ -352,7 +351,7 @@ public class Lexer {
 
 
                     token = tryMatchListener(c);
-                    if (token != null) {
+                    if (token.isMatched()) {
                         break;
                     }
 
@@ -363,7 +362,7 @@ public class Lexer {
             return token;
         }
 
-        private Token tryMatchString() {
+        private MatchedToken tryMatchString() {
             int pos = source.pos();
             while (!NEW_LINE.contains(peek(pos)) && !isEOF(pos)) {
                 if (peek(pos) == '"' && peek(pos - 1) != '\\' && STRING_TERMINATORS.contains(peek(pos + 1))) {
@@ -372,10 +371,10 @@ public class Lexer {
                 }
                 pos++;
             }
-            return null;
+            return MatchedToken.notMatched();
         }
 
-        private Token tryMatchNumber() {
+        private MatchedToken tryMatchNumber() {
             int digits = source.pos();
             while (Character.isDigit(peek(digits))) digits++;
             if (isEOF(digits) || NUMBER_TERMINATORS.contains(peek(digits))) {
@@ -421,10 +420,10 @@ public class Lexer {
                 }
             }
 
-            return null;
+            return MatchedToken.notMatched();
         }
 
-        private Token tryMatchFloat() {
+        private MatchedToken tryMatchFloat() {
             int pos = source.pos();
             int digits = pos;
             while (Character.isDigit(peek(digits))) digits++;
@@ -446,10 +445,10 @@ public class Lexer {
                     }
                 }
             }
-            return null;
+            return MatchedToken.notMatched();
         }
 
-        private Token tryMatchListener(char c) {
+        private MatchedToken tryMatchListener(char c) {
             for (String listener : LISTENER_TYPES) {
                 char[] chars = listener.toCharArray();
                 if (c == chars[0]) {
@@ -469,11 +468,11 @@ public class Lexer {
                     }
                 }
             }
-            return null;
+            return MatchedToken.notMatched();
         }
 
-        private Token matchIdentifier(boolean lookupKeywords) {
-            Token token = null;
+        private MatchedToken matchIdentifier(boolean lookupKeywords) {
+            MatchedToken token = MatchedToken.notMatched();
             boolean matchedKeyword = false;
             while (!isEOF() && (
                 (!isScanningVariable() && !IDENTIFIER_TERMINATORS.contains(peek())) ||
@@ -502,8 +501,8 @@ public class Lexer {
     private class BlockCommentState implements LexerState {
 
         @Override
-        public Token nextToken() {
-            Token token = null;
+        public MatchedToken nextToken() {
+            MatchedToken token = MatchedToken.notMatched();
             while (!(peek() == '*' && peekNext() == '/') && !isEOF()) {
                 char n = next();
                 if (n == '\n') {
@@ -533,10 +532,10 @@ public class Lexer {
         );
 
         @Override
-        public Token nextToken() {
+        public MatchedToken nextToken() {
             if (NEW_LINE.contains(peek())) { // ignore the character that put us in FIELD state and continue
                 next();
-                return null;
+                return MatchedToken.notMatched();
             } else if (BAD_TOKEN_CHARS.contains(peek())) {
                 next();
                 throw new IllegalStateException("bad token");
@@ -561,10 +560,10 @@ public class Lexer {
             '\n', '\t', '\r', ' ', '(', ')', ',', ':', ';', '[', ']', '{', '}'
         );
         @Override
-        public Token nextToken() {
+        public MatchedToken nextToken() {
             if (NEW_LINE.contains(peek())) { // ignore the character that put us in Identifier state and continue
                 next();
-                return null;
+                return MatchedToken.notMatched();
             } else if (BAD_TOKEN_CHARS.contains(peek())) {
                 next();
                 throw new IllegalStateException("bad token");
@@ -624,8 +623,10 @@ public class Lexer {
         return matched;
     }
 
-    private Token addToken(TokenType type) {
-        return Token.of(type, tokenString(startPos, source.pos()), startPos, caret.line(), caret.col() - (source.pos() - startPos));
+    private MatchedToken addToken(TokenType type) {
+        return MatchedToken.matched(
+            Token.of(type, tokenString(startPos, source.pos()), startPos, caret.line(), caret.col() - (source.pos() - startPos))
+        );
     }
 
     private char next() {
