@@ -1047,7 +1047,7 @@ public class Parser {
     }
 
     void errorBadToken(Token badToken, String expected) {
-        error("bad token '" + badToken.type().name() + "', expected '" + expected + "'");
+        error("bad token '" + badToken.type().name() + " (" + badToken.lexeme() + ")', expected " + expected + "'");
     }
 
     String tokenNames(TokenType... tokens) {
