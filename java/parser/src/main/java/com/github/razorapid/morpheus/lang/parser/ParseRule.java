@@ -1,5 +1,6 @@
-package com.github.razorapid.morpheus.lang;
+package com.github.razorapid.morpheus.lang.parser;
 
+import com.github.razorapid.morpheus.lang.TokenType;
 import com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTreeBuilder;
 import com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree;
 import lombok.Data;

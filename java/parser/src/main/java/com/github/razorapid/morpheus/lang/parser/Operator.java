@@ -1,4 +1,4 @@
-package com.github.razorapid.morpheus.lang;
+package com.github.razorapid.morpheus.lang.parser;
 
 enum Operator {
     NULL(-1),

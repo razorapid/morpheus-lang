@@ -1,6 +1,7 @@
 package com.github.razorapid.morpheus.lang
 
 import com.github.razorapid.morpheus.lang.lexer.Lexer
+import com.github.razorapid.morpheus.lang.parser.Parser
 import guru.nidi.graphviz.engine.Format
 import guru.nidi.graphviz.engine.Graphviz
 import guru.nidi.graphviz.engine.GraphvizV8Engine

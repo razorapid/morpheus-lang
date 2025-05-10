@@ -1,5 +1,7 @@
-package com.github.razorapid.morpheus.lang;
+package com.github.razorapid.morpheus.lang.parser;
 
+import com.github.razorapid.morpheus.lang.Token;
+import com.github.razorapid.morpheus.lang.TokenType;
 import com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree;
 import com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTreeBuilder;
 import lombok.Getter;
@@ -7,13 +9,13 @@ import lombok.Getter;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.github.razorapid.morpheus.lang.Operator.INDEX;
-import static com.github.razorapid.morpheus.lang.Operator.NONE;
-import static com.github.razorapid.morpheus.lang.Operator.PROPERTY_COMMAND;
-import static com.github.razorapid.morpheus.lang.ParseRule.ParseFn.literalExpression;
-import static com.github.razorapid.morpheus.lang.ParseRule.ParseFn.unaryNonIdentifier;
-import static com.github.razorapid.morpheus.lang.ParseRule.infixRule;
-import static com.github.razorapid.morpheus.lang.ParseRule.prefixRule;
+import static com.github.razorapid.morpheus.lang.parser.Operator.INDEX;
+import static com.github.razorapid.morpheus.lang.parser.Operator.NONE;
+import static com.github.razorapid.morpheus.lang.parser.Operator.PROPERTY_COMMAND;
+import static com.github.razorapid.morpheus.lang.parser.ParseRule.ParseFn.literalExpression;
+import static com.github.razorapid.morpheus.lang.parser.ParseRule.ParseFn.unaryNonIdentifier;
+import static com.github.razorapid.morpheus.lang.parser.ParseRule.infixRule;
+import static com.github.razorapid.morpheus.lang.parser.ParseRule.prefixRule;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_BREAK;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_CASE;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_CATCH;

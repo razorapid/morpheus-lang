@@ -1,5 +1,7 @@
-package com.github.razorapid.morpheus.lang;
+package com.github.razorapid.morpheus.lang.parser;
 
+import com.github.razorapid.morpheus.lang.Source;
+import com.github.razorapid.morpheus.lang.SourcePos;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 
