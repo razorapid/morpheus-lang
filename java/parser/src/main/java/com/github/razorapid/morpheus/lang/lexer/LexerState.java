@@ -4,6 +4,7 @@ import com.github.razorapid.morpheus.lang.TokenType;
 
 interface LexerState {
     Lexer lexer();
+
     MatchedToken nextToken();
 
     default char peek() {
@@ -46,14 +47,6 @@ interface LexerState {
         return lexer().currentPos();
     }
 
-    default String sourceString(int from, int to) {
-        return lexer().sourceString(from, to);
-    }
-
-    default int tokenStartPos() {
-        return lexer().tokenStartPos();
-    }
-
     default boolean isEOF() {
         return lexer().isEOF();
     }
@@ -64,10 +57,6 @@ interface LexerState {
 
     default void switchTo(LexerStateName newState) {
         lexer().switchTo(newState);
-    }
-
-    default LexerState currentState() {
-        return lexer().currentState();
     }
 
     default Caret caret() {

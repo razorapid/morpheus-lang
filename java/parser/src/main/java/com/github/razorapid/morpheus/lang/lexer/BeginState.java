@@ -86,7 +86,6 @@ class BeginState implements LexerState {
         '^', '|', '~', '(', ')', ',', ':', ';', '[', ']', '{', '}',
         '+', '-', '='
     );
-    // Contains MISC
     private static final Set<Character> IDENTIFIER_TERMINATORS = sets(Set.of(
         ' ', '\t', '\r', '\n', '\f',
         '$', '@', '\\', '!', '%', '&', '*', '/',
@@ -109,7 +108,6 @@ class BeginState implements LexerState {
         '=', '^', '~'
     );
     private static final Keywords KEYWORDS = new Keywords();
-
     static {
         KEYWORDS.add("case", TOKEN_CASE);
         KEYWORDS.add("if", TOKEN_IF);

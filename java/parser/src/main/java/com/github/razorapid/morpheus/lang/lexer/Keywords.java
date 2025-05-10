@@ -6,9 +6,8 @@ import lombok.RequiredArgsConstructor;
 class Keywords {
     @RequiredArgsConstructor
     private static class Node {
+        private final Node[] children = new Node[256];
         private TokenType val;
-        private boolean end;
-        private Node[] children = new Node[256];
 
         boolean contains(char character) {
             return children[character] != null;
@@ -24,11 +23,10 @@ class Keywords {
 
         void end(TokenType val) {
             this.val = val;
-            this.end = true;
         }
     }
 
-    private Node root = new Node();
+    private final Node root = new Node();
     private Node pos = root;
 
     void add(String keyword, TokenType token) {

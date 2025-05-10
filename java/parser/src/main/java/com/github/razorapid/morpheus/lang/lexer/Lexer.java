@@ -7,7 +7,6 @@ import com.github.razorapid.morpheus.lang.TokenType;
 import com.github.razorapid.morpheus.lang.Tokens;
 
 import java.util.Map;
-import java.util.Optional;
 
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_EOF;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_ERROR;
@@ -88,10 +87,6 @@ public class Lexer {
     void currentPos(int pos) {
         caret.right(pos - source.pos());
         source.pos(pos);
-    }
-
-    int tokenStartPos() {
-        return startPos;
     }
 
     boolean isEOF() {
