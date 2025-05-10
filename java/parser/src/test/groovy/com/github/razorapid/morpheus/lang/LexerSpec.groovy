@@ -289,37 +289,38 @@ class LexerSpec extends Specification {
         "09E-5"  | TOKEN_FLOAT
     }
 
-//    def "scans floats instead of indentifier"() {
-//        setup:
-//        def script = new Source("test_script.scr",
-//            """\
-//        println ("test") .1.2.3
-//        """.stripIndent())
-//        def lexer = new Lexer(script)
-//
-//        when:
-//        def result = lexer.scan().get()
-//
-//        then:
-//        result.size() == expectedTokenTypes.size()
-//        result.list().collect { it.type() } == expectedTokenTypes
-//
-//        where:
-//
-//        expectedTokenTypes << [
-//            [
-//                TOKEN_IDENTIFIER,
-//                TOKEN_LEFT_BRACKET,
-//                TOKEN_STRING,
-//                TOKEN_RIGHT_BRACKET,
-//                TOKEN_PERIOD,
-//                TOKEN_IDENTIFIER,
-//                TOKEN_PERIOD,
-//                TOKEN_FLOAT,
-//                TOKEN_EOL
-//            ]
-//        ]
-//    }
+    def "scans floats instead of indentifier"() {
+        setup:
+        def script = new Source("test_script.scr",
+            """\
+        println ("test") .1.2.3
+        """.stripIndent())
+        def lexer = new Lexer(script)
+
+        when:
+        def result = lexer.scan().get()
+
+        then:
+        result.size() == expectedTokenTypes.size()
+        result.list().collect { it.type() } == expectedTokenTypes
+
+        where:
+
+        expectedTokenTypes << [
+            [
+                TOKEN_IDENTIFIER,
+                TOKEN_LEFT_BRACKET,
+                TOKEN_STRING,
+                TOKEN_RIGHT_BRACKET,
+                TOKEN_PERIOD,
+                TOKEN_IDENTIFIER,
+                TOKEN_PERIOD,
+                TOKEN_FLOAT,
+                TOKEN_EOL,
+                TOKEN_EOF
+            ]
+        ]
+    }
 
     def "scans negative float numbers"() {
         setup:
