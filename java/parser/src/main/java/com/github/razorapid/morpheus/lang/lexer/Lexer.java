@@ -11,23 +11,30 @@ import java.util.Optional;
 
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_EOF;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_ERROR;
+import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.BEGIN;
+import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.BLOCK_COMMENT;
+import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.ESCAPED_FIELD;
+import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.ESCAPED_IDENTIFIER;
+import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.FIELD;
+import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.IDENTIFIER;
+import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.SKIP_TILL_EOL;
 import static java.util.Objects.requireNonNull;
 
 public class Lexer {
 
     private final Map<LexerStateName, LexerState> STATES = Map.of(
-        LexerStateName.BEGIN, new BeginState(this),
-        LexerStateName.BLOCK_COMMENT, new BlockCommentState(this),
-        LexerStateName.FIELD, new FieldState(this, false),
-        LexerStateName.ESCAPED_FIELD, new FieldState(this, true),
-        LexerStateName.IDENTIFIER, new IdentifierState(this, false),
-        LexerStateName.ESCAPED_IDENTIFIER, new IdentifierState(this, true),
-        LexerStateName.SKIP_TILL_EOL, new SkipTillEolState(this)
+        BEGIN, new BeginState(this),
+        BLOCK_COMMENT, new BlockCommentState(this),
+        FIELD, new FieldState(this, false),
+        ESCAPED_FIELD, new FieldState(this, true),
+        IDENTIFIER, new IdentifierState(this, false),
+        ESCAPED_IDENTIFIER, new IdentifierState(this, true),
+        SKIP_TILL_EOL, new SkipTillEolState(this)
     );
 
     private final Tape<Character> source;
     private final Caret caret = new Caret();
-    private LexerStateName state = LexerStateName.BEGIN;
+    private LexerStateName state = BEGIN;
     private TokenType prevToken = null;
     private int startPos = 0;
 
