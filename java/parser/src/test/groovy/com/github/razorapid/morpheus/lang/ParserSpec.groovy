@@ -52,7 +52,7 @@ class ParserSpec extends Specification {
         setup:
         def source = new Source("test_script.scr", script)
         def lexer = new Lexer(source)
-        def parser = new Parser(source, lexer.scan().get())
+        def parser = new Parser(source, lexer.scan())
 
         when:
         def cst = parser.parse()
@@ -78,7 +78,7 @@ class ParserSpec extends Specification {
         setup:
         def source = new Source("test_script.scr", script)
         def lexer = new Lexer(source)
-        def parser = new Parser(source, lexer.scan().get())
+        def parser = new Parser(source, lexer.scan())
 
         when:
         def cst = parser.parse()
@@ -110,7 +110,7 @@ class ParserSpec extends Specification {
         setup:
         def source = new Source("test_script.scr", script)
         def lexer = new Lexer(source)
-        def parser = new Parser(source, lexer.scan().get())
+        def parser = new Parser(source, lexer.scan())
 
         when:
         def cst = parser.parse()
@@ -142,7 +142,7 @@ class ParserSpec extends Specification {
         setup:
         def source = new Source("test_script.scr", script)
         def lexer = new Lexer(source)
-        def parser = new Parser(source, lexer.scan().get())
+        def parser = new Parser(source, lexer.scan())
 
         when:
         def cst = parser.parse()
@@ -169,7 +169,7 @@ class ParserSpec extends Specification {
         setup:
         def source = new Source("test_script.scr", script)
         def lexer = new Lexer(source)
-        def parser = new Parser(source, lexer.scan().get())
+        def parser = new Parser(source, lexer.scan())
 
         when:
         def cst = parser.parse()
@@ -202,7 +202,7 @@ class ParserSpec extends Specification {
         setup:
         def source = new Source("test_script.scr", script)
         def lexer = new Lexer(source)
-        def parser = new Parser(source, lexer.scan().get())
+        def parser = new Parser(source, lexer.scan())
 
         when:
         def cst = parser.parse()
@@ -236,7 +236,7 @@ class ParserSpec extends Specification {
         setup:
         def source = new Source("test_script.scr", script)
         def lexer = new Lexer(source)
-        def parser = new Parser(source, lexer.scan().get())
+        def parser = new Parser(source, lexer.scan())
 
         when:
         def cst = parser.parse()
@@ -261,7 +261,7 @@ class ParserSpec extends Specification {
         setup:
         def source = new Source("test_script.scr", script)
         def lexer = new Lexer(source)
-        def parser = new Parser(source, lexer.scan().get())
+        def parser = new Parser(source, lexer.scan())
 
         when:
         def cst = parser.parse()
@@ -285,7 +285,7 @@ class ParserSpec extends Specification {
         setup:
         def source = new Source("test_script.scr", script)
         def lexer = new Lexer(source)
-        def parser = new Parser(source, lexer.scan().get())
+        def parser = new Parser(source, lexer.scan())
 
         when:
         def cst = parser.parse()
@@ -330,7 +330,7 @@ class ParserSpec extends Specification {
         setup:
         def source = new Source("test_script.scr", script)
         def lexer = new Lexer(source)
-        def parser = new Parser(source, lexer.scan().get())
+        def parser = new Parser(source, lexer.scan())
 
         when:
         def cst = parser.parse()
@@ -411,7 +411,7 @@ class ParserSpec extends Specification {
         setup:
         def source = new Source(script, loadScr(script, "scripts"))
         def lexer = new Lexer(source)
-        def parser = new Parser(source, lexer.scan().get())
+        def parser = new Parser(source, lexer.scan())
 
         when:
         def cst = parser.parse()

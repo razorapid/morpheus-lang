@@ -35,30 +35,32 @@ public class Lexer {
     private final Tape<Character> source;
     private final Caret caret = new Caret();
     private LexerStateName state = BEGIN;
-    private TokenType prevToken = null;
+    private Token prevToken = null;
     private int startPos = 0;
 
     public Lexer(Source script) {
         this.source = createSource(requireNonNull(script, "script must not be null"));
     }
 
-    public Optional<Tokens> scan() {
+    public Tokens scan() {
         Tokens tokens = new Tokens();
-        Optional<Token> t;
-        while((t = scanToken()).isPresent()) {
-            tokens.add(t.get());
-        }
-        return Optional.of(tokens);
+        Token t;
+        do {
+            t = scanToken();
+            tokens.add(t);
+        } while (!t.isType(TOKEN_EOF));
+
+        return tokens;
     }
 
-    public Optional<Token> scanToken() {
-        if (prevToken() == TOKEN_EOF) return Optional.empty();
+    public Token scanToken() {
+        if (prevTokenType() == TOKEN_EOF) return prevToken();
         MatchedToken token;
         do {
             token = nextToken();
         } while (token.isNotMatched());
 
-        return token.isMatched() ? Optional.of(token.val()) : Optional.empty();
+        return token.val();
     }
 
     private static Tape<Character> createSource(Source script) {
@@ -113,7 +115,11 @@ public class Lexer {
         return caret;
     }
 
-    TokenType prevToken() {
+    TokenType prevTokenType() {
+        return prevToken != null ? prevToken.type() : null;
+    }
+
+    Token prevToken() {
         return prevToken;
     }
 
@@ -143,23 +149,20 @@ public class Lexer {
     }
 
     MatchedToken matched(TokenType type) {
-        prevToken = type;
-        return MatchedToken.matched(
-            Token.of(type, sourceString(startPos, source.pos()), startPos, caret.line(), caret.col() - (source.pos() - startPos))
-        );
+        Token t = Token.of(type, sourceString(startPos, source.pos()), startPos, caret.line(), caret.col() - (source.pos() - startPos));
+        prevToken = t;
+        return MatchedToken.matched(t);
     }
 
     MatchedToken matchedEscaped(TokenType type) {
-        prevToken = type;
-        return MatchedToken.matched(
-            Token.of(type, sourceString(startPos, source.pos()), startPos, caret.line(), caret.col() - (source.pos() - startPos))
-        );
+        Token t = Token.of(type, sourceString(startPos, source.pos()), startPos, caret.line(), caret.col() - (source.pos() - startPos));
+        prevToken = t;
+        return MatchedToken.matched(t);
     }
 
     MatchedToken error(String message) {
-        prevToken = TOKEN_ERROR;
-        return MatchedToken.matched(
-            Token.of(TOKEN_ERROR, message, startPos, caret.line(), caret.col() - (source.pos() - startPos))
-        );
+        Token t = Token.of(TOKEN_ERROR, message, startPos, caret.line(), caret.col() - (source.pos() - startPos));
+        prevToken = t;
+        return MatchedToken.matched(t);
     }
 }

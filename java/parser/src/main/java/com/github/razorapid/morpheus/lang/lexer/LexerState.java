@@ -75,6 +75,6 @@ interface LexerState {
     }
 
     default TokenType prevToken() {
-        return lexer().prevToken();
+        return lexer().prevTokenType();
     }
 }

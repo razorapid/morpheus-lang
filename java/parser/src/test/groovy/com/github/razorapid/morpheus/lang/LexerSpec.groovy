@@ -22,7 +22,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.size() == 2
@@ -36,7 +36,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.list().collect { it.type() } == expectedTokenType
@@ -56,7 +56,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.size() == 2
@@ -79,7 +79,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.size() == 2
@@ -106,7 +106,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.size() == 3
@@ -126,7 +126,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.size() == 3
@@ -146,7 +146,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.size() == 3
@@ -171,7 +171,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.size() == 3
@@ -205,7 +205,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.size() == 3
@@ -241,7 +241,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.size() == 4
@@ -263,7 +263,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.size() == 3
@@ -298,7 +298,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.size() == expectedTokenTypes.size()
@@ -328,7 +328,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.size() == 4
@@ -353,7 +353,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.size() == 4
@@ -378,7 +378,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.get(0).type() == expectedTokenType[0]
@@ -400,7 +400,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.size() == 3
@@ -426,7 +426,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.size() == 4
@@ -453,7 +453,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.size() == 4
@@ -480,7 +480,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.size() == 3
@@ -506,7 +506,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.size() == 3
@@ -530,7 +530,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.size() == 3
@@ -578,7 +578,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.list().collect { it.type() } == expectedTokenType
@@ -647,7 +647,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.list().collect { it.type() } == expectedTokenType
@@ -668,7 +668,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.list().collect { it.type() } == expectedTokenType
@@ -688,7 +688,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.size() == 3
@@ -713,7 +713,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.size() == 3
@@ -891,7 +891,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.size() == 4
@@ -914,7 +914,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.list().collect { it.type() } == expectedTokenTypes
@@ -964,7 +964,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.list().collect { it.type() } == expectedTokenType
@@ -981,7 +981,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.list().collect { it.type() } == expectedTokenType
@@ -999,7 +999,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.size() == 4
@@ -1027,7 +1027,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
 
         then:
         result.size() == expectedTokenTypes.size()
@@ -1067,7 +1067,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
         def resultTokenTypes = result.list().collect { it.type() }
 
         then:
@@ -1093,7 +1093,7 @@ class LexerSpec extends Specification {
         def lexer = new Lexer(script)
 
         when:
-        def result = lexer.scan().get()
+        def result = lexer.scan()
         def resultTokenTypes = result.list()
 
         then:
