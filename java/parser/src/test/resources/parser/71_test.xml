@@ -1,0 +1,68 @@
+<Statement name="statementList">
+    <Statement name="statementLine">
+        <Statement name="statement">
+            <Statement name="selectionStatement">
+                <Statement name="ifElseStatement">
+                    <Token type="TOKEN_IF" value="if"/>
+                    <Expression name="primaryExpression">
+                        <Expression name="nonIdentifierPrimaryExpression">
+                            <Expression name="groupingExpression">
+                                <Token type="TOKEN_LEFT_BRACKET" value="("/>
+                                <Expression name="expression">
+                                    <Expression name="functionPrimaryExpression">
+                                        <Expression name="unaryFunctionPrimaryExpression">
+                                            <Expression name="logicalNegationFunctionExpression">
+                                                <Expression name="functionPrimaryExpression">
+                                                    <Expression name="listenerFunctionCallExpression">
+                                                        <Expression name="nonIdentifierPrimaryExpression">
+                                                            <Expression name="memberSelectionExpression">
+                                                                <Expression name="literalExpression">
+                                                                    <Expression name="listenerLiteral">
+                                                                        <Token type="TOKEN_LISTENER" value="local"/>
+                                                                    </Expression>
+                                                                </Expression>
+                                                                <Token type="TOKEN_PERIOD" value="."/>
+                                                                <Token type="TOKEN_IDENTIFIER" value="object"/>
+                                                            </Expression>
+                                                        </Expression>
+                                                        <Token type="TOKEN_IDENTIFIER" value="isTouching"/>
+                                                        <Expression name="eventParameterList">
+                                                            <Expression name="primaryExpression">
+                                                                <Expression name="nonIdentifierPrimaryExpression">
+                                                                    <Expression name="targetnameExpression">
+                                                                        <Token type="TOKEN_DOLLAR" value="$"/>
+                                                                        <Expression name="primaryExpression">
+                                                                            <Expression
+                                                                                    name="identifierPrimaryExpression">
+                                                                                <Expression name="identifierLiteral">
+                                                                                    <Token type="TOKEN_IDENTIFIER"
+                                                                                           value="player"/>
+                                                                                </Expression>
+                                                                            </Expression>
+                                                                        </Expression>
+                                                                    </Expression>
+                                                                </Expression>
+                                                            </Expression>
+                                                        </Expression>
+                                                    </Expression>
+                                                </Expression>
+                                            </Expression>
+                                        </Expression>
+                                    </Expression>
+                                </Expression>
+                                <Token type="TOKEN_RIGHT_BRACKET" value=")"/>
+                            </Expression>
+                        </Expression>
+                    </Expression>
+                    <Statement name="statement">
+                        <Statement name="compoundStatement">
+                            <Token type="TOKEN_LEFT_BRACES" value="{"/>
+                            <Token type="TOKEN_RIGHT_BRACES" value="}"/>
+                        </Statement>
+                    </Statement>
+                </Statement>
+            </Statement>
+        </Statement>
+        <Token type="TOKEN_EOL" value="\n"/>
+    </Statement>
+</Statement>
