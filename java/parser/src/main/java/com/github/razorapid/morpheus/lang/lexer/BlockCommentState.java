@@ -1,19 +1,9 @@
 package com.github.razorapid.morpheus.lang.lexer;
 
-import lombok.RequiredArgsConstructor;
-
 import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.BEGIN;
 import static com.github.razorapid.morpheus.lang.lexer.MatchedToken.notMatched;
 
-@RequiredArgsConstructor
-class BlockCommentState implements LexerState {
-
-    private final Lexer lexer;
-
-    @Override
-    public Lexer lexer() {
-        return lexer;
-    }
+record BlockCommentState(Lexer lexer) implements LexerState {
 
     @Override
     public MatchedToken nextToken() {

@@ -1,7 +1,5 @@
 package com.github.razorapid.morpheus.lang.lexer;
 
-import lombok.RequiredArgsConstructor;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -72,8 +70,7 @@ import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.IDENTIFIER
 import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.SKIP_TILL_EOL;
 import static com.github.razorapid.morpheus.lang.lexer.MatchedToken.notMatched;
 
-@RequiredArgsConstructor
-class BeginState implements LexerState {
+record BeginState(Lexer lexer) implements LexerState {
     private static final Set<Character> OTHER = nonPrintableASCIICharacters();
     private static final Set<Character> NEW_LINE = Set.of(
         '\n'
@@ -108,6 +105,7 @@ class BeginState implements LexerState {
         '=', '^', '~'
     );
     private static final Keywords KEYWORDS = new Keywords();
+
     static {
         KEYWORDS.add("case", TOKEN_CASE);
         KEYWORDS.add("if", TOKEN_IF);
@@ -151,13 +149,6 @@ class BeginState implements LexerState {
         KEYWORDS.add("appendfloat", TOKEN_PLUS_EQUALS);
     }
 
-    private final Lexer lexer;
-
-    @Override
-    public Lexer lexer() {
-        return lexer;
-    }
-
     @Override
     public MatchedToken nextToken() {
         char c = next();
@@ -165,7 +156,8 @@ class BeginState implements LexerState {
         MatchedToken token = notMatched();
         switch (c) {
             // skip carriage return
-            case '\r': break;
+            case '\r':
+                break;
 
             // count multiple new lines as one
             case '\n': {
@@ -177,26 +169,80 @@ class BeginState implements LexerState {
             }
 
             // single character cases
-            case ';': { token = matched(TOKEN_SEMICOLON); break; }
-            case '$': { token = matched(TOKEN_DOLLAR); break; }
-            case '~': { token = matched(TOKEN_COMPLEMENT); break; }
-            case '%': { token = matched(TOKEN_PERCENTAGE); break; }
-            case '^': { token = matched(TOKEN_BITWISE_EXCL_OR); break; }
-            case '(': { token = matched(TOKEN_LEFT_BRACKET); break; }
-            case ')': { token = matched(TOKEN_RIGHT_BRACKET); break; }
-            case '[': { token = matched(TOKEN_LEFT_SQUARE_BRACKET); break; }
-            case ']': { token = matched(TOKEN_RIGHT_SQUARE_BRACKET); break; }
-            case '{': { token = matched(TOKEN_LEFT_BRACES); break; }
-            case '}': { token = matched(TOKEN_RIGHT_BRACES); break; }
+            case ';': {
+                token = matched(TOKEN_SEMICOLON);
+                break;
+            }
+            case '$': {
+                token = matched(TOKEN_DOLLAR);
+                break;
+            }
+            case '~': {
+                token = matched(TOKEN_COMPLEMENT);
+                break;
+            }
+            case '%': {
+                token = matched(TOKEN_PERCENTAGE);
+                break;
+            }
+            case '^': {
+                token = matched(TOKEN_BITWISE_EXCL_OR);
+                break;
+            }
+            case '(': {
+                token = matched(TOKEN_LEFT_BRACKET);
+                break;
+            }
+            case ')': {
+                token = matched(TOKEN_RIGHT_BRACKET);
+                break;
+            }
+            case '[': {
+                token = matched(TOKEN_LEFT_SQUARE_BRACKET);
+                break;
+            }
+            case ']': {
+                token = matched(TOKEN_RIGHT_SQUARE_BRACKET);
+                break;
+            }
+            case '{': {
+                token = matched(TOKEN_LEFT_BRACES);
+                break;
+            }
+            case '}': {
+                token = matched(TOKEN_RIGHT_BRACES);
+                break;
+            }
 
             // multi character cases
-            case ':': { token = matched(match(':') ? TOKEN_DOUBLE_COLON : TOKEN_COLON); break; }
-            case '|': { token = matched(match('|') ? TOKEN_LOGICAL_OR : TOKEN_BITWISE_OR); break; }
-            case '&': { token = matched(match('&') ? TOKEN_LOGICAL_AND : TOKEN_BITWISE_AND); break; }
-            case '=': { token = matched(match('=') ? TOKEN_EQUALITY : TOKEN_ASSIGNMENT); break; }
-            case '!': { token = matched(match('=') ? TOKEN_INEQUALITY : TOKEN_NOT); break; }
-            case '<': { token = matched(match('=') ? TOKEN_LESS_THAN_OR_EQUAL : TOKEN_LESS_THAN); break; }
-            case '>': { token = matched(match('=') ? TOKEN_GREATER_THAN_OR_EQUAL : TOKEN_GREATER_THAN); break; }
+            case ':': {
+                token = matched(match(':') ? TOKEN_DOUBLE_COLON : TOKEN_COLON);
+                break;
+            }
+            case '|': {
+                token = matched(match('|') ? TOKEN_LOGICAL_OR : TOKEN_BITWISE_OR);
+                break;
+            }
+            case '&': {
+                token = matched(match('&') ? TOKEN_LOGICAL_AND : TOKEN_BITWISE_AND);
+                break;
+            }
+            case '=': {
+                token = matched(match('=') ? TOKEN_EQUALITY : TOKEN_ASSIGNMENT);
+                break;
+            }
+            case '!': {
+                token = matched(match('=') ? TOKEN_INEQUALITY : TOKEN_NOT);
+                break;
+            }
+            case '<': {
+                token = matched(match('=') ? TOKEN_LESS_THAN_OR_EQUAL : TOKEN_LESS_THAN);
+                break;
+            }
+            case '>': {
+                token = matched(match('=') ? TOKEN_GREATER_THAN_OR_EQUAL : TOKEN_GREATER_THAN);
+                break;
+            }
             case '+': {
                 if (match('=')) {
                     token = matched(TOKEN_PLUS_EQUALS);
@@ -235,7 +281,8 @@ class BeginState implements LexerState {
                     switchTo(SKIP_TILL_EOL);
                     break;
                 }
-                token = matched(TOKEN_MULTIPLY); break;
+                token = matched(TOKEN_MULTIPLY);
+                break;
             }
             case '.': {
                 token = tryMatchFloat();
@@ -336,7 +383,7 @@ class BeginState implements LexerState {
         }
 
         int pos = currentPos();
-        while(!isEOF(pos) && !IDENTIFIER_TERMINATORS.contains(peek(pos))) {
+        while (!isEOF(pos) && !IDENTIFIER_TERMINATORS.contains(peek(pos))) {
             if (!KEYWORDS.next(peek(pos))) {
                 return notMatched();
             }
@@ -471,7 +518,7 @@ class BeginState implements LexerState {
     }
 
     @SafeVarargs
-    private static <T> Set<T> sets(Set<T> set, Set<T> ...others) {
+    private static <T> Set<T> sets(Set<T> set, Set<T>... others) {
         Set<T> result = new HashSet<>(set);
         for (Set<T> s : others) {
             result.addAll(s);

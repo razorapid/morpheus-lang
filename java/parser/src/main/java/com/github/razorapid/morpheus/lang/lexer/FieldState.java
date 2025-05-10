@@ -1,15 +1,12 @@
 package com.github.razorapid.morpheus.lang.lexer;
 
-import lombok.RequiredArgsConstructor;
-
 import java.util.Set;
 
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_IDENTIFIER;
 import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.BEGIN;
 import static com.github.razorapid.morpheus.lang.lexer.MatchedToken.notMatched;
 
-@RequiredArgsConstructor
-class FieldState implements LexerState {
+record FieldState(Lexer lexer, boolean escape) implements LexerState {
     private static final Set<Character> NEW_LINE = Set.of(
         '\n'
     );
@@ -23,14 +20,6 @@ class FieldState implements LexerState {
         '^', '|', '~', '(', ')', ',', ':', ';', '[', ']', '{', '}',
         '+', '-', '=', '.'
     );
-
-    private final Lexer lexer;
-    private final boolean escape;
-
-    @Override
-    public Lexer lexer() {
-        return lexer;
-    }
 
     @Override
     public MatchedToken nextToken() {
