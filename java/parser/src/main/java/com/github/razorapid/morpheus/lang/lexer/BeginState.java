@@ -136,6 +136,21 @@ class BeginState implements LexerState {
         KEYWORDS.add("parm", TOKEN_LISTENER);
         KEYWORDS.add("self", TOKEN_LISTENER);
         KEYWORDS.add("group", TOKEN_LISTENER);
+
+        KEYWORDS.add("ifequal", TOKEN_EQUALITY);
+        KEYWORDS.add("ifstrequal", TOKEN_EQUALITY);
+        KEYWORDS.add("ifnotequal", TOKEN_INEQUALITY);
+        KEYWORDS.add("ifstrnotequal", TOKEN_INEQUALITY);
+
+        KEYWORDS.add("ifless", TOKEN_LESS_THAN);
+        KEYWORDS.add("iflessequal", TOKEN_LESS_THAN_OR_EQUAL);
+
+        KEYWORDS.add("ifgreater", TOKEN_GREATER_THAN);
+        KEYWORDS.add("ifgreaterequal", TOKEN_GREATER_THAN_OR_EQUAL);
+
+        KEYWORDS.add("append", TOKEN_PLUS_EQUALS);
+        KEYWORDS.add("appendint", TOKEN_PLUS_EQUALS);
+        KEYWORDS.add("appendfloat", TOKEN_PLUS_EQUALS);
     }
 
     private final Lexer lexer;

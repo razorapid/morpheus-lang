@@ -539,26 +539,36 @@ class LexerSpec extends Specification {
 
         where:
 
-        input       | expectedTokenType
-        "case"      | TOKEN_CASE
-        "if"        | TOKEN_IF
-        "else"      | TOKEN_ELSE
-        "while"     | TOKEN_WHILE
-        "for"       | TOKEN_FOR
-        "try"       | TOKEN_TRY
-        "catch"     | TOKEN_CATCH
-        "switch"    | TOKEN_SWITCH
-        "break"     | TOKEN_BREAK
-        "continue"  | TOKEN_CONTINUE
-        "NULL"      | TOKEN_NULL
-        "NIL"       | TOKEN_NIL
-        "size"      | TOKEN_SIZE
-        "end"       | TOKEN_END
-        "makeArray" | TOKEN_MAKEARRAY
-        "makearray" | TOKEN_MAKEARRAY
-        "endArray"  | TOKEN_ENDARRAY
-        "endarray"  | TOKEN_ENDARRAY
-
+        input            | expectedTokenType
+        "case"           | TOKEN_CASE
+        "if"             | TOKEN_IF
+        "else"           | TOKEN_ELSE
+        "while"          | TOKEN_WHILE
+        "for"            | TOKEN_FOR
+        "try"            | TOKEN_TRY
+        "catch"          | TOKEN_CATCH
+        "switch"         | TOKEN_SWITCH
+        "break"          | TOKEN_BREAK
+        "continue"       | TOKEN_CONTINUE
+        "NULL"           | TOKEN_NULL
+        "NIL"            | TOKEN_NIL
+        "size"           | TOKEN_SIZE
+        "end"            | TOKEN_END
+        "makeArray"      | TOKEN_MAKEARRAY
+        "makearray"      | TOKEN_MAKEARRAY
+        "endArray"       | TOKEN_ENDARRAY
+        "endarray"       | TOKEN_ENDARRAY
+        "ifequal"        | TOKEN_EQUALITY
+        "ifstrequal"     | TOKEN_EQUALITY
+        "ifnotequal"     | TOKEN_INEQUALITY
+        "ifstrnotequal"  | TOKEN_INEQUALITY
+        "ifless"         | TOKEN_LESS_THAN
+        "iflessequal"    | TOKEN_LESS_THAN_OR_EQUAL
+        "ifgreater"      | TOKEN_GREATER_THAN
+        "ifgreaterequal" | TOKEN_GREATER_THAN_OR_EQUAL
+        "append"         | TOKEN_PLUS_EQUALS
+        "appendint"      | TOKEN_PLUS_EQUALS
+        "appendfloat"    | TOKEN_PLUS_EQUALS
     }
 
     def "scans keyword followed by other characters"() {
@@ -574,50 +584,60 @@ class LexerSpec extends Specification {
 
         where:
 
-        input         || expectedTokenType
-        "continue"    || [TOKEN_CONTINUE, TOKEN_EOL, TOKEN_EOF]
-        "continuea"   || [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
-        "continue1"   || [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
-        "continue;"   || [TOKEN_CONTINUE, TOKEN_SEMICOLON, TOKEN_EOL, TOKEN_EOF]
-        "continue\$"  || [TOKEN_CONTINUE, TOKEN_DOLLAR, TOKEN_EOL, TOKEN_EOF]
-        "continue~"   || [TOKEN_CONTINUE, TOKEN_COMPLEMENT, TOKEN_EOL, TOKEN_EOF]
-        "continue!"   || [TOKEN_CONTINUE, TOKEN_NOT, TOKEN_EOL, TOKEN_EOF]
-        "continue%"   || [TOKEN_CONTINUE, TOKEN_PERCENTAGE, TOKEN_EOL, TOKEN_EOF]
-        "continue*"   || [TOKEN_CONTINUE, TOKEN_MULTIPLY, TOKEN_EOL, TOKEN_EOF]
-        "continue/"   || [TOKEN_CONTINUE, TOKEN_DIVIDE, TOKEN_EOL, TOKEN_EOF]
-        "continue^"   || [TOKEN_CONTINUE, TOKEN_BITWISE_EXCL_OR, TOKEN_EOL, TOKEN_EOF]
-        "continue."   || [TOKEN_CONTINUE, TOKEN_PERIOD, TOKEN_EOL, TOKEN_EOF]
-        "continue:"   || [TOKEN_CONTINUE, TOKEN_COLON, TOKEN_EOL, TOKEN_EOF]
-        "continue="   || [TOKEN_CONTINUE, TOKEN_ASSIGNMENT, TOKEN_EOL, TOKEN_EOF]
-        "continue-"   || [TOKEN_CONTINUE, TOKEN_MINUS, TOKEN_EOL, TOKEN_EOF]
-        "continue+"   || [TOKEN_CONTINUE, TOKEN_PLUS, TOKEN_EOL, TOKEN_EOF]
-        "continue&"   || [TOKEN_CONTINUE, TOKEN_BITWISE_AND, TOKEN_EOL, TOKEN_EOF]
-        "continue|"   || [TOKEN_CONTINUE, TOKEN_BITWISE_OR, TOKEN_EOL, TOKEN_EOF]
-        "continue["   || [TOKEN_CONTINUE, TOKEN_LEFT_SQUARE_BRACKET, TOKEN_EOL, TOKEN_EOF]
-        "continue]"   || [TOKEN_CONTINUE, TOKEN_RIGHT_SQUARE_BRACKET, TOKEN_EOL, TOKEN_EOF]
-        "continue("   || [TOKEN_CONTINUE, TOKEN_LEFT_BRACKET, TOKEN_EOL, TOKEN_EOF]
-        "continue)"   || [TOKEN_CONTINUE, TOKEN_RIGHT_BRACKET, TOKEN_EOL, TOKEN_EOF]
-        "continue{"   || [TOKEN_CONTINUE, TOKEN_LEFT_BRACES, TOKEN_EOL, TOKEN_EOF]
-        "continue}"   || [TOKEN_CONTINUE, TOKEN_RIGHT_BRACES, TOKEN_EOL, TOKEN_EOF]
-        "continue\\"  || [TOKEN_CONTINUE, TOKEN_EOF]
-        "continue,"   || [TOKEN_CONTINUE, TOKEN_EOF]
-        "continue@"   || [TOKEN_CONTINUE, TOKEN_EOF]
-        "continue#"   || [TOKEN_CONTINUE, TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
-        "continue?"   || [TOKEN_CONTINUE, TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
-        "continue::"  || [TOKEN_CONTINUE, TOKEN_DOUBLE_COLON, TOKEN_EOL, TOKEN_EOF]
-        "continue!="  || [TOKEN_CONTINUE, TOKEN_INEQUALITY, TOKEN_EOL, TOKEN_EOF]
-        "continue=="  || [TOKEN_CONTINUE, TOKEN_EQUALITY, TOKEN_EOL, TOKEN_EOF]
-        "continue<="  || [TOKEN_CONTINUE, TOKEN_LESS_THAN_OR_EQUAL, TOKEN_EOL, TOKEN_EOF]
-        "continue>="  || [TOKEN_CONTINUE, TOKEN_GREATER_THAN_OR_EQUAL, TOKEN_EOL, TOKEN_EOF]
-        "continue-="  || [TOKEN_CONTINUE, TOKEN_MINUS_EQUALS, TOKEN_EOL, TOKEN_EOF]
-        "continue+="  || [TOKEN_CONTINUE, TOKEN_PLUS_EQUALS, TOKEN_EOL, TOKEN_EOF]
-        "continue--"  || [TOKEN_CONTINUE, TOKEN_DEC, TOKEN_EOL, TOKEN_EOF]
-        "continue++"  || [TOKEN_CONTINUE, TOKEN_INC, TOKEN_EOL, TOKEN_EOF]
-        "continue&&"  || [TOKEN_CONTINUE, TOKEN_LOGICAL_AND, TOKEN_EOL, TOKEN_EOF]
-        "continue||"  || [TOKEN_CONTINUE, TOKEN_LOGICAL_OR, TOKEN_EOL, TOKEN_EOF]
-        "continue\$a" || [TOKEN_CONTINUE, TOKEN_DOLLAR, TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
-        "continue.a"  || [TOKEN_CONTINUE, TOKEN_PERIOD, TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
-
+        input             || expectedTokenType
+        "continue"        || [TOKEN_CONTINUE, TOKEN_EOL, TOKEN_EOF]
+        "continuea"       || [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "continue1"       || [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "continue;"       || [TOKEN_CONTINUE, TOKEN_SEMICOLON, TOKEN_EOL, TOKEN_EOF]
+        "continue\$"      || [TOKEN_CONTINUE, TOKEN_DOLLAR, TOKEN_EOL, TOKEN_EOF]
+        "continue~"       || [TOKEN_CONTINUE, TOKEN_COMPLEMENT, TOKEN_EOL, TOKEN_EOF]
+        "continue!"       || [TOKEN_CONTINUE, TOKEN_NOT, TOKEN_EOL, TOKEN_EOF]
+        "continue%"       || [TOKEN_CONTINUE, TOKEN_PERCENTAGE, TOKEN_EOL, TOKEN_EOF]
+        "continue*"       || [TOKEN_CONTINUE, TOKEN_MULTIPLY, TOKEN_EOL, TOKEN_EOF]
+        "continue/"       || [TOKEN_CONTINUE, TOKEN_DIVIDE, TOKEN_EOL, TOKEN_EOF]
+        "continue^"       || [TOKEN_CONTINUE, TOKEN_BITWISE_EXCL_OR, TOKEN_EOL, TOKEN_EOF]
+        "continue."       || [TOKEN_CONTINUE, TOKEN_PERIOD, TOKEN_EOL, TOKEN_EOF]
+        "continue:"       || [TOKEN_CONTINUE, TOKEN_COLON, TOKEN_EOL, TOKEN_EOF]
+        "continue="       || [TOKEN_CONTINUE, TOKEN_ASSIGNMENT, TOKEN_EOL, TOKEN_EOF]
+        "continue-"       || [TOKEN_CONTINUE, TOKEN_MINUS, TOKEN_EOL, TOKEN_EOF]
+        "continue+"       || [TOKEN_CONTINUE, TOKEN_PLUS, TOKEN_EOL, TOKEN_EOF]
+        "continue&"       || [TOKEN_CONTINUE, TOKEN_BITWISE_AND, TOKEN_EOL, TOKEN_EOF]
+        "continue|"       || [TOKEN_CONTINUE, TOKEN_BITWISE_OR, TOKEN_EOL, TOKEN_EOF]
+        "continue["       || [TOKEN_CONTINUE, TOKEN_LEFT_SQUARE_BRACKET, TOKEN_EOL, TOKEN_EOF]
+        "continue]"       || [TOKEN_CONTINUE, TOKEN_RIGHT_SQUARE_BRACKET, TOKEN_EOL, TOKEN_EOF]
+        "continue("       || [TOKEN_CONTINUE, TOKEN_LEFT_BRACKET, TOKEN_EOL, TOKEN_EOF]
+        "continue)"       || [TOKEN_CONTINUE, TOKEN_RIGHT_BRACKET, TOKEN_EOL, TOKEN_EOF]
+        "continue{"       || [TOKEN_CONTINUE, TOKEN_LEFT_BRACES, TOKEN_EOL, TOKEN_EOF]
+        "continue}"       || [TOKEN_CONTINUE, TOKEN_RIGHT_BRACES, TOKEN_EOL, TOKEN_EOF]
+        "continue\\"      || [TOKEN_CONTINUE, TOKEN_EOF]
+        "continue,"       || [TOKEN_CONTINUE, TOKEN_EOF]
+        "continue@"       || [TOKEN_CONTINUE, TOKEN_EOF]
+        "continue#"       || [TOKEN_CONTINUE, TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "continue?"       || [TOKEN_CONTINUE, TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "continue::"      || [TOKEN_CONTINUE, TOKEN_DOUBLE_COLON, TOKEN_EOL, TOKEN_EOF]
+        "continue!="      || [TOKEN_CONTINUE, TOKEN_INEQUALITY, TOKEN_EOL, TOKEN_EOF]
+        "continue=="      || [TOKEN_CONTINUE, TOKEN_EQUALITY, TOKEN_EOL, TOKEN_EOF]
+        "continue<="      || [TOKEN_CONTINUE, TOKEN_LESS_THAN_OR_EQUAL, TOKEN_EOL, TOKEN_EOF]
+        "continue>="      || [TOKEN_CONTINUE, TOKEN_GREATER_THAN_OR_EQUAL, TOKEN_EOL, TOKEN_EOF]
+        "continue-="      || [TOKEN_CONTINUE, TOKEN_MINUS_EQUALS, TOKEN_EOL, TOKEN_EOF]
+        "continue+="      || [TOKEN_CONTINUE, TOKEN_PLUS_EQUALS, TOKEN_EOL, TOKEN_EOF]
+        "continue--"      || [TOKEN_CONTINUE, TOKEN_DEC, TOKEN_EOL, TOKEN_EOF]
+        "continue++"      || [TOKEN_CONTINUE, TOKEN_INC, TOKEN_EOL, TOKEN_EOF]
+        "continue&&"      || [TOKEN_CONTINUE, TOKEN_LOGICAL_AND, TOKEN_EOL, TOKEN_EOF]
+        "continue||"      || [TOKEN_CONTINUE, TOKEN_LOGICAL_OR, TOKEN_EOL, TOKEN_EOF]
+        "continue\$a"     || [TOKEN_CONTINUE, TOKEN_DOLLAR, TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "continue.a"      || [TOKEN_CONTINUE, TOKEN_PERIOD, TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "ifequalx"        || [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "ifstrequalx"     || [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "ifnotequalx"     || [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "ifstrnotequalx"  || [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "iflessx"         || [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "iflessequalx"    || [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "ifgreaterx"      || [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "ifgreaterequalx" || [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "appendx"         || [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "appendintx"      || [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "appendfloatx"    || [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
     }
 
     def "doesn't scan identifiers as keywords"() {
