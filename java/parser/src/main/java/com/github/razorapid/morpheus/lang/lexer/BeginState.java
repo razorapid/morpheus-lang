@@ -1,28 +1,36 @@
 package com.github.razorapid.morpheus.lang.lexer;
 
-import com.github.razorapid.morpheus.lang.TokenType;
 import lombok.RequiredArgsConstructor;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_ASSIGNMENT;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_BITWISE_AND;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_BITWISE_EXCL_OR;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_BITWISE_OR;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_BREAK;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_CASE;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_CATCH;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_COLON;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_COMPLEMENT;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_CONTINUE;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_DEC;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_DIVIDE;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_DOLLAR;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_DOUBLE_COLON;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_ELSE;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_END;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_ENDARRAY;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_EOL;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_EQUALITY;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_FLOAT;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_FOR;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_GREATER_THAN;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_GREATER_THAN_OR_EQUAL;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_IDENTIFIER;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_IF;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_INC;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_INEQUALITY;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_INTEGER;
@@ -34,11 +42,14 @@ import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_LESS_THAN_OR_EQ
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_LISTENER;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_LOGICAL_AND;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_LOGICAL_OR;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_MAKEARRAY;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_MINUS;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_MINUS_EQUALS;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_MULTIPLY;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_NEG;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_NIL;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_NOT;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_NULL;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_PERCENTAGE;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_PERIOD;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_PLUS;
@@ -48,16 +59,22 @@ import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_RIGHT_BRACES;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_RIGHT_BRACKET;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_RIGHT_SQUARE_BRACKET;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_SEMICOLON;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_SIZE;
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_STRING;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_SWITCH;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_TRY;
+import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_WHILE;
 import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.BLOCK_COMMENT;
 import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.ESCAPED_FIELD;
 import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.ESCAPED_IDENTIFIER;
 import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.FIELD;
 import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.IDENTIFIER;
 import static com.github.razorapid.morpheus.lang.lexer.LexerStateName.SKIP_TILL_EOL;
+import static com.github.razorapid.morpheus.lang.lexer.MatchedToken.notMatched;
 
 @RequiredArgsConstructor
 class BeginState implements LexerState {
+    private static final Set<Character> OTHER = nonPrintableASCIICharacters();
     private static final Set<Character> NEW_LINE = Set.of(
         '\n'
     );
@@ -69,67 +86,57 @@ class BeginState implements LexerState {
         '^', '|', '~', '(', ')', ',', ':', ';', '[', ']', '{', '}',
         '+', '-', '='
     );
-    private static final Set<Character> KEYWORD_TERMINATORS = Set.of(
+    // Contains MISC
+    private static final Set<Character> IDENTIFIER_TERMINATORS = sets(Set.of(
         ' ', '\t', '\r', '\n', '\f',
-        '(', ')', '[', ']', '{', '}', ':', ';',
-        '=', '/', '-', '+', '*', '%', '!', '^', '|', '&', '<', '>', '~',
-        ',', '.', '\\',
+        '$', '@', '\\', '!', '%', '&', '*', '/',
+        '<', '>', '(', ')', '[', ']', '{', '}',
+        '^', '|', '~', ',', ':', ';', '+', '-', '=', '.',
 
-        '$', '@', '#', '`', '"', '\'', '?'
-    );
-    private static final Set<Character> IDENTIFIER_TERMINATORS = Set.of(
+        '#', '\'', '?', '`'
+    ), OTHER);
+    private static final Set<Character> NUMBER_TERMINATORS = Set.of(
         ' ', '\t', '\r', '\n',
-        '(', ')', '[', ']', '{', '}', ':', ';', ','
-    );
-    private static final Set<Character> VARIABLE_IDENTIFIER_TERMINATORS = Set.of(
-        ' ', '\t', '\r', '\n', '\f',
-        '(', ')', '[', ']', '{', '}', ':', ';',
-        '=', '/', '+', '-', '*', '%', '!', '^', '|', '&', '<', '>', '~',
-        ',', '.', '\\'
-    );
-    private static final Set<Character> LISTENER_TERMINATORS = Set.of( //identifier can start with @ # ` \ " ' , ?
-        ' ', '\t', '\r', '\n', '\f', // whitespace
-        '(', ')', '{', '}', '[', ']', ':', ';',
-        '=', '!', '%', '^', '*', '-', '+', '~', '|', '&', '/', '<', '>',
-        ',', '.',  '\\',
-
-        '$', '@', '#', '`', '"', '\'', '?'
-    );
-    private static final Set<Character> NUMBER_TERMINATORS = Set.of( // identifiers: . @ # $ _ " ' ` ? \
-        ' ', '\t', '\r', '\n', // whitespace
         '(', ')', '{', '}', '[', ']', ':', ';',
         '=', '/', '+', '-', '*', '%', '!', '^', '|', '&', '<', '>', '~',
         ','
+    );
+    private static final Set<Character> ESCAPED_IDENTIFIER_TERMINATORS = Set.of(
+        ' ', '\t', '(', ')', ':', ';', '[', '{', ',', ']', '}'
     );
     private static final Set<Character> ESCAPED_FIELD_TERMINATORS = Set.of(
         '!', '%', '&', '*', '+', '-', '.', '/', '<', '>', '\\', '|',
         '=', '^', '~'
     );
-    private static final Map<String, TokenType> KEYWORDS = new HashMap<>();
-    static {
-        KEYWORDS.put("case", TokenType.TOKEN_CASE);
-        KEYWORDS.put("if", TokenType.TOKEN_IF);
-        KEYWORDS.put("else", TokenType.TOKEN_ELSE);
-        KEYWORDS.put("while", TokenType.TOKEN_WHILE);
-        KEYWORDS.put("for", TokenType.TOKEN_FOR);
-        KEYWORDS.put("try", TokenType.TOKEN_TRY);
-        KEYWORDS.put("catch", TokenType.TOKEN_CATCH);
-        KEYWORDS.put("switch", TokenType.TOKEN_SWITCH);
-        KEYWORDS.put("break", TokenType.TOKEN_BREAK);
-        KEYWORDS.put("continue", TokenType.TOKEN_CONTINUE);
-        KEYWORDS.put("NULL", TokenType.TOKEN_NULL);
-        KEYWORDS.put("NIL", TokenType.TOKEN_NIL);
-        KEYWORDS.put("size", TokenType.TOKEN_SIZE);
-        KEYWORDS.put("end", TokenType.TOKEN_END);
-        KEYWORDS.put("makeArray", TokenType.TOKEN_MAKEARRAY);
-        KEYWORDS.put("makearray", TokenType.TOKEN_MAKEARRAY);
-        KEYWORDS.put("endArray", TokenType.TOKEN_ENDARRAY);
-        KEYWORDS.put("endarray", TokenType.TOKEN_ENDARRAY);
-    }
+    private static final Keywords KEYWORDS = new Keywords();
 
-    private static final Set<String> LISTENER_TYPES = Set.of(
-        "game", "level", "local", "parm", "self", "group"
-    );
+    static {
+        KEYWORDS.add("case", TOKEN_CASE);
+        KEYWORDS.add("if", TOKEN_IF);
+        KEYWORDS.add("else", TOKEN_ELSE);
+        KEYWORDS.add("while", TOKEN_WHILE);
+        KEYWORDS.add("for", TOKEN_FOR);
+        KEYWORDS.add("try", TOKEN_TRY);
+        KEYWORDS.add("catch", TOKEN_CATCH);
+        KEYWORDS.add("switch", TOKEN_SWITCH);
+        KEYWORDS.add("break", TOKEN_BREAK);
+        KEYWORDS.add("continue", TOKEN_CONTINUE);
+        KEYWORDS.add("NULL", TOKEN_NULL);
+        KEYWORDS.add("NIL", TOKEN_NIL);
+        KEYWORDS.add("size", TOKEN_SIZE);
+        KEYWORDS.add("end", TOKEN_END);
+        KEYWORDS.add("makeArray", TOKEN_MAKEARRAY);
+        KEYWORDS.add("makearray", TOKEN_MAKEARRAY);
+        KEYWORDS.add("endArray", TOKEN_ENDARRAY);
+        KEYWORDS.add("endarray", TOKEN_ENDARRAY);
+
+        KEYWORDS.add("game", TOKEN_LISTENER);
+        KEYWORDS.add("level", TOKEN_LISTENER);
+        KEYWORDS.add("local", TOKEN_LISTENER);
+        KEYWORDS.add("parm", TOKEN_LISTENER);
+        KEYWORDS.add("self", TOKEN_LISTENER);
+        KEYWORDS.add("group", TOKEN_LISTENER);
+    }
 
     private final Lexer lexer;
 
@@ -142,7 +149,7 @@ class BeginState implements LexerState {
     public MatchedToken nextToken() {
         char c = next();
 
-        MatchedToken token = MatchedToken.notMatched();
+        MatchedToken token = notMatched();
         switch (c) {
             // skip carriage return
             case '\r': break;
@@ -246,7 +253,7 @@ class BeginState implements LexerState {
             case '"': {
                 token = tryMatchString();
                 if (token.isNotMatched()) {
-                    token = matchIdentifier(false);
+                    token = matchIdentifier();
                 }
                 break;
             }
@@ -254,12 +261,17 @@ class BeginState implements LexerState {
                 if (match('\n')) {
                     caret().newLine();
                     break;
-                } else if (peek() == '\r' && peekNext() == '\n') {
-                    next();
-                    next();
-                    caret().newLine();
+                } else if (peek() == '\r') {
+                    if (peekNext() == '\n') {
+                        next();
+                        next();
+                        caret().newLine();
+                    } else {
+                        next();
+                        token = matchedEscaped(TOKEN_IDENTIFIER);
+                    }
                     break;
-                } else if (IDENTIFIER_TERMINATORS.contains(peek())) { // \n and \r\n are treated separately in this case
+                } else if (ESCAPED_IDENTIFIER_TERMINATORS.contains(peek())) { // \n and \r\n are treated separately in this case
                     token = matchedEscaped(TOKEN_IDENTIFIER);
                     break;
                 } else if (ESCAPED_FIELD_TERMINATORS.contains(peek())) {
@@ -284,27 +296,45 @@ class BeginState implements LexerState {
             default: {
                 if (Character.isDigit(c)) {
                     token = tryMatchNumber();
-                    if (token.isNotMatched()) {
-                        token = matchIdentifier(false);
+                    if (token.isMatched()) {
+                        break;
                     }
-                    break;
                 }
 
-                if (c == '#' || c == '`' || c == '\\' || c == '\'' || c == '?' || c == '_') {
-                    token = matchIdentifier(false);
-                    break;
+                if (KEYWORDS.startWith(c)) {
+                    token = tryMatchKeyword(c);
+                    if (token.isMatched()) {
+                        break;
+                    }
                 }
 
-                token = tryMatchListener(c);
-                if (token.isMatched()) {
-                    break;
-                }
-
-                token = matchIdentifier(true);
+                // when nothing else matched, match identifier
+                matchIdentifier();
                 break;
             }
         }
         return token;
+    }
+
+    private MatchedToken tryMatchKeyword(char c) {
+        KEYWORDS.reset();
+        if (!KEYWORDS.next(c)) {
+            return notMatched();
+        }
+
+        int pos = currentPos();
+        while(!isEOF(pos) && !IDENTIFIER_TERMINATORS.contains(peek(pos))) {
+            if (!KEYWORDS.next(peek(pos))) {
+                return notMatched();
+            }
+            pos++;
+        }
+        if (KEYWORDS.matchedToken() == null) {
+            return notMatched();
+        }
+
+        currentPos(pos);
+        return matched(KEYWORDS.matchedToken());
     }
 
     private MatchedToken tryMatchString() {
@@ -316,7 +346,7 @@ class BeginState implements LexerState {
             }
             pos++;
         }
-        return MatchedToken.notMatched();
+        return notMatched();
     }
 
     private MatchedToken tryMatchNumber() {
@@ -365,7 +395,7 @@ class BeginState implements LexerState {
             }
         }
 
-        return MatchedToken.notMatched();
+        return notMatched();
     }
 
     private MatchedToken tryMatchFloat() {
@@ -390,59 +420,49 @@ class BeginState implements LexerState {
                 }
             }
         }
-        return MatchedToken.notMatched();
+        return notMatched();
     }
 
-    private MatchedToken tryMatchListener(char c) {
-        for (String listener : LISTENER_TYPES) {
-            char[] chars = listener.toCharArray();
-            if (c == chars[0]) {
-                boolean isListenerCandidate = true;
-                int pos = currentPos();
-                for (int i = 1; i < chars.length; i++) {
-                    if (peek(pos) != chars[i]) {
-                        isListenerCandidate = false;
-                        break;
-                    }
-                    pos++;
-                }
+    private MatchedToken matchIdentifier() {
+        // scan together with current character
+        currentPos(currentPos() - 1);
 
-                if (isListenerCandidate && (isEOF(pos) || LISTENER_TERMINATORS.contains(peek(pos)))) {
-                    currentPos(pos);
-                    return matched(TOKEN_LISTENER);
-                }
-            }
+        if (isScanningVariable()) {
+            switchTo(FIELD);
+        } else {
+            switchTo(IDENTIFIER);
         }
-        return MatchedToken.notMatched();
-    }
-
-    private MatchedToken matchIdentifier(boolean lookupKeywords) {
-        MatchedToken token = MatchedToken.notMatched();
-        boolean matchedKeyword = false;
-        while (!isEOF() && (
-            (!isScanningVariable() && !IDENTIFIER_TERMINATORS.contains(peek())) ||
-                (isScanningVariable() && !VARIABLE_IDENTIFIER_TERMINATORS.contains(peek()))
-        )) {
-            next();
-
-            String tokenString = sourceString(tokenStartPos(), currentPos());
-            if (lookupKeywords && KEYWORDS.containsKey(tokenString)) {
-                if (KEYWORD_TERMINATORS.contains(peek())) {
-                    matchedKeyword = true;
-                    token = matched(KEYWORDS.getOrDefault(tokenString, TOKEN_IDENTIFIER));
-                    break;
-                }
-            }
-        }
-
-        if (!matchedKeyword) {
-            token = matched(TOKEN_IDENTIFIER);
-        }
-
-        return token;
+        return notMatched();
     }
 
     private boolean isScanningVariable() {
         return prevToken() == TOKEN_PERIOD || prevToken() == TOKEN_DOLLAR;
+    }
+
+    private static Set<Character> nonPrintableASCIICharacters() {
+        Set<Character> chars = new HashSet<>();
+        for (char c = 0; c < 256; c++) {
+            if (!isWhitespace(c) && !isPrintable(c)) {
+                chars.add(c);
+            }
+        }
+        return chars;
+    }
+
+    private static boolean isPrintable(char c) {
+        return c > 32 && c < 127;
+    }
+
+    private static boolean isWhitespace(char c) {
+        return c == ' ' || c == '\n' || c == '\r' || c == '\t' || c == '\f';
+    }
+
+    @SafeVarargs
+    private static <T> Set<T> sets(Set<T> set, Set<T> ...others) {
+        Set<T> result = new HashSet<>(set);
+        for (Set<T> s : others) {
+            result.addAll(s);
+        }
+        return Collections.unmodifiableSet(result);
     }
 }

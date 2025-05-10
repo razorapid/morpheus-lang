@@ -926,6 +926,7 @@ class LexerSpec extends Specification {
         "\\="   | [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
         "\\^"   | [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
         "\\~"   | [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
+        "\\\r\r"| [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
         "\\\ra" | [TOKEN_IDENTIFIER, TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
         "\\a"   | [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
         "\\A"   | [TOKEN_IDENTIFIER, TOKEN_EOL, TOKEN_EOF]
