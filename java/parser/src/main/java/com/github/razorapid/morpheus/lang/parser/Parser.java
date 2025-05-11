@@ -1010,11 +1010,11 @@ public class Parser {
         return peekToken();
     }
 
-    long mark() {
+    int mark() {
         return tokens.mark();
     }
 
-    void restore(long pos) {
+    void restore(int pos) {
         tokens.restore(pos);
     }
 

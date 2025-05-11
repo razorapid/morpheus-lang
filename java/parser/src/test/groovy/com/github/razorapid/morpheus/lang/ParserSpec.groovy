@@ -29,8 +29,8 @@ class ParserSpec extends Specification {
         cst != null
 
         where:
-        tokens             || _
-        new Tokens() || _
+        tokens          || _
+        Tokens.create() || _
     }
 
     def "parses empty statement"() {

@@ -6,6 +6,7 @@ import com.github.razorapid.morpheus.lang.Token;
 import com.github.razorapid.morpheus.lang.TokenType;
 import com.github.razorapid.morpheus.lang.Tokens;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.github.razorapid.morpheus.lang.TokenType.TOKEN_EOF;
@@ -42,7 +43,7 @@ public class Lexer {
     }
 
     public Tokens scan() {
-        Tokens tokens = new Tokens();
+        Tokens tokens = Tokens.create();
         Token t;
         do {
             t = scanToken();
@@ -64,7 +65,7 @@ public class Lexer {
 
     private static Tape<Character> createSource(Source script) {
         String source = script.source() + "\n"; // make sure source end with new line
-        return Tape.of(source.chars().mapToObj(c -> (char) c).toArray(Character[]::new));
+        return Tape.of(source.chars().mapToObj(c -> (char) c).toList());
     }
 
     private MatchedToken nextToken() {
@@ -98,8 +99,8 @@ public class Lexer {
     }
 
     String sourceString(int from, int to) {
-        Character[] data = source.data(from, to);
-        StringBuilder sb = new StringBuilder(data.length);
+        List<Character> data = source.data(from, to);
+        StringBuilder sb = new StringBuilder(data.size());
         for (char c : data) {
             sb.append(c);
         }

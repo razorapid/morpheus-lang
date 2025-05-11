@@ -1,20 +1,26 @@
 package com.github.razorapid.morpheus.lang;
 
-import lombok.RequiredArgsConstructor;
+import java.util.ArrayList;
+import java.util.List;
 
-import java.util.Arrays;
-
-@RequiredArgsConstructor(staticName = "of")
 public class Tape<T> {
-    private final T[] data;
+    private final List<T> data;
     private int currentPos = 0;
+
+    private Tape(List<T> data) {
+        this.data = new ArrayList<>(data);
+    }
+
+    public static <T> Tape<T> of(List<T> data) {
+        return new Tape<>(data);
+    }
 
     public boolean isEOB() {
         return isEOB(currentPos);
     }
 
     public boolean isEOB(int pos) {
-        return data.length == 0 || pos >= data.length || pos < 0;
+        return data.isEmpty() || pos >= data.size() || pos < 0;
     }
 
     public T peek() {
@@ -22,7 +28,11 @@ public class Tape<T> {
     }
 
     public T peekNext() {
-        return peek(currentPos + 1);
+        return peekNext(1);
+    }
+
+    public T peekNext(int offset) {
+        return peek(currentPos + offset);
     }
 
     public T peekPrev() {
@@ -30,7 +40,7 @@ public class Tape<T> {
     }
 
     public T peek(int pos) {
-        return isEOB(pos) ? null : data[pos];
+        return isEOB(pos) ? null : data.get(pos);
     }
 
     public T next() {
@@ -52,7 +62,11 @@ public class Tape<T> {
     }
 
     public int backward() {
-        return pos(pos() - 1);
+        return backward(1);
+    }
+
+    public int backward(int offset) {
+        return pos(pos() - offset);
     }
 
     public void rewind() {
@@ -69,15 +83,27 @@ public class Tape<T> {
         return ret;
     }
 
-    public T[] data(int from, int to) {
-        return Arrays.copyOfRange(data, from, to);
+    public List<T> data() {
+        return data(0, data.size());
+    }
+
+    public List<T> data(int from, int to) {
+        return data.subList(from, to);
+    }
+
+    public int size() {
+        return data.size();
+    }
+
+    public void add(T elem) {
+        data.add(elem);
     }
 
     private int capPos(int pos) {
         if (pos < 0) {
             return 0;
-        } else if (pos > data.length) {
-            return data.length;
+        } else if (pos > data.size()) {
+            return data.size();
         }
         return pos;
     }
