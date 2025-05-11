@@ -131,19 +131,11 @@ public class Parser {
         var statements = new ArrayList<ConcreteSyntaxTree.Node>();
         while (isNotEOF()) {
             try {
-                consumeNewLines();
-                var statement = parseStatement();
+                var statement = parseStatementLine(strict);
                 if (!isMatched(statement)) {
-                    if (strict && !check(TOKEN_EOL, TOKEN_SEMICOLON)) {
-                        errorBadToken(peekToken(), "next statement");
-                    }
                     break;
                 }
-                if (strict && !check(TOKEN_EOL, TOKEN_SEMICOLON)) {
-                    errorBadToken(peekToken(), "next statement or semicolon");
-                }
-                var tokenEol = consume(TOKEN_EOL);
-                statements.add(nodes.statementLine(statement, tokenEol));
+                statements.add(statement);
             } catch (ParseError e) {
                 errors.add(e);
                 panicMode = true;
@@ -152,6 +144,22 @@ public class Parser {
         }
 
         return nodes.statementList(statements);
+    }
+
+    private ConcreteSyntaxTree.Node parseStatementLine(boolean strict) {
+        consumeNewLines();
+        var statement = parseStatement();
+        if (!isMatched(statement)) {
+            if (strict && !check(TOKEN_EOL, TOKEN_SEMICOLON)) {
+                errorBadToken(peekToken(), "next statement");
+            }
+            return null;
+        }
+        if (strict && !check(TOKEN_EOL, TOKEN_SEMICOLON)) {
+            errorBadToken(peekToken(), "next statement or semicolon");
+        }
+        var tokenEol = consume(TOKEN_EOL);
+        return nodes.statementLine(statement, tokenEol);
     }
 
     private ConcreteSyntaxTree.Node parseStatement() {
