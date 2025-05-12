@@ -130,17 +130,11 @@ public class Parser {
     private ConcreteSyntaxTree.Node parseStatementList(boolean strict) {
         var statements = new ArrayList<ConcreteSyntaxTree.Node>();
         while (isNotEOF()) {
-            try {
-                var statement = parseStatementLine(strict);
-                if (!isMatched(statement)) {
-                    break;
-                }
-                statements.add(statement);
-            } catch (ParseError e) {
-                errors.add(e);
-                panicMode = true;
-                sync();
+            var statement = parseStatementLine(strict);
+            if (!isMatched(statement)) {
+                break;
             }
+            statements.add(statement);
         }
 
         return nodes.statementList(statements);
@@ -667,8 +661,7 @@ public class Parser {
 
         var rhs = parseExpression();
         if (!isMatched(rhs)) {
-            error("Expected expression on the right side of the " + tokenAssignmentOp.lexeme() + " operator.");
-            return null;
+            return error("Expected expression on the right side of the " + tokenAssignmentOp.lexeme() + " operator.");
         }
         return nodes.assignmentExpression(lhs, tokenAssignmentOp, rhs);
     }
@@ -1054,28 +1047,40 @@ public class Parser {
         while (tokens.check(TOKEN_EOL)) tokens.nextToken();
     }
 
-    void errorBadToken(Token badToken, TokenType... expectedTokenTypes) {
-        error("bad token '" + badToken.type().name() + " (" + badToken.lexeme() + ")', expected " + tokenNames(expectedTokenTypes));
+    ConcreteSyntaxTree.Node errorBadToken(Token badToken, TokenType... expectedTokenTypes) {
+        return error(badToken, "bad token '" + badToken.type().name() + " (" + badToken.lexeme() + ")', expected " + tokenNames(expectedTokenTypes));
     }
 
-    void errorBadToken(Token badToken, String expected) {
-        error("bad token '" + badToken.type().name() + " (" + badToken.lexeme() + ")', expected " + expected + "'");
+    ConcreteSyntaxTree.Node errorBadToken(Token badToken, String expected) {
+        return error(badToken, "bad token '" + badToken.type().name() + " (" + badToken.lexeme() + ")', expected " + expected + "'");
     }
 
     String tokenNames(TokenType... tokens) {
         return String.join(" | ", Arrays.stream(tokens).map(TokenType::nameWithExample).toList());
     }
 
-    void error(String message) {
-        throw new ParseError(script, tokens.peekToken().pos(), message);
+    ConcreteSyntaxTree.Node error(String message) {
+        return error(tokens.lastToken(), message);
     }
 
-    private void sync() {
+    ConcreteSyntaxTree.Node error(Token token, String message) {
+        panicMode = true;
+        var error = new ParseError(script, token.pos(), message);
+        var skipNodes = sync();
+        skipNodes.add(0, nodes.parseErrorToken(token));
+        return nodes.parseError(error, skipNodes);
+    }
+
+    private List<ConcreteSyntaxTree.Node> sync() {
+        var skipNodes = new ArrayList<ConcreteSyntaxTree.Node>();
         while (isNotEOF()) {
-            if (nextToken().isType(TOKEN_EOL)) {
-                return;
+            var token = nextToken();
+            skipNodes.add(nodes.parseErrorToken(token));
+            if (token.isType(TOKEN_EOL)) {
+                break;
             }
         }
+        return skipNodes;
     }
 
     private static final Map<TokenType, ParseRule> binaryExpressionRules = new HashMap<>();

@@ -48,8 +48,7 @@ class ParseRule {
                 }
                 var expression = parser.parseNonIdentifierPrimaryExpression();
                 if (!parser.isMatched(expression)) {
-                    parser.error("bad token - got " + parser.lastToken().type().name() + " expected non identify primary expression");
-                    return null;
+                    return parser.error(parser.lastToken(), "bad token - got " + parser.lastToken().type().name() + " expected non identify primary expression");
                 }
                 return nodes.unaryNonIdentifierExpression(rule.prefix != null, nodeType, name, token, expression);
             };
@@ -66,8 +65,7 @@ class ParseRule {
 
                 var expression = parser.parseExpression(rule.precedence());
                 if (!parser.isMatched(expression)) {
-                    parser.error("bad token - got " + parser.lastToken().type().name() + " expected expression");
-                    return null;
+                    return parser.error(parser.lastToken(), "bad token - got " + parser.lastToken().type().name() + " expected expression");
                 }
                 return nodes.binarySubexpression(nodeType, name, lhs, token, expression);
             };

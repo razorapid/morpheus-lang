@@ -1,6 +1,7 @@
 package com.github.razorapid.morpheus.lang.cst;
 
 import com.github.razorapid.morpheus.lang.Token;
+import com.github.razorapid.morpheus.lang.parser.ParseError;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,11 +69,20 @@ import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType
 import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.VECTOR_DECLARATION_EXPRESSION;
 import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.NodeType.WHILE_STATEMENT;
 import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.StatementNode;
+import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.createErrorNode;
 import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.createExpressionNode;
 import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.createStatementNode;
 import static com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree.createTokenNode;
 
 public class ConcreteSyntaxTreeBuilder {
+
+    public Node parseError(ParseError error, List<Node> children) {
+        return createErrorNode(error, children.toArray(new Node[]{}));
+    }
+
+    public Node parseErrorToken(Token token) {
+        return createTokenNode(NodeType.ERROR, token);
+    }
 
     public StatementNode statementList(List<Node> statements) {
         return createStatementNode(STATEMENT_LIST, "statementList", statements);

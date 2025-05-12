@@ -30,6 +30,11 @@ public class XmlPrinterVisitor implements ConcreteSyntaxTreeVisitor<String> {
         return xmlToken(token);
     }
 
+    @Override
+    public String visitError(ConcreteSyntaxTree.ErrorNode error) {
+            return xmlError(error);
+    }
+
     private String xmlStatement(ConcreteSyntaxTree.StatementNode statement) {
         if (statement.children().isEmpty()) {
             return "<Statement name=\"" + statement.name() + "\"/>";
@@ -46,6 +51,28 @@ public class XmlPrinterVisitor implements ConcreteSyntaxTreeVisitor<String> {
         return "<Expression name=\"" + expression.name() + "\">" +
                 String.join("", expression.children().stream().sequential().filter(Objects::nonNull).map(it -> it.accept(this)).toList()) +
                 "</Expression>";
+    }
+
+    private String xmlError(ConcreteSyntaxTree.ErrorNode error) {
+        if (error == null) return "";
+        var se = error.error();
+        var result =  "<Error";
+        if (includeLineAndCol) {
+            result += " col=\"" +
+                se.pos().col() +
+                "\" line=\"" +
+                se.pos().line()
+                + "\"";
+        }
+        result += " type=\"" +
+            error.type() +
+            "\" value=\"" +
+            escape(se.error()) +
+            "\">";
+
+        result += String.join("", error.children().stream().sequential().filter(Objects::nonNull).map(it -> it.accept(this)).toList());
+        result += "</Error>";
+        return result;
     }
 
     private String xmlToken(ConcreteSyntaxTree.TokenNode token) {

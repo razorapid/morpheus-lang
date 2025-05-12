@@ -1,6 +1,7 @@
 package com.github.razorapid.morpheus.lang.ast;
 
 public interface AbstractSyntaxTreeVisitor<R> {
+    R visitSyntaxError(AbstractSyntaxTree.SyntaxError node);
     R visitStatements(AbstractSyntaxTree.Statements node);
     R visitThreadLabel(AbstractSyntaxTree.ThreadLabel node);
     R visitSwitchCase(AbstractSyntaxTree.SwitchCase node);

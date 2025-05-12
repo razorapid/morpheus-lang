@@ -37,6 +37,17 @@ public class VisualGraphVisitor implements ConcreteSyntaxTreeVisitor<Node> {
         return graphToken(token);
     }
 
+    @Override
+    public Node visitError(ConcreteSyntaxTree.ErrorNode error) {
+        var result = graphError(error);
+        if (!error.children().isEmpty()) {
+            result = result.link(
+                error.children().stream().sequential().filter(Objects::nonNull).map(it -> it.accept(this)).toList()
+            );
+        }
+        return result;
+    }
+
     private Node graphStatement(ConcreteSyntaxTree.StatementNode statement) {
         var result = node(UUID.randomUUID().toString())
                 .with(Shape.RECTANGLE)
@@ -59,6 +70,17 @@ public class VisualGraphVisitor implements ConcreteSyntaxTreeVisitor<Node> {
             );
         }
         return result;
+    }
+
+    private Node graphError(ConcreteSyntaxTree.ErrorNode error) {
+        var se = error.error();
+        var msg = escape(se.error());
+        var uid = UUID.randomUUID().toString();
+        return node(uid)
+            .with(Label.htmlLines(
+                "ERROR",
+                "<b>" + msg + "</b>"
+            ));
     }
 
     private Node graphToken(ConcreteSyntaxTree.TokenNode token) {

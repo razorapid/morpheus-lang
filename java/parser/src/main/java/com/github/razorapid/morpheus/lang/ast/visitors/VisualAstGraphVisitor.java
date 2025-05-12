@@ -25,6 +25,11 @@ public class VisualAstGraphVisitor implements AbstractSyntaxTreeVisitor<Node> {
     }
 
     @Override
+    public Node visitSyntaxError(AbstractSyntaxTree.SyntaxError node) {
+        return graphSyntaxErrorNode(node);
+    }
+
+    @Override
     public Node visitStatements(AbstractSyntaxTree.Statements node) {
         return graphStatementNode(node)
                 .link(
@@ -254,6 +259,15 @@ public class VisualAstGraphVisitor implements AbstractSyntaxTreeVisitor<Node> {
                         escapeTokenName(token.type().name()) + " [start: " + token.pos() + ", end: " + token.pos().addCol(token.lexeme().length()) + "]",
                         "<b>" + lexeme + "</b>"
                 ));
+    }
+
+    private Node graphSyntaxErrorNode(AbstractSyntaxTree.SyntaxError syntaxError) {
+        var error = syntaxError.error();
+        var uid = UUID.randomUUID().toString();
+        return node(uid)
+            .with(Label.htmlLines(
+                error.error() + " [start: " + syntaxError.start() + ", end: " + syntaxError.end() + "]"
+            ));
     }
 
     private String escape(String s){

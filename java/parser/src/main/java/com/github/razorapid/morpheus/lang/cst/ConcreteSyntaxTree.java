@@ -1,6 +1,9 @@
 package com.github.razorapid.morpheus.lang.cst;
 
+import com.github.razorapid.morpheus.lang.SourcePos;
 import com.github.razorapid.morpheus.lang.Token;
+import com.github.razorapid.morpheus.lang.parser.ParseError;
+import com.kitfox.svg.pathcmd.Terminal;
 import lombok.Value;
 
 import java.util.Arrays;
@@ -11,6 +14,7 @@ public class ConcreteSyntaxTree {
     Node program;
 
     public enum NodeType {
+        ERROR,
         STATEMENT_LINE,
         EOL,
         STATEMENT,
@@ -115,6 +119,28 @@ public class ConcreteSyntaxTree {
     }
 
     @Value
+    public static class ErrorNode implements NonTerminalNode {
+        NodeType type;
+        ParseError error;
+        List<Node> children;
+
+        @Override
+        public NodeType type() {
+            return NodeType.ERROR;
+        }
+
+        @Override
+        public String name() {
+            return type().name();
+        }
+
+        @Override
+        public <T> T accept(ConcreteSyntaxTreeVisitor<T> visitor) {
+            return visitor.visitError(this);
+        }
+    }
+
+    @Value
     public static class TokenNode implements TerminalNode {
         NodeType type;
         Token value;
@@ -207,5 +233,9 @@ public class ConcreteSyntaxTree {
 
     static Node createExpressionNode(NodeType type, String name, List<Node> children) {
         return new ExpressionNode(type, name, children);
+    }
+
+    static Node createErrorNode(ParseError error, Node... children) {
+        return new ErrorNode(NodeType.ERROR, error, Arrays.stream(children).toList());
     }
 }

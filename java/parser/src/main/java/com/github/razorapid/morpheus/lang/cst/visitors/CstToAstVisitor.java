@@ -3,6 +3,7 @@ package com.github.razorapid.morpheus.lang.cst.visitors;
 import com.github.razorapid.morpheus.lang.SourcePos;
 import com.github.razorapid.morpheus.lang.Token;
 import com.github.razorapid.morpheus.lang.ast.AbstractSyntaxTree;
+import com.github.razorapid.morpheus.lang.ast.AbstractSyntaxTreeVisitor;
 import com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTree;
 import com.github.razorapid.morpheus.lang.cst.ConcreteSyntaxTreeVisitor;
 
@@ -375,5 +376,10 @@ public class CstToAstVisitor implements ConcreteSyntaxTreeVisitor<AbstractSyntax
     @Override
     public AbstractSyntaxTree.Node visitToken(ConcreteSyntaxTree.TokenNode token) {
         return new AbstractSyntaxTree.Literal(token.value().pos(), token.value().pos().addCol(token.value().lexeme().length()), token.value());
+    }
+
+    @Override
+    public AbstractSyntaxTree.Node visitError(ConcreteSyntaxTree.ErrorNode error) {
+        return new AbstractSyntaxTree.SyntaxError(error.error(), error.error().pos(), error.error().pos());
     }
 }

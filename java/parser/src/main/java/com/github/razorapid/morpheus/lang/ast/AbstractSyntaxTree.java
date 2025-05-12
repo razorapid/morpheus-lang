@@ -2,6 +2,7 @@ package com.github.razorapid.morpheus.lang.ast;
 
 import com.github.razorapid.morpheus.lang.SourcePos;
 import com.github.razorapid.morpheus.lang.Token;
+import com.github.razorapid.morpheus.lang.parser.ParseError;
 import lombok.Value;
 
 import java.util.List;
@@ -16,6 +17,7 @@ public class AbstractSyntaxTree {
 
         <T> T accept(AbstractSyntaxTreeVisitor<T> visitor);
     }
+    public interface Error extends Node {}
     public interface Statement extends Node {}
     public interface Expression extends Node {}
 
@@ -272,6 +274,18 @@ public class AbstractSyntaxTree {
         @Override
         public <T> T accept(AbstractSyntaxTreeVisitor<T> visitor) {
             return visitor.visitConstArrayDeclaration(this);
+        }
+    }
+
+    @Value
+    public static class SyntaxError implements Error {
+        ParseError error;
+        SourcePos start;
+        SourcePos end;
+
+        @Override
+        public <T> T accept(AbstractSyntaxTreeVisitor<T> visitor) {
+            return visitor.visitSyntaxError(this);
         }
     }
 }

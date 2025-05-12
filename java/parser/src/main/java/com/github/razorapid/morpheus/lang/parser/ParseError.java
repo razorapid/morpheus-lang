@@ -2,12 +2,13 @@ package com.github.razorapid.morpheus.lang.parser;
 
 import com.github.razorapid.morpheus.lang.Source;
 import com.github.razorapid.morpheus.lang.SourcePos;
+import com.github.razorapid.morpheus.lang.Token;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 
 @Value
-@EqualsAndHashCode(callSuper = true)
-public class ParseError extends RuntimeException {
+@EqualsAndHashCode
+public class ParseError {
     Source script;
     SourcePos pos;
     String error;
@@ -24,18 +25,18 @@ public class ParseError extends RuntimeException {
     }
 
     private void error(StringBuilder sb) {
-        sb.append("^~^~^ Script file parse error: ").append(error).append(" (l: ").append(pos.line()).append(", c: ").append(pos.col()).append(")\n");
+        sb.append("^~^~^ Script file parse error: ").append(error).append(" (l: ").append(pos().line()).append(", c: ").append(pos().col()).append(")\n");
     }
 
     private StringBuilder errorPlace(StringBuilder sb) {
-        return sb.append(String.format("%1$" + (pos.col() + 1) + "s", "^\n"));
+        return sb.append(String.format("%1$" + (pos().col() + 1) + "s", "^\n"));
     }
 
     private StringBuilder scriptLocation(StringBuilder sb) {
-        return sb.append(" (").append(script.name()).append(", ").append(pos.line()).append(")\n");
+        return sb.append(" (").append(script.name()).append(", ").append(pos().line()).append(")\n");
     }
 
     private StringBuilder scriptLine(StringBuilder sb) {
-        return sb.append(script.line(pos.line()).orElse(""));
+        return sb.append(script.line(pos().line()).orElse(""));
     }
 }
